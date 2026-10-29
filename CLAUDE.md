@@ -86,7 +86,7 @@ src/
 
 ## How to work with us
 
-- Git Flow: never commit to `main` or `development`. One feature branch per task, branched from `development`, small commits, open a pull request into `development`. A teammate reviews and merges.
+- Git Flow: never commit to `main` or `development`. One feature branch per task, branched from `development`, small commits, open a pull request into `development`. Anyone in the group can review and merge it, the author included.
 - **Small steps.** Do one step at a time, then stop, summarise what changed and which files, and wait.
 - Before saying a step is done: `npm run lint` and `npm run build` pass, and the app runs with `npm run dev`.
 - When you make a design decision not covered here, ask instead of guessing.

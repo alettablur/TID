@@ -7,7 +7,7 @@ import {
   deleteTodo,
   setDone,
   canWrite,
-} from "./services/todoService.js";
+} from "../services/todoService.js";
 
 export default function ToDoList({ list }) {
   let h1Style = { color: "deeppink", backgroundColor: "white" };

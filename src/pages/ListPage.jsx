@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import ToDoList from "./ToDoList.jsx";
-import { loadList } from "./services/listService.js";
+import ToDoList from "../components/ToDoList.jsx";
+import { loadList } from "../services/listService.js";
 
 export default function ListPage() {
   // the :listId part of the URL, e.g. /lists/Xk3v9QaB2c
