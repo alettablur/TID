@@ -1,4 +1,3 @@
-import "./App.css";
 import HomePage from "./pages/HomePage.jsx";
 import ListPage from "./pages/ListPage.jsx";
 import { Link, Route, Routes } from "react-router-dom";
