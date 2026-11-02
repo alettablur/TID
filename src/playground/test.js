@@ -14,17 +14,17 @@ Parse.initialize(
   process.env.VITE_PARSE_JS_KEY,
 );
 
-const TodoItem = Parse.Object.extend("TodoItem");
+const Task = Parse.Object.extend("Task");
 
-const query = new Parse.Query(TodoItem);
+const query = new Parse.Query(Task);
 query.ascending("createdAt");
 
 // top-level await: this file is an ES module, so no wrapper function needed
 const results = await query.find();
 
-console.log(`${results.length} todo(s) in the database:\n`);
+console.log(`${results.length} task(s) in the database:\n`);
 
 for (const item of results) {
   const box = item.get("done") ? "[x]" : "[ ]";
-  console.log(`${box} ${item.get("text")}   (id: ${item.id})`);
+  console.log(`${box} ${item.get("title")}   (id: ${item.id})`);
 }
