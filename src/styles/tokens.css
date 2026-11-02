@@ -1,0 +1,78 @@
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Playfair+Display:wght@600;700&display=swap");
+
+:root {
+  /* Surfaces */
+  --bg-ivory: #faf5e8;
+  --surface-card: #fffdf8;
+  --surface-paper: #eadfc8;
+  --line-soft: #e6dac4;
+
+  /* Text */
+  --text-ink: #2f2a24;
+  --text-soft: #6b6157;
+  --text-muted: #9a8f84;
+  --text-on-dark: #fffdf8;
+
+  /* People: slot "a" = the list owner (brick), slot "b" = the partner (petrol).
+     A person keeps the same colour on both phones. */
+  --person-a: #b5523b;
+  --person-a-tint: #f6e1d8;
+  --person-b: #3e6e73;
+  --person-b-tint: #dceae9;
+
+  /* Status: always shown with an icon and a label too, never colour alone (NFR6) */
+  --status-open: #b7861e; /* up for grabs */
+  --status-open-tint: #f8ebc8;
+  --status-planned: #5e6e2e;
+  --status-planned-tint: #e7edd3;
+  --status-waiting: #7a4e7e; /* waiting for an answer / new time proposed */
+  --status-waiting-tint: #efe2ef;
+  --status-done: #8a7f74;
+  --status-done-tint: #efeae2;
+  --status-clash: #c8571b;
+  --status-clash-tint: #fbe3d3;
+
+  /* Accents and actions */
+  --accent-mustard: #d9a43b;
+  --accent-brick: #b5523b;
+  --action-primary: #2f2a24; /* primary buttons are warm black, not a person colour */
+
+  /* Type */
+  --font-display: "Playfair Display", Georgia, serif;
+  --font-text: "DM Sans", system-ui, -apple-system, sans-serif;
+
+  /* Radii */
+  --radius-chip: 10px;
+  --radius-control: 16px;
+  --radius-button: 18px;
+  --radius-card: 20px;
+  --radius-panel: 26px;
+  --radius-sheet: 32px;
+  --radius-round: 999px;
+
+  /* Spacing (4 px grid) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 28px;
+  --page-gutter: 24px;
+
+  /* Layout: designed for 360–430 px phones, centred column above that */
+  --app-max-width: 480px;
+
+  /* Effects */
+  --shadow-soft:
+    0 2px 6px rgba(47, 42, 36, 0.06), 0 10px 28px -4px rgba(122, 74, 42, 0.1);
+  --shadow-lifted: 0 16px 40px -6px rgba(122, 74, 42, 0.18);
+  --glass-bg: rgba(255, 253, 248, 0.82);
+  --glass-blur: blur(24px);
+  --scrim: rgba(47, 42, 36, 0.45);
+
+  /* Background glow ("Sun corner, extra soft"). Swap the two colours to try
+     the other options from the Figma explorations. */
+  --glow-main: 217, 164, 59; /* mustard */
+  --glow-second: 242, 160, 123; /* peach */
+}

@@ -1,0 +1,104 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+}
+
+body {
+  min-height: 100dvh;
+  background: var(--bg-ivory);
+  color: var(--text-ink);
+  font-family: var(--font-text);
+  font-size: 14px;
+  line-height: 20px;
+  -webkit-font-smoothing: antialiased;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: var(--app-max-width);
+  min-height: 100dvh;
+  margin: 0 auto;
+}
+
+.app-glow {
+  background:
+    radial-gradient(
+      60% 45% at 90% 0%,
+      rgba(var(--glow-main), 0.42) 0%,
+      rgba(var(--glow-main), 0.18) 35%,
+      rgba(var(--glow-main), 0) 70%
+    ),
+    radial-gradient(
+      50% 38% at 5% 0%,
+      rgba(var(--glow-second), 0.22) 0%,
+      rgba(var(--glow-second), 0.08) 40%,
+      rgba(var(--glow-second), 0) 75%
+    ),
+    var(--bg-ivory);
+}
+
+.t-screen-title {
+  font: 700 32px/38px var(--font-display);
+  margin: 0;
+}
+.t-section-title {
+  font: 600 22px/28px var(--font-display);
+  margin: 0;
+}
+.t-card-title {
+  font: 600 19px/24px var(--font-display);
+  margin: 0;
+}
+.t-number {
+  font: 700 30px/34px var(--font-display);
+}
+.t-task-title {
+  font: 600 15px/20px var(--font-text);
+}
+.t-body {
+  font: 400 14px/20px var(--font-text);
+}
+.t-body-strong {
+  font: 500 14px/20px var(--font-text);
+}
+.t-meta {
+  font: 500 12px/16px var(--font-text);
+  color: var(--text-soft);
+}
+.t-overline {
+  font: 700 11px/14px var(--font-text);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-soft);
+}
+.t-button {
+  font: 700 15px/20px var(--font-text);
+}
+.t-chip {
+  font: 600 11px/14px var(--font-text);
+  letter-spacing: 0.01em;
+}
+.t-tab {
+  font: 600 11px/14px var(--font-text);
+}
+
+.t-digits {
+  font: 700 18px/24px var(--font-text);
+  font-variant-numeric: tabular-nums;
+}
