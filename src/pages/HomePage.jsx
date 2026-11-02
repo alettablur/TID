@@ -1,9 +1,9 @@
-import AddForm from "./AddForm.jsx";
-import MyListRow from "./MyListRow.jsx";
-import SharedListRow from "./SharedListRow.jsx";
+import AddForm from "../components/AddForm.jsx";
+import MyListRow from "../components/MyListRow.jsx";
+import SharedListRow from "../components/SharedListRow.jsx";
 
 // the home page: every list, by name, each one a link to its own page
-export default function Home({
+export default function HomePage({
   lists,
   memberships,
   onAddList,

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { signUp, logIn } from "./services/authService.js";
+import { signUp, logIn } from "../services/authService.js";
 
 export default function AuthPage({ onAuthenticated }) {
   const [username, setUsername] = useState("");
