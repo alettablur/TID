@@ -1,0 +1,40 @@
+.status-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 3px 9px 3px 7px;
+  border-radius: var(--radius-chip);
+  white-space: nowrap;
+}
+
+.status-chip--open {
+  background: var(--status-open-tint);
+  color: var(--status-open);
+}
+
+.status-chip--planned {
+  background: var(--status-planned-tint);
+  color: var(--status-planned);
+}
+
+/* waiting for an answer and a new time proposed share one colour */
+.status-chip--waiting,
+.status-chip--rescheduled {
+  background: var(--status-waiting-tint);
+  color: var(--status-waiting);
+}
+
+.status-chip--done {
+  background: var(--status-done-tint);
+  color: var(--status-done);
+}
+
+.status-chip--clash {
+  background: var(--status-clash-tint);
+  color: var(--status-clash);
+}
+
+.status-chip--repeats {
+  background: var(--surface-paper);
+  color: var(--text-soft);
+}
