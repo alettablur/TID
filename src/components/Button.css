@@ -1,0 +1,26 @@
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: 48px;
+  padding: 14px var(--space-5);
+  border: 0;
+  border-radius: var(--radius-button);
+  cursor: pointer;
+  transition: transform 0.08s ease, box-shadow 0.15s ease;
+}
+
+.button:active { transform: scale(0.98); }
+.button:focus-visible { outline: 3px solid var(--accent-mustard); outline-offset: 2px; }
+.button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.button--block { width: 100%; }
+
+/* still 44 px high: the smallest touch target we allow (NFR6) */
+.button--small { min-height: 44px; padding: var(--space-2) 14px; border-radius: 14px; }
+
+.button--primary   { background: var(--action-primary); color: var(--text-on-dark); box-shadow: var(--shadow-soft); }
+.button--secondary { background: var(--surface-card); color: var(--text-ink); box-shadow: inset 0 0 0 1.5px var(--line-soft); }
+.button--soft      { background: var(--surface-paper); color: var(--text-ink); }
+.button--brick     { background: var(--accent-brick); color: var(--text-on-dark); box-shadow: var(--shadow-soft); }
