@@ -1,0 +1,123 @@
+/* ------------------------------------------------------------------
+   Warm UI tokens · Group 10 couples to-do
+   Source of truth: Figma file "Test UI", page "10 · UI Components"
+   (variables collection "Warm UI", text styles, effect styles).
+   ------------------------------------------------------------------ */
+
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Playfair+Display:wght@600;700&display=swap');
+
+:root {
+  /* Surfaces */
+  --bg-ivory: #FAF5E8;
+  --surface-card: #FFFDF8;
+  --surface-paper: #EADFC8;
+  --line-soft: #E6DAC4;
+
+  /* Text */
+  --text-ink: #2F2A24;
+  --text-soft: #6B6157;
+  --text-muted: #9A8F84;
+  --text-on-dark: #FFFDF8;
+
+  /* People: slot "a" = the list owner (brick), slot "b" = the partner (petrol).
+     A person keeps the same colour on both phones. */
+  --person-a: #B5523B;
+  --person-a-tint: #F6E1D8;
+  --person-b: #3E6E73;
+  --person-b-tint: #DCEAE9;
+
+  /* Status: always shown with an icon and a label too, never colour alone (NFR6) */
+  --status-open: #B7861E;          /* up for grabs */
+  --status-open-tint: #F8EBC8;
+  --status-planned: #5E6E2E;
+  --status-planned-tint: #E7EDD3;
+  --status-waiting: #7A4E7E;       /* waiting for an answer / new time proposed */
+  --status-waiting-tint: #EFE2EF;
+  --status-done: #8A7F74;
+  --status-done-tint: #EFEAE2;
+  --status-clash: #C8571B;
+  --status-clash-tint: #FBE3D3;
+
+  /* Accents and actions */
+  --accent-mustard: #D9A43B;
+  --accent-brick: #B5523B;
+  --action-primary: #2F2A24;       /* primary buttons are warm black, not a person colour */
+
+  /* Type */
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-text: 'DM Sans', system-ui, -apple-system, sans-serif;
+
+  /* Radii */
+  --radius-chip: 10px;
+  --radius-control: 16px;
+  --radius-button: 18px;
+  --radius-card: 20px;
+  --radius-panel: 26px;
+  --radius-sheet: 32px;
+  --radius-round: 999px;
+
+  /* Spacing (4 px grid) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 28px;
+  --page-gutter: 24px;
+
+  /* Effects */
+  --shadow-soft: 0 2px 6px rgba(47, 42, 36, 0.06), 0 10px 28px -4px rgba(122, 74, 42, 0.10);
+  --shadow-lifted: 0 16px 40px -6px rgba(122, 74, 42, 0.18);
+  --glass-bg: rgba(255, 253, 248, 0.82);
+  --glass-blur: blur(24px);
+  --scrim: rgba(47, 42, 36, 0.45);
+
+  /* Background glow ("Sun corner, extra soft"). Swap the two colours to try
+     the other options from the Figma explorations. */
+  --glow-main: 217, 164, 59;   /* mustard */
+  --glow-second: 242, 160, 123; /* peach */
+}
+
+/* ---------- Base ---------- */
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+html, body { margin: 0; }
+
+body {
+  background: var(--bg-ivory);
+  color: var(--text-ink);
+  font-family: var(--font-text);
+  font-size: 14px;
+  line-height: 20px;
+  -webkit-font-smoothing: antialiased;
+}
+
+button { font: inherit; color: inherit; }
+
+/* Warm glow behind a screen. Put it on the screen root. */
+.app-glow {
+  background:
+    radial-gradient(60% 45% at 90% 0%, rgba(var(--glow-main), 0.42) 0%, rgba(var(--glow-main), 0.18) 35%, rgba(var(--glow-main), 0) 70%),
+    radial-gradient(50% 38% at 5% 0%, rgba(var(--glow-second), 0.22) 0%, rgba(var(--glow-second), 0.08) 40%, rgba(var(--glow-second), 0) 75%),
+    var(--bg-ivory);
+}
+
+/* ---------- Type (same names as the Figma text styles) ---------- */
+.t-screen-title   { font: 700 32px/38px var(--font-display); margin: 0; }
+.t-section-title  { font: 600 22px/28px var(--font-display); margin: 0; }
+.t-card-title     { font: 600 19px/24px var(--font-display); margin: 0; }
+.t-number         { font: 700 30px/34px var(--font-display); }
+.t-task-title     { font: 600 15px/20px var(--font-text); }
+.t-body           { font: 400 14px/20px var(--font-text); }
+.t-body-strong    { font: 500 14px/20px var(--font-text); }
+.t-meta           { font: 500 12px/16px var(--font-text); color: var(--text-soft); }
+.t-overline       { font: 700 11px/14px var(--font-text); letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-soft); }
+.t-button         { font: 700 15px/20px var(--font-text); }
+.t-chip           { font: 600 11px/14px var(--font-text); letter-spacing: 0.01em; }
+.t-tab            { font: 600 11px/14px var(--font-text); }
+
+/* Small numbers (days, times): DM Sans, because Playfair digits are old-style */
+.t-digits { font: 700 18px/24px var(--font-text); font-variant-numeric: tabular-nums; }
