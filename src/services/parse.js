@@ -1,7 +1,6 @@
 import Parse from "parse";
 
-// Credentials come from .env.local, which is gitignored.
-// Copy .env.example to .env.local and fill in your own Back4App values.
+// Credentials come from .env.local, which is gitignored
 if (!import.meta.env.VITE_PARSE_APP_ID) {
   throw new Error(
     "No Parse credentials. Copy .env.example to .env.local, fill it in, and restart `npm run dev`.",

@@ -1,0 +1,5 @@
+.app__status {
+  margin: 0;
+  padding: var(--space-7) var(--page-gutter);
+  color: var(--text-soft);
+}
