@@ -1,0 +1,7 @@
+.auth-page {
+  padding: var(--space-7) var(--page-gutter);
+}
+
+.auth-page__error {
+  color: var(--accent-brick);
+}

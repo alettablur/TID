@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { signUp, logIn } from "../services/authService.js";
+import "./AuthPage.css";
 
 export default function AuthPage({ onAuthenticated }) {
   const [username, setUsername] = useState("");
@@ -29,9 +30,9 @@ export default function AuthPage({ onAuthenticated }) {
   }
 
   return (
-    <div>
+    <div className="auth-page">
       <h1>Login / SignUp</h1>
-      {error && <p style={{ color: "red" }}>{error}</p>}
+      {error && <p className="auth-page__error">{error}</p>}
 
       <form>
         <input
