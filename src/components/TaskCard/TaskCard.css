@@ -1,0 +1,103 @@
+.task-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: 14px 14px 14px 18px;
+  border-radius: var(--radius-card);
+  background: var(--surface-card);
+  box-shadow: var(--shadow-soft);
+  overflow: hidden;
+}
+
+/* --strip and --tint: the colour of whoever does the task */
+.task-card--a {
+  --strip: var(--person-a);
+  --tint: var(--person-a-tint);
+}
+
+.task-card--b {
+  --strip: var(--person-b);
+  --tint: var(--person-b-tint);
+}
+
+.task-card--open {
+  --strip: var(--status-open);
+  --tint: var(--status-open-tint);
+}
+
+/* the strip on the left edge */
+.task-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 5px;
+  background: var(--strip);
+}
+
+/* a 44 px touch target (NFR6) around the 26 px circle; the negative margin
+   keeps the card the size it has in Figma */
+.task-card__check {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  margin: -9px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-round);
+  background: none;
+  cursor: pointer;
+}
+
+.task-card__check:focus-visible {
+  outline: 3px solid var(--accent-mustard);
+  outline-offset: -4px;
+}
+
+.task-card__circle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border: 2px solid var(--strip);
+  border-radius: var(--radius-round);
+  background: var(--tint);
+  color: var(--text-on-dark);
+}
+
+.task-card--open .task-card__circle {
+  border-style: dashed;
+}
+
+.task-card--done .task-card__circle {
+  background: var(--strip);
+}
+
+.task-card__body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.task-card__title {
+  margin: 0;
+  color: var(--text-ink);
+}
+
+.task-card--done .task-card__title {
+  color: var(--text-muted);
+  text-decoration: line-through;
+}
+
+.task-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1) var(--space-2);
+}

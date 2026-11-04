@@ -1,0 +1,8 @@
+.avatar-pair {
+  display: inline-flex;
+}
+
+/* the second avatar overlaps the first */
+.avatar-pair > .avatar + .avatar {
+  margin-left: -10px;
+}
