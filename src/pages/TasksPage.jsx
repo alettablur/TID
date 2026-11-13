@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import SectionHeader from "../components/SectionHeader.jsx";
 import TaskCard from "../components/TaskCard/TaskCard.jsx";
 import { loadTasks } from "../services/taskService.js";
 import { addDays } from "../utilities/dates.js";
@@ -78,14 +79,32 @@ export default function TasksPage({ household }) {
     <>
       <h1 className="t-screen-title">Tasks</h1>
 
-      <h2>Today</h2>
-      <div>{todayTasks.map(renderTask)}</div>
+      {/* no "Add" button here: the + in the tab bar is the only way to add */}
+      {tasks.length === 0 && (
+        <p className="t-body">No tasks yet. Tap + to add your first task.</p>
+      )}
 
-      <h2>Upcoming</h2>
-      <div>{upcomingTasks.map(renderTask)}</div>
+      {/* an empty section is left out, not shown as a heading with nothing under it */}
+      {todayTasks.length > 0 && (
+        <section>
+          <SectionHeader title="Today" count={todayTasks.length} />
+          <div>{todayTasks.map(renderTask)}</div>
+        </section>
+      )}
 
-      <h2>Up for grabs</h2>
-      <div>{openTasks.map(renderTask)}</div>
+      {upcomingTasks.length > 0 && (
+        <section>
+          <SectionHeader title="Upcoming" count={upcomingTasks.length} />
+          <div>{upcomingTasks.map(renderTask)}</div>
+        </section>
+      )}
+
+      {openTasks.length > 0 && (
+        <section>
+          <SectionHeader title="Up for grabs" count={openTasks.length} />
+          <div>{openTasks.map(renderTask)}</div>
+        </section>
+      )}
     </>
   );
 }
