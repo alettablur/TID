@@ -23,3 +23,99 @@
   margin: 0;
   color: var(--accent-brick);
 }
+
+.task-form__label {
+  margin: var(--space-2) 0 0;
+}
+
+.task-form__choices {
+  display: flex;
+  gap: var(--space-2);
+}
+
+/* 48 px high: a comfortable touch target (NFR6) */
+.task-form__choice {
+  flex: 1;
+  min-height: 48px;
+  border: 0;
+  border-radius: var(--radius-control);
+  background: var(--surface-card);
+  box-shadow: inset 0 0 0 1.5px var(--line-soft);
+  color: var(--text-soft);
+  cursor: pointer;
+}
+
+/* the chosen option: a darker frame, as in the Figma "Who" cards */
+.task-form__choice[aria-pressed="true"] {
+  box-shadow: inset 0 0 0 2px var(--action-primary);
+  color: var(--text-ink);
+}
+
+.task-form__choice:focus-visible {
+  outline: 3px solid var(--accent-mustard);
+  outline-offset: 2px;
+}
+
+/* the status colour of up for grabs, and the words say it too (NFR6) */
+.task-form__notice {
+  margin: 0;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-chip);
+  background: var(--status-open-tint);
+  color: var(--status-open);
+}
+
+/* eight days do not fit on a phone: the row scrolls sideways */
+.task-form__days {
+  display: flex;
+  gap: var(--space-2);
+  overflow-x: auto;
+}
+
+/* a day uses the look of .task-form__choice, but is narrow and two lines high */
+.task-form__day {
+  flex: none;
+  width: 52px;
+  min-height: 56px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.task-form__hint {
+  margin: 0;
+}
+
+.task-form__repeat {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-control);
+  box-shadow: inset 0 0 0 1.5px var(--line-soft);
+  cursor: pointer;
+}
+
+.task-form__repeat-text {
+  display: flex;
+  flex-direction: column;
+}
+
+/* a bigger box than the browser's own, closer to the 44 px touch target (NFR6) */
+.task-form__checkbox {
+  flex: none;
+  width: 24px;
+  height: 24px;
+  margin: 0;
+  accent-color: var(--action-primary);
+}
+
+/* Mark as done | Add task, side by side and equally wide */
+.task-form__actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
