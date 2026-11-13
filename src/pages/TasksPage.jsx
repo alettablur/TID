@@ -26,9 +26,10 @@ function formatDay(date) {
 }
 
 // also the page behind /tasks/:taskId, where the task sheet will open
-export default function TasksPage({ household }) {
+export default function TasksPage({ household, userId }) {
   const [tasks, setTasks] = useState(null);
   const [tasksError, setTasksError] = useState("");
+  const [filter, setFilter] = useState("everyone"); // "everyone", "mine" or "partner"
 
   useEffect(() => {
     async function load() {
@@ -56,9 +57,35 @@ export default function TasksPage({ household }) {
   today.setHours(0, 0, 0, 0);
   const tomorrow = addDays(today, 1);
 
+  // the other person: the partner if I am the owner, otherwise the owner
+  const other =
+    userId === household.owner.id ? household.partner : household.owner;
+
+  function showEveryone() {
+    setFilter("everyone");
+  }
+
+  function showMine() {
+    setFilter("mine");
+  }
+
+  function showPartner() {
+    setFilter("partner");
+  }
+
+  // "Mine" and the partner's filter show only tasks someone has taken (our decision)
+  function isVisible(task) {
+    if (filter === "everyone") return true;
+    if (filter === "mine") return task.assignedTo === userId;
+    return task.assignedTo === other.id;
+  }
+
   // done tasks get their own row later ("Done this week")
   // sorted once here: the filters below keep this order
-  const notDone = tasks.filter((task) => !task.done).sort(compareTasks);
+  const notDone = tasks
+    .filter((task) => !task.done)
+    .filter(isVisible)
+    .sort(compareTasks);
 
   // assignedTo null = nobody has taken the task yet
   const openTasks = notDone.filter((task) => task.assignedTo === null);
@@ -77,10 +104,7 @@ export default function TasksPage({ household }) {
   function metaOf(task) {
     if (task.assignedTo === null) {
       const deadline = task.day ? `by ${formatDay(task.day)}` : "No date";
-      const addedBy =
-        task.addedBy === household.owner.id
-          ? household.owner.username
-          : household.partner.username;
+      const addedBy = task.addedBy === userId ? "you" : other.username;
       return `${deadline} · added by ${addedBy}`;
     }
 
@@ -129,6 +153,36 @@ export default function TasksPage({ household }) {
     <>
       <h1 className="t-screen-title">Tasks</h1>
 
+      {/* without a partner there is nobody to filter by */}
+      {other && (
+        <div className="tasks-page__filters" role="group" aria-label="Whose tasks">
+          <button
+            type="button"
+            className="tasks-page__filter t-body-strong"
+            aria-pressed={filter === "everyone"}
+            onClick={showEveryone}
+          >
+            Everyone
+          </button>
+          <button
+            type="button"
+            className="tasks-page__filter t-body-strong"
+            aria-pressed={filter === "mine"}
+            onClick={showMine}
+          >
+            Mine
+          </button>
+          <button
+            type="button"
+            className="tasks-page__filter t-body-strong"
+            aria-pressed={filter === "partner"}
+            onClick={showPartner}
+          >
+            {other.username}'s
+          </button>
+        </div>
+      )}
+
       {/* no "Add" button here: the + in the tab bar is the only way to add */}
       {tasks.length === 0 && (
         <p className="t-body">No tasks yet. Tap + to add your first task.</p>
@@ -145,7 +199,9 @@ export default function TasksPage({ household }) {
       {upcomingTasks.length > 0 && (
         <section className="tasks-page__section">
           <SectionHeader title="Upcoming" count={upcomingTasks.length} />
-          <div className="tasks-page__list">{upcomingTasks.map(renderTask)}</div>
+          <div className="tasks-page__list">
+            {upcomingTasks.map(renderTask)}
+          </div>
         </section>
       )}
 

@@ -75,10 +75,13 @@ function App() {
     <Routes>
       <Route element={<Layout />}>
         <Route index element={<HomePage />} />
-        <Route path="tasks" element={<TasksPage household={household} />} />
+        <Route
+          path="tasks"
+          element={<TasksPage household={household} userId={user.id} />}
+        />
         <Route
           path="tasks/:taskId"
-          element={<TasksPage household={household} />}
+          element={<TasksPage household={household} userId={user.id} />}
         />
         <Route path="groceries" element={<GroceriesPage />} />
         <Route

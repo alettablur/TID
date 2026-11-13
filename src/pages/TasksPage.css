@@ -10,3 +10,32 @@
   flex-direction: column;
   gap: var(--space-2);
 }
+
+.tasks-page__filters {
+  display: flex;
+  gap: var(--space-2);
+}
+
+/* 44 px high: the smallest touch target we allow (NFR6) */
+.tasks-page__filter {
+  min-height: 44px;
+  padding: 0 var(--space-4);
+  border: 0;
+  border-radius: var(--radius-round);
+  background: var(--surface-card);
+  box-shadow: inset 0 0 0 1.5px var(--line-soft);
+  color: var(--text-soft);
+  cursor: pointer;
+}
+
+/* the chosen filter: warm black, like the primary buttons */
+.tasks-page__filter[aria-pressed="true"] {
+  background: var(--action-primary);
+  box-shadow: none;
+  color: var(--text-on-dark);
+}
+
+.tasks-page__filter:focus-visible {
+  outline: 3px solid var(--accent-mustard);
+  outline-offset: 2px;
+}
