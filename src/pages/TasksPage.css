@@ -1,0 +1,12 @@
+/* the space between sections comes from .layout__main */
+.tasks-page__section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.tasks-page__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
