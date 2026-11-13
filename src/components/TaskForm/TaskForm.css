@@ -1,0 +1,25 @@
+.task-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+/* 48 px high: a comfortable touch target (NFR6) */
+.task-form__input {
+  min-height: 48px;
+  padding: 0 var(--space-4);
+  border: 1.5px solid var(--line-soft);
+  border-radius: var(--radius-control);
+  background: var(--surface-card);
+  color: var(--text-ink);
+}
+
+.task-form__input:focus-visible {
+  outline: 3px solid var(--accent-mustard);
+  outline-offset: 2px;
+}
+
+.task-form__error {
+  margin: 0;
+  color: var(--accent-brick);
+}

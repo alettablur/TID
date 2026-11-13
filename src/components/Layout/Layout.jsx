@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import Sheet from "../Sheet.jsx";
+import TaskForm from "../TaskForm/TaskForm.jsx";
 import TabBar from "./TabBar.jsx";
 import "./Layout.css";
 
@@ -13,7 +14,7 @@ function pageOf(pathname) {
 }
 
 // every page of a logged-in user: the page itself, then the tab bar
-export default function Layout() {
+export default function Layout({ household, userId }) {
   const { pathname } = useLocation();
   const page = pageOf(pathname);
 
@@ -41,9 +42,17 @@ export default function Layout() {
           title={addForm === "grocery" ? "New grocery" : "New task"}
           onClose={handleCloseAddForm}
         >
-          <p className="layout__placeholder t-body">
-            The {addForm} form comes with its slice.
-          </p>
+          {addForm === "task" ? (
+            <TaskForm
+              household={household}
+              userId={userId}
+              onAdded={handleCloseAddForm}
+            />
+          ) : (
+            <p className="layout__placeholder t-body">
+              The {addForm} form comes with its slice.
+            </p>
+          )}
         </Sheet>
       )}
     </div>
