@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useOutletContext } from "react-router-dom";
 import SectionHeader from "../components/SectionHeader.jsx";
 import TaskCard from "../components/TaskCard/TaskCard.jsx";
 import { loadTasks } from "../services/taskService.js";
@@ -31,6 +32,9 @@ export default function TasksPage({ household, userId }) {
   const [tasksError, setTasksError] = useState("");
   const [filter, setFilter] = useState("everyone"); // "everyone", "mine" or "partner"
 
+  // Layout raises this number when the + form has added a task
+  const tasksVersion = useOutletContext();
+
   useEffect(() => {
     async function load() {
       try {
@@ -41,7 +45,7 @@ export default function TasksPage({ household, userId }) {
     }
 
     load();
-  }, [household]);
+  }, [household, tasksVersion]); // load again after a new task
 
   if (tasksError) {
     return (
