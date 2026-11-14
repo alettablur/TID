@@ -68,6 +68,42 @@
   color: var(--text-soft);
 }
 
+/* Loading… and the load error; .layout__main already gives the padding */
+.tasks-page__status {
+  margin: 0;
+  color: var(--text-soft);
+}
+
+/* the partner's task in the sheet: label + value rows, a thin line between them */
+.tasks-page__details {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+}
+
+.tasks-page__detail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.tasks-page__detail:last-child {
+  border-bottom: 0;
+}
+
+/* the browser indents a <dd> by default */
+.tasks-page__detail dd {
+  margin: 0;
+}
+
+.tasks-page__who {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
 .tasks-page__error {
   margin: 0;
   color: var(--accent-brick);

@@ -1,4 +1,5 @@
 import { Check } from "lucide-react";
+import { Link } from "react-router-dom";
 import Avatar from "../Avatar.jsx";
 import Button from "../Button.jsx";
 import StatusChip from "../StatusChip.jsx";
@@ -16,12 +17,25 @@ export default function TaskCard({
   repeatsWeekly = false,
   onToggle,
   onTake,
+  to,
 }) {
   const classNames = [
     "task-card",
     person ? `task-card--${person}` : "task-card--open",
   ];
   if (done) classNames.push("task-card--done");
+
+  // the title and the grey line; inside a link or not, see below
+  const body = (
+    <>
+      <p className="task-card__title t-task-title">{title}</p>
+      <div className="task-card__meta">
+        <StatusChip status={done ? "done" : status} />
+        {repeatsWeekly && <StatusChip status="repeats" />}
+        {meta && <span className="t-meta">{meta}</span>}
+      </div>
+    </>
+  );
 
   return (
     <article className={classNames.join(" ")}>
@@ -43,14 +57,15 @@ export default function TaskCard({
         </span>
       )}
 
-      <div className="task-card__body">
-        <p className="task-card__title t-task-title">{title}</p>
-        <div className="task-card__meta">
-          <StatusChip status={done ? "done" : status} />
-          {repeatsWeekly && <StatusChip status="repeats" />}
-          {meta && <span className="t-meta">{meta}</span>}
-        </div>
-      </div>
+      {/* with "to", the text opens the task; only the text, because the
+          circle and "Take it" are buttons and cannot sit inside a link */}
+      {to ? (
+        <Link className="task-card__body task-card__link" to={to}>
+          {body}
+        </Link>
+      ) : (
+        <div className="task-card__body">{body}</div>
+      )}
 
       {person ? (
         <Avatar name={name} person={person} />

@@ -55,7 +55,7 @@ export default function Layout({ household, userId }) {
             <TaskForm
               household={household}
               userId={userId}
-              onAdded={handleTaskAdded}
+              onSaved={handleTaskAdded}
             />
           ) : (
             <p className="layout__placeholder t-body">

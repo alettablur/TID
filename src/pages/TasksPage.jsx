@@ -1,10 +1,18 @@
 import { useState, useEffect } from "react";
-import { useOutletContext } from "react-router-dom";
+import { useNavigate, useOutletContext, useParams } from "react-router-dom";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import SectionHeader from "../components/SectionHeader.jsx";
+import Avatar from "../components/Avatar.jsx";
+import Sheet from "../components/Sheet.jsx";
 import TaskCard from "../components/TaskCard/TaskCard.jsx";
+import TaskForm from "../components/TaskForm/TaskForm.jsx";
 import Toast from "../components/Toast.jsx";
-import { loadTasks, setDone, undoDone } from "../services/taskService.js";
+import {
+  loadTasks,
+  setDone,
+  takeTask,
+  undoDone,
+} from "../services/taskService.js";
 import { addDays } from "../utilities/dates.js";
 import "./TasksPage.css";
 
@@ -45,13 +53,18 @@ export default function TasksPage({ household, userId }) {
   const [tasks, setTasks] = useState(null);
   const [tasksError, setTasksError] = useState("");
   const [filter, setFilter] = useState("everyone"); // "everyone", "mine" or "partner"
-  const [doneError, setDoneError] = useState(""); // a tick that could not be saved
+  const [saveError, setSaveError] = useState(""); // a tick or a take that could not be saved
   const [showDone, setShowDone] = useState(false); // "Done this week" starts folded
-  // the task just ticked off, while its Undo is shown: { task, copyId } or null
-  const [lastDone, setLastDone] = useState(null);
+  // the message at the bottom, or null. After a tick it also has { task, copyId }
+  // for the Undo; after a take it is only { message }. One toast at a time.
+  const [toast, setToast] = useState(null);
 
   // Layout raises this number when the + form has added a task
   const tasksVersion = useOutletContext();
+
+  // on /tasks/abc123 the sheet shows task abc123; on /tasks, taskId is undefined
+  const { taskId } = useParams();
+  const navigate = useNavigate();
 
   useEffect(() => {
     async function load() {
@@ -65,26 +78,28 @@ export default function TasksPage({ household, userId }) {
     load();
   }, [household, tasksVersion]); // load again after a new task
 
-  // NFR5: the Undo stays for 5 seconds after a tick
+  // every toast stays for 5 seconds (NFR5: the Undo after a tick)
   useEffect(() => {
-    if (!lastDone) return;
+    if (!toast) return;
 
-    function hideUndo() {
-      setLastDone(null);
+    function hideToast() {
+      setToast(null);
     }
 
-    const timer = setTimeout(hideUndo, 5000);
-    // a new tick (or Undo) before the 5 s are up: stop the old timer first
+    const timer = setTimeout(hideToast, 5000);
+    // a new toast (or Undo) before the 5 s are up: stop the old timer first
     return () => clearTimeout(timer);
-  }, [lastDone]);
+  }, [toast]);
 
   if (tasksError) {
     return (
-      <p className="app__status">Could not load the tasks: {tasksError}</p>
+      <p className="tasks-page__status t-body">
+        Could not load the tasks: {tasksError}
+      </p>
     );
   }
   if (!tasks) {
-    return <p className="app__status">Loading…</p>;
+    return <p className="tasks-page__status t-body">Loading…</p>;
   }
 
   // today at 00:00: a task planned for any time today counts as today
@@ -110,27 +125,46 @@ export default function TasksPage({ household, userId }) {
 
   async function handleToggle(task) {
     try {
-      setDoneError(""); // a new try: the old message goes away
+      setSaveError(""); // a new try: the old message goes away
       // setDone returns next week's copy of a weekly task, or null
       const copy = await setDone(household, task, true);
-      setLastDone({ task, copyId: copy ? copy.id : null });
+      setToast({
+        message: `${task.title} · done`,
+        task,
+        copyId: copy ? copy.id : null,
+      });
       // load again: the done task leaves the list, a weekly task's new copy appears
       setTasks(await loadTasks(household));
     } catch (error) {
-      setDoneError(error.message);
+      setSaveError(error.message);
     }
   }
 
   async function handleUndo() {
-    const { task, copyId } = lastDone;
-    setLastDone(null); // the toast goes away at once
+    const { task, copyId } = toast;
+    setToast(null); // the toast goes away at once
     try {
-      setDoneError("");
+      setSaveError("");
       // not done again, and next week's copy is deleted
       await undoDone(task.id, copyId);
       setTasks(await loadTasks(household));
     } catch (error) {
-      setDoneError(error.message);
+      setSaveError(error.message);
+    }
+  }
+
+  // FR7. For now the deadline becomes the day, with no time; the
+  // "When will you do it?" sheet (screens.md) comes later
+  async function handleTake(task) {
+    try {
+      setSaveError("");
+      await takeTask(task.id, task.day, "");
+      // without a partner there is nobody who "can see it"
+      const seenBy = other ? ` · ${other.username} can see it` : "";
+      setToast({ message: `You took ${task.title}${seenBy}` });
+      setTasks(await loadTasks(household));
+    } catch (error) {
+      setSaveError(error.message);
     }
   }
 
@@ -144,6 +178,28 @@ export default function TasksPage({ household, userId }) {
   function toggleShowDone() {
     setShowDone(!showDone);
   }
+
+  // back to /tasks: the address has no id any more, so the sheet closes
+  function closeSheet() {
+    navigate("/tasks");
+  }
+
+  // after Save or Delete in the sheet: close it, then show the changed list
+  async function handleTaskSaved() {
+    closeSheet();
+    try {
+      setTasks(await loadTasks(household));
+    } catch (error) {
+      setTasksError(error.message);
+    }
+  }
+
+  // undefined if there is no id, or no task with it (deleted by the partner, say)
+  const selectedTask = tasks.find((task) => task.id === taskId);
+  // mine and up-for-grabs tasks can be edited; the partner's only looked at (our decision)
+  const canEdit =
+    selectedTask &&
+    (selectedTask.assignedTo === null || selectedTask.assignedTo === userId);
 
   // done tasks have their own folded row ("Done this week")
   // sorted once here: the filters below keep this order
@@ -200,13 +256,20 @@ export default function TasksPage({ household, userId }) {
   function renderTask(task) {
     // up for grabs: nobody's colour yet, and the card shows "Take it"
     if (task.assignedTo === null) {
+      // the same closure as toggle below: the card calls onTake() without the task
+      function take() {
+        handleTake(task);
+      }
+
       return (
         <TaskCard
           key={task.id}
+          to={`/tasks/${task.id}`}
           title={task.title}
           meta={metaOf(task)}
           status="open"
           person={null}
+          onTake={take}
         />
       );
     }
@@ -222,6 +285,7 @@ export default function TasksPage({ household, userId }) {
     return (
       <TaskCard
         key={task.id}
+        to={`/tasks/${task.id}`}
         title={task.title}
         meta={metaOf(task)}
         status="planned"
@@ -273,7 +337,7 @@ export default function TasksPage({ household, userId }) {
         </div>
       )}
 
-      {doneError && <p className="tasks-page__error t-meta">{doneError}</p>}
+      {saveError && <p className="tasks-page__error t-meta">{saveError}</p>}
 
       {/* no "Add" button here: the + in the tab bar is the only way to add */}
       {tasks.length === 0 && (
@@ -332,9 +396,60 @@ export default function TasksPage({ household, userId }) {
         </section>
       )}
 
+      {selectedTask && (
+        <Sheet title={selectedTask.title} onClose={closeSheet}>
+          {canEdit ? (
+            <TaskForm
+              household={household}
+              userId={userId}
+              task={selectedTask}
+              onSaved={handleTaskSaved}
+            />
+          ) : (
+            // the partner's task: the details only, nothing to change.
+            // <dl> is HTML's list of label (<dt>) + value (<dd>) pairs
+            <dl className="tasks-page__details">
+              <div className="tasks-page__detail">
+                <dt className="t-overline">Who</dt>
+                <dd className="tasks-page__who t-body-strong">
+                  <Avatar
+                    name={other.username}
+                    person={other.id === household.owner.id ? "a" : "b"}
+                  />
+                  {other.username}
+                </dd>
+              </div>
+
+              <div className="tasks-page__detail">
+                <dt className="t-overline">When</dt>
+                <dd className="t-body">{metaOf(selectedTask)}</dd>
+              </div>
+
+              {selectedTask.repeatsWeekly && (
+                <div className="tasks-page__detail">
+                  <dt className="t-overline">Repeats</dt>
+                  <dd className="t-body">Every week</dd>
+                </div>
+              )}
+
+              <div className="tasks-page__detail">
+                <dt className="t-overline">Added by</dt>
+                <dd className="t-body">
+                  {selectedTask.addedBy === userId ? "You" : other.username}
+                </dd>
+              </div>
+            </dl>
+          )}
+        </Sheet>
+      )}
+
       {/* last in the page, so it sits at the bottom, just above the tab bar */}
-      {lastDone && (
-        <Toast message={`${lastDone.task.title} · done`} onUndo={handleUndo} />
+      {/* only a tick has something to undo */}
+      {toast && (
+        <Toast
+          message={toast.message}
+          onUndo={toast.task ? handleUndo : undefined}
+        />
       )}
     </>
   );

@@ -85,6 +85,20 @@
   gap: 6px;
 }
 
+/* a link that looks like the rest of the card; min-height: a 44 px touch target (NFR6) */
+.task-card__link {
+  min-height: 44px;
+  justify-content: center;
+  color: inherit;
+  text-decoration: none;
+}
+
+.task-card__link:focus-visible {
+  outline: 3px solid var(--accent-mustard);
+  outline-offset: 2px;
+  border-radius: var(--radius-chip);
+}
+
 .task-card__title {
   margin: 0;
   color: var(--text-ink);

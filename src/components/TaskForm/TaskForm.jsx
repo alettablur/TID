@@ -1,6 +1,10 @@
 import { useState } from "react";
 import Button from "../Button.jsx";
-import { addTask } from "../../services/taskService.js";
+import {
+  addTask,
+  deleteTask,
+  updateTask,
+} from "../../services/taskService.js";
 import { addDays } from "../../utilities/dates.js";
 import "./TaskForm.css";
 
@@ -16,23 +20,32 @@ function nextSevenDays() {
   return days;
 }
 
-// the form in the + sheet: a new task (FR3)
-export default function TaskForm({ household, userId, onAdded }) {
-  const [title, setTitle] = useState("");
+// the form in the + sheet: a new task (FR3). With a task, the same form
+// edits that task in the task sheet, and every field starts from it.
+export default function TaskForm({ household, userId, task, onSaved }) {
+  const [title, setTitle] = useState(task ? task.title : "");
   const [error, setError] = useState("");
   // FR6: "me" or "either" (up for grabs); asking the partner comes with requests
-  const [who, setWho] = useState("me");
+  const [who, setWho] = useState(
+    task && task.assignedTo === null ? "either" : "me",
+  );
   // a Date, or null for "No date"
-  const [day, setDay] = useState(null);
+  const [day, setDay] = useState(task ? task.day : null);
   // "Any time" or "Set time"; time is "HH:mm", as the data model stores it
-  const [hasTime, setHasTime] = useState(false);
-  const [time, setTime] = useState("");
+  // ("" = any time, so a task with a time starts on "Set time")
+  const [hasTime, setHasTime] = useState(task ? task.time !== "" : false);
+  const [time, setTime] = useState(task ? task.time : "");
   // FR15
-  const [repeatsWeekly, setRepeatsWeekly] = useState(false);
+  const [repeatsWeekly, setRepeatsWeekly] = useState(
+    task ? task.repeatsWeekly : false,
+  );
   // true while addTask waits for Back4App: a second tap must not save the task twice
   const [saving, setSaving] = useState(false);
 
   const days = nextSevenDays();
+  // false for a late task or one more than a week away: no button shows its day
+  const dayInStrip =
+    day !== null && days.some((date) => date.getTime() === day.getTime());
 
   function handleTitleChange(event) {
     setTitle(event.target.value);
@@ -76,16 +89,29 @@ export default function TaskForm({ household, userId, onAdded }) {
       const assignedTo = done || who === "me" ? userId : null;
       // a time and a repeat only count with a day; "" = any time
       const taskTime = day && hasTime ? time : "";
-      await addTask(household, {
-        title,
-        assignedTo,
-        day,
-        time: taskTime,
-        done,
-        repeatsWeekly: day !== null && repeatsWeekly,
-      });
+      const taskRepeats = day !== null && repeatsWeekly;
+
+      if (task) {
+        // editing: change the task that is already there, do not add a new one
+        await updateTask(task.id, {
+          title,
+          assignedTo,
+          day,
+          time: taskTime,
+          repeatsWeekly: taskRepeats,
+        });
+      } else {
+        await addTask(household, {
+          title,
+          assignedTo,
+          day,
+          time: taskTime,
+          done,
+          repeatsWeekly: taskRepeats,
+        });
+      }
       // no setSaving(false) here: the sheet closes and the form is gone
-      onAdded();
+      onSaved();
     } catch (saveError) {
       setError(saveError.message);
       setSaving(false); // let the user try again
@@ -100,6 +126,18 @@ export default function TaskForm({ household, userId, onAdded }) {
 
   function handleMarkDone() {
     save(true);
+  }
+
+  // only in the task sheet; onSaved closes the sheet and reloads, as after a save
+  async function handleDelete() {
+    setSaving(true);
+    try {
+      await deleteTask(task.id);
+      onSaved();
+    } catch (deleteError) {
+      setError(deleteError.message);
+      setSaving(false);
+    }
   }
 
   return (
@@ -182,6 +220,15 @@ export default function TaskForm({ household, userId, onAdded }) {
         })}
       </div>
 
+      {/* our decision: say the day in words instead of adding a button for it;
+          it stays the day unless another day is tapped */}
+      {day !== null && !dayInStrip && (
+        <p className="task-form__hint t-meta">
+          Planned for{" "}
+          {day.toLocaleDateString("en-GB", { weekday: "short", day: "numeric" })}
+        </p>
+      )}
+
       {/* decision after the wireframe tests: the time appears once a day is chosen */}
       {day === null ? (
         <p className="task-form__hint t-meta">Pick a day to choose a time.</p>
@@ -238,19 +285,31 @@ export default function TaskForm({ household, userId, onAdded }) {
       {error && <p className="task-form__error t-meta">{error}</p>}
 
       {/* NFR5: a task cannot be saved without a title */}
-      <div className="task-form__actions">
-        <Button
-          variant="secondary"
-          block
-          disabled={saving || !title.trim()}
-          onClick={handleMarkDone}
-        >
-          Mark as done
-        </Button>
-        <Button type="submit" block disabled={saving || !title.trim()}>
-          Add task
-        </Button>
-      </div>
+      {task ? (
+        // editing (screens.md): Delete task | Save
+        <div className="task-form__actions">
+          <Button variant="brick" block disabled={saving} onClick={handleDelete}>
+            Delete task
+          </Button>
+          <Button type="submit" block disabled={saving || !title.trim()}>
+            Save
+          </Button>
+        </div>
+      ) : (
+        <div className="task-form__actions">
+          <Button
+            variant="secondary"
+            block
+            disabled={saving || !title.trim()}
+            onClick={handleMarkDone}
+          >
+            Mark as done
+          </Button>
+          <Button type="submit" block disabled={saving || !title.trim()}>
+            Add task
+          </Button>
+        </div>
+      )}
     </form>
   );
 }
