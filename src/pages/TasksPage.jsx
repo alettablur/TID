@@ -1,6 +1,12 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useOutletContext, useParams } from "react-router-dom";
-import { ChevronDown, ChevronRight } from "lucide-react";
+import {
+  useNavigate,
+  useOutletContext,
+  useParams,
+  useSearchParams,
+} from "react-router-dom";
+import { CalendarDays, ListChecks } from "lucide-react";
+import FoldSection from "../components/FoldSection.jsx";
 import SectionHeader from "../components/SectionHeader.jsx";
 import Avatar from "../components/Avatar.jsx";
 import Sheet from "../components/Sheet.jsx";
@@ -38,7 +44,10 @@ function formatDay(date) {
 
 // "08:15"
 function formatTime(date) {
-  return date.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
+  return date.toLocaleTimeString("en-GB", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 }
 
 // Monday at 00:00: the week runs Monday to Sunday, as in the Us overview (data-model.md)
@@ -54,10 +63,11 @@ export default function TasksPage({ household, userId }) {
   const [tasksError, setTasksError] = useState("");
   const [filter, setFilter] = useState("everyone"); // "everyone", "mine" or "partner"
   const [saveError, setSaveError] = useState(""); // a tick or a take that could not be saved
-  const [showDone, setShowDone] = useState(false); // "Done this week" starts folded
   // the message at the bottom, or null. After a tick it also has { task, copyId }
   // for the Undo; after a take it is only { message }. One toast at a time.
   const [toast, setToast] = useState(null);
+  // the day picked in the Week view; null = today (the view opens on today)
+  const [pickedDay, setPickedDay] = useState(null);
 
   // Layout raises this number when the + form has added a task
   const tasksVersion = useOutletContext();
@@ -65,6 +75,13 @@ export default function TasksPage({ household, userId }) {
   // on /tasks/abc123 the sheet shows task abc123; on /tasks, taskId is undefined
   const { taskId } = useParams();
   const navigate = useNavigate();
+
+  // List or Week lives in the address (?view=week), so a reload or Back keeps it;
+  // no ?view means the List (requirements: Tasks opens on the List)
+  const [searchParams, setSearchParams] = useSearchParams();
+  const view = searchParams.get("view") === "week" ? "week" : "list";
+  // added to every /tasks address of this page, so opening a task keeps the view
+  const viewQuery = view === "week" ? "?view=week" : "";
 
   useEffect(() => {
     async function load() {
@@ -175,13 +192,17 @@ export default function TasksPage({ household, userId }) {
     return task.assignedTo === other.id;
   }
 
-  function toggleShowDone() {
-    setShowDone(!showDone);
-  }
-
   // back to /tasks: the address has no id any more, so the sheet closes
   function closeSheet() {
-    navigate("/tasks");
+    navigate(`/tasks${viewQuery}`);
+  }
+
+  function showList() {
+    setSearchParams({});
+  }
+
+  function showWeek() {
+    setSearchParams({ view: "week" });
   }
 
   // after Save or Delete in the sheet: close it, then show the changed list
@@ -223,6 +244,35 @@ export default function TasksPage({ household, userId }) {
 
   // like Bought on Groceries: the last one done comes first
   const monday = startOfWeek(today);
+
+  // the Week view: Monday to Sunday of this week
+  const weekDays = [];
+  for (let i = 0; i < 7; i++) {
+    weekDays.push(addDays(monday, i));
+  }
+  const shownDay = pickedDay ?? today;
+
+  // only what belongs to that day: taken tasks planned on it, done or not
+  // (no up-for-grabs, no "No date": those live in the List; our decision)
+  function tasksOn(date) {
+    return tasks.filter(
+      (task) =>
+        task.assignedTo !== null &&
+        task.day &&
+        task.day.getTime() === date.getTime(),
+    );
+  }
+
+  // the time in the left column: when it was done, or when it is planned
+  function slotTimeOf(task) {
+    if (task.done && task.doneAt) return formatTime(task.doneAt);
+    return task.time; // "" = any time
+  }
+
+  // the picked day in time order; "any time" ("") goes last, as in compareTasks
+  const dayTasks = tasksOn(shownDay).sort((a, b) =>
+    (slotTimeOf(a) || "24:00").localeCompare(slotTimeOf(b) || "24:00"),
+  );
   const doneThisWeek = tasks
     .filter((task) => task.done && task.doneAt && task.doneAt >= monday)
     .filter(isVisible)
@@ -230,6 +280,12 @@ export default function TasksPage({ household, userId }) {
 
   // the grey line under the title: when, and for an open task who added it
   function metaOf(task) {
+    // the Week view: the heading says the day and the left column the time,
+    // so the card only says what is left ("Done 08:15", as in Figma)
+    if (view === "week") {
+      return task.done ? `Done ${formatTime(task.doneAt)}` : "";
+    }
+
     // like "bought by Sam, just now" on Groceries: who did it and when (FR8)
     if (task.done) {
       const doneBy = task.assignedTo === userId ? "you" : other.username;
@@ -242,6 +298,15 @@ export default function TasksPage({ household, userId }) {
       return `${deadline} · added by ${addedBy}`;
     }
 
+    // a card under the "Today" heading: only the time, the heading says the day
+    const isToday = task.day && task.day >= today && task.day < tomorrow;
+    if (isToday) return task.time || "Any time";
+
+    return whenOf(task);
+  }
+
+  // the full "when", for places without a "Today" heading (the details sheet)
+  function whenOf(task) {
     if (!task.day) return "No date";
 
     const isToday = task.day >= today && task.day < tomorrow;
@@ -264,7 +329,7 @@ export default function TasksPage({ household, userId }) {
       return (
         <TaskCard
           key={task.id}
-          to={`/tasks/${task.id}`}
+          to={`/tasks/${task.id}${viewQuery}`}
           title={task.title}
           meta={metaOf(task)}
           status="open"
@@ -285,7 +350,7 @@ export default function TasksPage({ household, userId }) {
     return (
       <TaskCard
         key={task.id}
-        to={`/tasks/${task.id}`}
+        to={`/tasks/${task.id}${viewQuery}`}
         title={task.title}
         meta={metaOf(task)}
         status="planned"
@@ -303,97 +368,170 @@ export default function TasksPage({ household, userId }) {
     <>
       <h1 className="t-screen-title">Tasks</h1>
 
-      {/* without a partner there is nobody to filter by */}
-      {other && (
-        <div
-          className="tasks-page__filters"
-          role="group"
-          aria-label="Whose tasks"
+      {/* List | Week, as in Figma: List first */}
+      <div className="tasks-page__views" role="group" aria-label="View">
+        <button
+          type="button"
+          className="tasks-page__view t-body-strong"
+          aria-pressed={view === "list"}
+          onClick={showList}
         >
-          <button
-            type="button"
-            className="tasks-page__filter t-body-strong"
-            aria-pressed={filter === "everyone"}
-            onClick={showEveryone}
-          >
-            Everyone
-          </button>
-          <button
-            type="button"
-            className="tasks-page__filter t-body-strong"
-            aria-pressed={filter === "mine"}
-            onClick={showMine}
-          >
-            Mine
-          </button>
-          <button
-            type="button"
-            className="tasks-page__filter t-body-strong"
-            aria-pressed={filter === "partner"}
-            onClick={showPartner}
-          >
-            {other.username}'s
-          </button>
-        </div>
-      )}
+          <ListChecks size={18} aria-hidden="true" />
+          List
+        </button>
+        <button
+          type="button"
+          className="tasks-page__view t-body-strong"
+          aria-pressed={view === "week"}
+          onClick={showWeek}
+        >
+          <CalendarDays size={18} aria-hidden="true" />
+          Week
+        </button>
+      </div>
 
       {saveError && <p className="tasks-page__error t-meta">{saveError}</p>}
 
-      {/* no "Add" button here: the + in the tab bar is the only way to add */}
-      {tasks.length === 0 && (
-        <p className="t-body">No tasks yet. Tap + to add your first task.</p>
-      )}
+      {view === "week" && (
+        <>
+          <div className="tasks-page__week" role="group" aria-label="Day">
+            {weekDays.map(function renderWeekDay(date) {
+              // the same closure as chooseDay in TaskForm: each button knows its date
+              function pickDay() {
+                setPickedDay(date);
+              }
 
-      {/* an empty section is left out, not shown as a heading with nothing under it */}
-      {todayTasks.length > 0 && (
-        <section className="tasks-page__section">
-          <SectionHeader title="Today" count={todayTasks.length} />
-          <div className="tasks-page__list">{todayTasks.map(renderTask)}</div>
-        </section>
-      )}
-
-      {upcomingTasks.length > 0 && (
-        <section className="tasks-page__section">
-          <SectionHeader title="Upcoming" count={upcomingTasks.length} />
-          <div className="tasks-page__list">
-            {upcomingTasks.map(renderTask)}
+              return (
+                <button
+                  key={date.getTime()}
+                  type="button"
+                  className="tasks-page__week-day"
+                  aria-pressed={date.getTime() === shownDay.getTime()}
+                  onClick={pickDay}
+                >
+                  <span className="t-chip">
+                    {date.toLocaleDateString("en-GB", { weekday: "short" })}
+                  </span>
+                  <span className="t-body-strong">{date.getDate()}</span>
+                  {/* one dot per task, in the colour of whoever does it */}
+                  <span className="tasks-page__dots" aria-hidden="true">
+                    {tasksOn(date).map((task) => (
+                      <span
+                        key={task.id}
+                        className={`tasks-page__dot tasks-page__dot--${
+                          task.assignedTo === household.owner.id ? "a" : "b"
+                        }`}
+                      />
+                    ))}
+                  </span>
+                </button>
+              );
+            })}
           </div>
-        </section>
+
+          <SectionHeader
+            title={shownDay.toLocaleDateString("en-GB", {
+              weekday: "long",
+              day: "numeric",
+            })}
+            count={dayTasks.length}
+          />
+
+          {dayTasks.length === 0 && (
+            <p className="tasks-page__status t-body">
+              Nothing planned this day.
+            </p>
+          )}
+
+          {/* each row: the time on the left, the same card as in the List */}
+          <div className="tasks-page__list">
+            {dayTasks.map((task) => (
+              <div key={task.id} className="tasks-page__slot">
+                <span className="tasks-page__slot-time t-meta">
+                  {slotTimeOf(task) || "Any time"}
+                </span>
+                {renderTask(task)}
+              </div>
+            ))}
+          </div>
+        </>
       )}
 
-      {openTasks.length > 0 && (
-        <section className="tasks-page__section">
-          <SectionHeader title="Up for grabs" count={openTasks.length} />
-          <div className="tasks-page__list">{openTasks.map(renderTask)}</div>
-        </section>
-      )}
-
-      {/* folded at first: done work is visible, but does not push the open tasks away */}
-      {doneThisWeek.length > 0 && (
-        <section className="tasks-page__section">
-          <button
-            type="button"
-            className="tasks-page__done-toggle"
-            aria-expanded={showDone}
-            onClick={toggleShowDone}
-          >
-            <span className="t-section-title">Done this week</span>
-            <span className="tasks-page__done-count t-chip">
-              {doneThisWeek.length}
-            </span>
-            {showDone ? (
-              <ChevronDown size={20} aria-hidden="true" />
-            ) : (
-              <ChevronRight size={20} aria-hidden="true" />
-            )}
-          </button>
-
-          {showDone && (
-            <div className="tasks-page__list">
-              {doneThisWeek.map(renderTask)}
+      {/* everything from here to "Done this week" is the List view */}
+      {view === "list" && (
+        <>
+          {/* without a partner there is nobody to filter by */}
+          {other && (
+            <div
+              className="tasks-page__filters"
+              role="group"
+              aria-label="Whose tasks"
+            >
+              <button
+                type="button"
+                className="tasks-page__filter t-body-strong"
+                aria-pressed={filter === "everyone"}
+                onClick={showEveryone}
+              >
+                Everyone
+              </button>
+              <button
+                type="button"
+                className="tasks-page__filter t-body-strong"
+                aria-pressed={filter === "mine"}
+                onClick={showMine}
+              >
+                Mine
+              </button>
+              <button
+                type="button"
+                className="tasks-page__filter t-body-strong"
+                aria-pressed={filter === "partner"}
+                onClick={showPartner}
+              >
+                {other.username}'s
+              </button>
             </div>
           )}
-        </section>
+
+          {/* no "Add" button here: the + in the tab bar is the only way to add */}
+          {tasks.length === 0 && (
+            <p className="t-body">
+              No tasks yet. Tap + to add your first task.
+            </p>
+          )}
+
+          {/* an empty section is left out, not shown as a heading with nothing under it */}
+          {/* Today and Upcoming fold, so a long list can be made shorter (our decision) */}
+          {todayTasks.length > 0 && (
+            <FoldSection title="Today" count={todayTasks.length} startOpen>
+              {todayTasks.map(renderTask)}
+            </FoldSection>
+          )}
+
+          {/* starts folded: today first, the rest when you want it (our decision) */}
+          {upcomingTasks.length > 0 && (
+            <FoldSection title="Upcoming" count={upcomingTasks.length}>
+              {upcomingTasks.map(renderTask)}
+            </FoldSection>
+          )}
+
+          {openTasks.length > 0 && (
+            <section className="tasks-page__section">
+              <SectionHeader title="Up for grabs" count={openTasks.length} />
+              <div className="tasks-page__list">
+                {openTasks.map(renderTask)}
+              </div>
+            </section>
+          )}
+
+          {/* folded at first: done work is visible, but does not push the open tasks away */}
+          {doneThisWeek.length > 0 && (
+            <FoldSection title="Done this week" count={doneThisWeek.length}>
+              {doneThisWeek.map(renderTask)}
+            </FoldSection>
+          )}
+        </>
       )}
 
       {selectedTask && (
@@ -422,7 +560,12 @@ export default function TasksPage({ household, userId }) {
 
               <div className="tasks-page__detail">
                 <dt className="t-overline">When</dt>
-                <dd className="t-body">{metaOf(selectedTask)}</dd>
+                {/* a done task: "done by … · Sat 14, 08:15"; otherwise the full day and time */}
+                <dd className="t-body">
+                  {selectedTask.done
+                    ? metaOf(selectedTask)
+                    : whenOf(selectedTask)}
+                </dd>
               </div>
 
               {selectedTask.repeatsWeekly && (

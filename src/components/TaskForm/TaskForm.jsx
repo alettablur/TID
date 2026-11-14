@@ -29,6 +29,18 @@ function toMinutes(time) {
   return Number(hours) * 60 + Number(minutes);
 }
 
+// 7 → "07": the data model stores times as "HH:mm"
+function twoDigits(number) {
+  return String(number).padStart(2, "0");
+}
+
+// the choices in the two time dropdowns: every hour, and the quarters
+const HOURS = [];
+for (let hour = 0; hour < 24; hour++) {
+  HOURS.push(twoDigits(hour));
+}
+const QUARTERS = ["00", "15", "30", "45"];
+
 // the form in the + sheet: a new task (FR3). With a task, the same form
 // edits that task in the task sheet, and every field starts from it.
 export default function TaskForm({ household, userId, task, onSaved }) {
@@ -119,12 +131,30 @@ export default function TaskForm({ household, userId, task, onSaved }) {
   function chooseSetTime() {
     setHasTime(true);
     setWhenChanged(true);
+    // start the dropdowns on the next full hour, so they never show an empty time
+    if (time === "") {
+      const nextHour = (new Date().getHours() + 1) % 24;
+      setTime(`${twoDigits(nextHour)}:00`);
+    }
   }
 
-  function handleTimeChange(event) {
-    setTime(event.target.value);
+  // the time is one "HH:mm" text; the dropdowns show and change its two halves
+  const [hour, minute] = time === "" ? ["", ""] : time.split(":");
+
+  function handleHourChange(event) {
+    setTime(`${event.target.value}:${minute}`);
     setWhenChanged(true);
   }
+
+  function handleMinuteChange(event) {
+    setTime(`${hour}:${event.target.value}`);
+    setWhenChanged(true);
+  }
+
+  // a task saved earlier with e.g. 18:10 keeps its minute as an extra choice
+  const minuteChoices = QUARTERS.includes(minute)
+    ? QUARTERS
+    : [...QUARTERS, minute];
 
   function handleRepeatChange(event) {
     // a checkbox gives checked (true/false), not value
@@ -213,7 +243,11 @@ export default function TaskForm({ household, userId, task, onSaved }) {
       <p className="task-form__label t-overline" id="task-form-who">
         Who does it
       </p>
-      <div className="task-form__choices" role="group" aria-labelledby="task-form-who">
+      <div
+        className="task-form__choices"
+        role="group"
+        aria-labelledby="task-form-who"
+      >
         <button
           type="button"
           className="task-form__choice t-body-strong"
@@ -240,7 +274,11 @@ export default function TaskForm({ household, userId, task, onSaved }) {
       <p className="task-form__label t-overline" id="task-form-day">
         {who === "either" ? "By when · optional" : "Day"}
       </p>
-      <div className="task-form__days" role="group" aria-labelledby="task-form-day">
+      <div
+        className="task-form__days"
+        role="group"
+        aria-labelledby="task-form-day"
+      >
         <button
           type="button"
           className="task-form__choice task-form__day"
@@ -282,7 +320,10 @@ export default function TaskForm({ household, userId, task, onSaved }) {
       {day !== null && !dayInStrip && (
         <p className="task-form__hint t-meta">
           Planned for{" "}
-          {day.toLocaleDateString("en-GB", { weekday: "short", day: "numeric" })}
+          {day.toLocaleDateString("en-GB", {
+            weekday: "short",
+            day: "numeric",
+          })}
         </p>
       )}
 
@@ -294,7 +335,11 @@ export default function TaskForm({ household, userId, task, onSaved }) {
           <p className="task-form__label t-overline" id="task-form-time">
             Time
           </p>
-          <div className="task-form__choices" role="group" aria-labelledby="task-form-time">
+          <div
+            className="task-form__choices"
+            role="group"
+            aria-labelledby="task-form-time"
+          >
             <button
               type="button"
               className="task-form__choice t-body-strong"
@@ -313,14 +358,39 @@ export default function TaskForm({ household, userId, task, onSaved }) {
             </button>
           </div>
 
+          {/* two native dropdowns instead of <input type="time">: they work with
+              screen readers and the keyboard, open the phone's own big picker
+              (one hand), and cannot be left half-filled (our decision) */}
           {hasTime && (
-            <input
-              className="task-form__input t-body"
-              type="time"
-              aria-labelledby="task-form-time"
-              value={time}
-              onChange={handleTimeChange}
-            />
+            <div className="task-form__time">
+              <select
+                className="task-form__input task-form__select t-body"
+                aria-label="Hour"
+                value={hour}
+                onChange={handleHourChange}
+              >
+                {HOURS.map((choice) => (
+                  <option key={choice} value={choice}>
+                    {choice}
+                  </option>
+                ))}
+              </select>
+              <span className="t-body-strong" aria-hidden="true">
+                :
+              </span>
+              <select
+                className="task-form__input task-form__select t-body"
+                aria-label="Minutes"
+                value={minute}
+                onChange={handleMinuteChange}
+              >
+                {minuteChoices.map((choice) => (
+                  <option key={choice} value={choice}>
+                    {choice}
+                  </option>
+                ))}
+              </select>
+            </div>
           )}
 
           {clash && (
@@ -352,7 +422,9 @@ export default function TaskForm({ household, userId, task, onSaved }) {
           <label className="task-form__repeat">
             <span className="task-form__repeat-text">
               <span className="t-body-strong">Repeat every week</span>
-              <span className="t-meta">A new copy appears when this one is done</span>
+              <span className="t-meta">
+                A new copy appears when this one is done
+              </span>
             </span>
             <input
               className="task-form__checkbox"
@@ -370,7 +442,12 @@ export default function TaskForm({ household, userId, task, onSaved }) {
       {task ? (
         // editing (screens.md): Delete task | Save
         <div className="task-form__actions">
-          <Button variant="brick" block disabled={saving} onClick={handleDelete}>
+          <Button
+            variant="brick"
+            block
+            disabled={saving}
+            onClick={handleDelete}
+          >
             Delete task
           </Button>
           <Button type="submit" block disabled={saving || !title.trim()}>
