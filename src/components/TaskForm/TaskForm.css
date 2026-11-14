@@ -65,6 +65,28 @@
   color: var(--status-open);
 }
 
+/* a calm note, not an alarm: paper background, normal text colours */
+.task-form__clash {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  margin: 0;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-chip);
+  background: var(--surface-paper);
+  color: var(--text-soft);
+}
+
+.task-form__clash strong {
+  color: var(--text-ink);
+}
+
+/* the icon keeps to the first line when the text wraps */
+.task-form__clash-icon {
+  flex: none;
+  margin-top: 1px;
+}
+
 /* eight days do not fit on a phone: the row scrolls sideways */
 .task-form__days {
   display: flex;

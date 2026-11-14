@@ -1,8 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { CalendarClock } from "lucide-react";
 import Button from "../Button.jsx";
 import {
   addTask,
   deleteTask,
+  loadTasks,
+  setDone,
   updateTask,
 } from "../../services/taskService.js";
 import { addDays } from "../../utilities/dates.js";
@@ -18,6 +21,12 @@ function nextSevenDays() {
     days.push(addDays(today, i));
   }
   return days;
+}
+
+// "18:30" → 1110 minutes after midnight, so two times can be subtracted
+function toMinutes(time) {
+  const [hours, minutes] = time.split(":");
+  return Number(hours) * 60 + Number(minutes);
 }
 
 // the form in the + sheet: a new task (FR3). With a task, the same form
@@ -41,11 +50,51 @@ export default function TaskForm({ household, userId, task, onSaved }) {
   );
   // true while addTask waits for Back4App: a second tap must not save the task twice
   const [saving, setSaving] = useState(false);
+  // a new task: always true. Editing: false until the day or time is changed,
+  // so opening a task does not warn about a time that was chosen long ago
+  const [whenChanged, setWhenChanged] = useState(!task);
+  // the household's tasks, to warn about a clash; null until they are loaded
+  const [householdTasks, setHouseholdTasks] = useState(null);
+
+  useEffect(() => {
+    async function load() {
+      try {
+        setHouseholdTasks(await loadTasks(household));
+      } catch {
+        // the clash notice is only a help: without the tasks the form still works
+      }
+    }
+
+    load();
+  }, [household]);
 
   const days = nextSevenDays();
   // false for a late task or one more than a week away: no button shows its day
   const dayInStrip =
     day !== null && days.some((date) => date.getTime() === day.getTime());
+
+  // screens.md: a clash = a task of the person who will do it (Me → mine,
+  // Either → both of ours) on the same day, at most 1 hour away. Only a warning.
+  function findClash() {
+    if (!whenChanged || !householdTasks || !day || !hasTime || !time) {
+      return undefined;
+    }
+
+    return householdTasks.find(
+      (other) =>
+        !other.done &&
+        other.id !== task?.id && // when editing, not the task itself
+        (who === "me"
+          ? other.assignedTo === userId
+          : other.assignedTo !== null) &&
+        other.day &&
+        other.day.getTime() === day.getTime() &&
+        other.time !== "" &&
+        Math.abs(toMinutes(other.time) - toMinutes(time)) <= 60,
+    );
+  }
+
+  const clash = findClash();
 
   function handleTitleChange(event) {
     setTitle(event.target.value);
@@ -69,10 +118,12 @@ export default function TaskForm({ household, userId, task, onSaved }) {
 
   function chooseSetTime() {
     setHasTime(true);
+    setWhenChanged(true);
   }
 
   function handleTimeChange(event) {
     setTime(event.target.value);
+    setWhenChanged(true);
   }
 
   function handleRepeatChange(event) {
@@ -101,14 +152,19 @@ export default function TaskForm({ household, userId, task, onSaved }) {
           repeatsWeekly: taskRepeats,
         });
       } else {
-        await addTask(household, {
+        // always added as not done; addTask returns the new task
+        const newTask = await addTask(household, {
           title,
           assignedTo,
           day,
           time: taskTime,
-          done,
           repeatsWeekly: taskRepeats,
         });
+        // "Mark as done": tick it off like the circle does, so a weekly
+        // task also gets next week's copy (addTask alone makes none)
+        if (done) {
+          await setDone(household, newTask, true);
+        }
       }
       // no setSaving(false) here: the sheet closes and the form is gone
       onSaved();
@@ -199,6 +255,7 @@ export default function TaskForm({ household, userId, task, onSaved }) {
           // the button knows its own date, so one handler per button
           function chooseDay() {
             setDay(date);
+            setWhenChanged(true);
           }
 
           return (
@@ -264,6 +321,31 @@ export default function TaskForm({ household, userId, task, onSaved }) {
               value={time}
               onChange={handleTimeChange}
             />
+          )}
+
+          {clash && (
+            // our decision after testing: a calm icon and colours instead of the
+            // ⚠ Clash chip, which felt like an error; still icon + words (NFR6)
+            <p className="task-form__clash t-meta">
+              <CalendarClock
+                className="task-form__clash-icon"
+                size={16}
+                aria-hidden="true"
+              />
+              <span>
+                <strong>Close in time</strong>{" "}
+                {who === "me" ? "to one of your tasks" : "to a planned task"}
+                {" · "}
+                {clash.title} ·{" "}
+                {clash.day.getTime() === days[0].getTime()
+                  ? "today"
+                  : clash.day.toLocaleDateString("en-GB", {
+                      weekday: "short",
+                      day: "numeric",
+                    })}{" "}
+                {clash.time}
+              </span>
+            </p>
           )}
 
           {/* the label around the checkbox: tapping the text ticks it too */}
