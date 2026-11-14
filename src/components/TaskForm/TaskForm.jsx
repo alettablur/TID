@@ -29,6 +29,8 @@ export default function TaskForm({ household, userId, onAdded }) {
   const [time, setTime] = useState("");
   // FR15
   const [repeatsWeekly, setRepeatsWeekly] = useState(false);
+  // true while addTask waits for Back4App: a second tap must not save the task twice
+  const [saving, setSaving] = useState(false);
 
   const days = nextSevenDays();
 
@@ -67,6 +69,8 @@ export default function TaskForm({ household, userId, onAdded }) {
 
   // used by both buttons; done = true is "Mark as done" (FR5)
   async function save(done) {
+    setSaving(true);
+
     try {
       // nobody assigned = up for grabs; a task already done was done by me
       const assignedTo = done || who === "me" ? userId : null;
@@ -80,9 +84,11 @@ export default function TaskForm({ household, userId, onAdded }) {
         done,
         repeatsWeekly: day !== null && repeatsWeekly,
       });
+      // no setSaving(false) here: the sheet closes and the form is gone
       onAdded();
     } catch (saveError) {
       setError(saveError.message);
+      setSaving(false); // let the user try again
     }
   }
 
@@ -236,12 +242,12 @@ export default function TaskForm({ household, userId, onAdded }) {
         <Button
           variant="secondary"
           block
-          disabled={!title.trim()}
+          disabled={saving || !title.trim()}
           onClick={handleMarkDone}
         >
           Mark as done
         </Button>
-        <Button type="submit" block disabled={!title.trim()}>
+        <Button type="submit" block disabled={saving || !title.trim()}>
           Add task
         </Button>
       </div>
