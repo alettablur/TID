@@ -39,3 +39,36 @@
   outline: 3px solid var(--accent-mustard);
   outline-offset: 2px;
 }
+
+/* looks like a section header, but the whole row is one button (44 px, NFR6) */
+.tasks-page__done-toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--text-ink);
+  text-align: left;
+  cursor: pointer;
+}
+
+.tasks-page__done-toggle:focus-visible {
+  outline: 3px solid var(--accent-mustard);
+  outline-offset: 2px;
+}
+
+/* the same pill as the count in SectionHeader */
+.tasks-page__done-count {
+  margin-right: auto;
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-chip);
+  background: var(--surface-paper);
+  color: var(--text-soft);
+}
+
+.tasks-page__error {
+  margin: 0;
+  color: var(--accent-brick);
+}

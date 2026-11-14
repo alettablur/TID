@@ -1,0 +1,19 @@
+/* sticky: it stays in view while the list scrolls; the bottom is the tab bar's
+   height (12 px + the 56 px + button + 24 px, see TabBar.css) plus a small gap */
+.toast {
+  position: sticky;
+  bottom: calc(var(--space-3) + 56px + var(--space-6) + var(--space-3) + env(safe-area-inset-bottom));
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-2) var(--space-2) var(--space-4);
+  border-radius: var(--radius-control);
+  background: var(--action-primary);
+  color: var(--text-on-dark);
+  box-shadow: var(--shadow-lifted);
+}
+
+.toast__message {
+  min-width: 0;
+}
