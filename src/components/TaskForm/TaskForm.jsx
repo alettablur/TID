@@ -62,6 +62,8 @@ export default function TaskForm({ household, userId, task, onSaved }) {
   );
   // true while addTask waits for Back4App: a second tap must not save the task twice
   const [saving, setSaving] = useState(false);
+  // true after the first tap on "Delete task": a second, clear tap deletes
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
   // a new task: always true. Editing: false until the day or time is changed,
   // so opening a task does not warn about a time that was chosen long ago
   const [whenChanged, setWhenChanged] = useState(!task);
@@ -215,6 +217,16 @@ export default function TaskForm({ household, userId, task, onSaved }) {
   }
 
   // only in the task sheet; onSaved closes the sheet and reloads, as after a save
+  // deleting cannot be undone and removes the task for both partners,
+  // so the first tap only asks (our decision, NFR5 error prevention)
+  function askDelete() {
+    setConfirmingDelete(true);
+  }
+
+  function cancelDelete() {
+    setConfirmingDelete(false);
+  }
+
   async function handleDelete() {
     setSaving(true);
     try {
@@ -440,20 +452,36 @@ export default function TaskForm({ household, userId, task, onSaved }) {
 
       {/* NFR5: a task cannot be saved without a title */}
       {task ? (
-        // editing (screens.md): Delete task | Save
-        <div className="task-form__actions">
-          <Button
-            variant="brick"
-            block
-            disabled={saving}
-            onClick={handleDelete}
-          >
-            Delete task
-          </Button>
-          <Button type="submit" block disabled={saving || !title.trim()}>
-            Save
-          </Button>
-        </div>
+        // editing (screens.md): Delete task | Save, or the question after the first tap
+        confirmingDelete ? (
+          <>
+            <p className="task-form__confirm t-body-strong">
+              Delete this task for both of you? This cannot be undone.
+            </p>
+            <div className="task-form__actions">
+              <Button variant="secondary" block onClick={cancelDelete}>
+                Keep it
+              </Button>
+              <Button
+                variant="brick"
+                block
+                disabled={saving}
+                onClick={handleDelete}
+              >
+                Delete
+              </Button>
+            </div>
+          </>
+        ) : (
+          <div className="task-form__actions">
+            <Button variant="brick" block disabled={saving} onClick={askDelete}>
+              Delete task
+            </Button>
+            <Button type="submit" block disabled={saving || !title.trim()}>
+              Save
+            </Button>
+          </div>
+        )
       ) : (
         <div className="task-form__actions">
           <Button

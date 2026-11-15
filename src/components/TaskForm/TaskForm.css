@@ -146,6 +146,12 @@
   accent-color: var(--action-primary);
 }
 
+/* the question before deleting, just above its two buttons */
+.task-form__confirm {
+  margin: var(--space-2) 0 0;
+  color: var(--text-ink);
+}
+
 /* Mark as done | Add task, side by side and equally wide */
 .task-form__actions {
   display: grid;
