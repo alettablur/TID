@@ -30,7 +30,8 @@ export default function TaskCard({
     <>
       <p className="task-card__title t-task-title">{title}</p>
       <div className="task-card__meta">
-        <StatusChip status={done ? "done" : status} />
+        {/* no status: no chip (a request to answer says it in words) */}
+        {(done || status) && <StatusChip status={done ? "done" : status} />}
         {repeatsWeekly && <StatusChip status="repeats" />}
         {meta && <span className="t-meta">{meta}</span>}
       </div>

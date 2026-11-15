@@ -152,6 +152,11 @@
   color: var(--text-ink);
 }
 
+/* "Send request to …": one full-width button, the same space above as the pair */
+.task-form__send {
+  margin-top: var(--space-2);
+}
+
 /* Mark as done | Add task, side by side and equally wide */
 .task-form__actions {
   display: grid;

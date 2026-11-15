@@ -12,6 +12,7 @@ import Avatar from "../components/Avatar.jsx";
 import Sheet from "../components/Sheet.jsx";
 import TaskCard from "../components/TaskCard/TaskCard.jsx";
 import TaskForm from "../components/TaskForm/TaskForm.jsx";
+import RequestDetails from "../components/Request/RequestDetails.jsx";
 import Toast from "../components/Toast.jsx";
 import {
   loadTasks,
@@ -19,6 +20,7 @@ import {
   takeTask,
   undoDone,
 } from "../services/taskService.js";
+import { loadRequests } from "../services/requestService.js";
 import { addDays } from "../utilities/dates.js";
 import "./TasksPage.css";
 
@@ -68,6 +70,8 @@ export default function TasksPage({ household, userId }) {
   const [toast, setToast] = useState(null);
   // the day picked in the Week view; null = today (the view opens on today)
   const [pickedDay, setPickedDay] = useState(null);
+  // the open requests (US2); loaded together with the tasks
+  const [requests, setRequests] = useState([]);
 
   // Layout raises this number when the + form has added a task
   const tasksVersion = useOutletContext();
@@ -86,14 +90,18 @@ export default function TasksPage({ household, userId }) {
   useEffect(() => {
     async function load() {
       try {
-        setTasks(await loadTasks(household));
+        const loadedTasks = await loadTasks(household);
+        const loadedRequests = await loadRequests(household);
+        // requests first: when the tasks arrive, the page draws with both
+        setRequests(loadedRequests);
+        setTasks(loadedTasks);
       } catch (error) {
         setTasksError(error.message);
       }
     }
 
     load();
-  }, [household, tasksVersion]); // load again after a new task
+  }, [household, tasksVersion]); // load again after a new task (or request)
 
   // every toast stays for 5 seconds (NFR5: the Undo after a tick)
   useEffect(() => {
@@ -146,7 +154,8 @@ export default function TasksPage({ household, userId }) {
       // setDone returns next week's copy of a weekly task, or null
       const copy = await setDone(household, task, true);
       setToast({
-        message: `${task.title} · done`,
+        // the title in quotes: the whole toast is bold, so quotes mark where a long title ends
+        message: `“${task.title}” · done`,
         task,
         copyId: copy ? copy.id : null,
       });
@@ -178,7 +187,7 @@ export default function TasksPage({ household, userId }) {
       await takeTask(task.id, task.day, "");
       // without a partner there is nobody who "can see it"
       const seenBy = other ? ` · ${other.username} can see it` : "";
-      setToast({ message: `You took ${task.title}${seenBy}` });
+      setToast({ message: `You took “${task.title}”${seenBy}` });
       setTasks(await loadTasks(household));
     } catch (error) {
       setSaveError(error.message);
@@ -209,10 +218,23 @@ export default function TasksPage({ household, userId }) {
   async function handleTaskSaved() {
     closeSheet();
     try {
-      setTasks(await loadTasks(household));
+      // the requests too: an answered request leaves "To answer" / "Waiting for"
+      const loadedTasks = await loadTasks(household);
+      setRequests(await loadRequests(household));
+      setTasks(loadedTasks);
     } catch (error) {
       setTasksError(error.message);
     }
+  }
+
+  // after Accept or Decline in the sheet (screens.md H5: "Confirmed · …")
+  function handleAnswered(accepted) {
+    setToast({
+      message: accepted
+        ? `Confirmed · “${selectedTask.title}”`
+        : `Declined · “${selectedTask.title}” is up for grabs now`,
+    });
+    handleTaskSaved();
   }
 
   // undefined if there is no id, or no task with it (deleted by the partner, say)
@@ -222,10 +244,20 @@ export default function TasksPage({ household, userId }) {
     selectedTask &&
     (selectedTask.assignedTo === null || selectedTask.assignedTo === userId);
 
+  // the open request about a task, or undefined
+  function requestFor(task) {
+    return requests.find((request) => request.taskId === task.id);
+  }
+
+  // a task with an open request is in "To answer" or "Waiting for …" instead
+  const asked = tasks.filter((task) => !task.done && requestFor(task));
+  const toAnswer = asked.filter((task) => requestFor(task).askedTo === userId);
+  const waiting = asked.filter((task) => requestFor(task).askedBy === userId);
+
   // done tasks have their own folded row ("Done this week")
   // sorted once here: the filters below keep this order
   const notDone = tasks
-    .filter((task) => !task.done)
+    .filter((task) => !task.done && !requestFor(task))
     .filter(isVisible)
     .sort(compareTasks);
 
@@ -318,6 +350,35 @@ export default function TasksPage({ household, userId }) {
   }
 
   // one card; the same for all three sections
+  // a task with an open request: in the colour of the one who is asked
+  // (Figma: "Fix the socket · Waiting" with Sam's avatar), and nothing to tick yet
+  function renderRequest(task) {
+    const request = requestFor(task);
+    const askedIsOwner = request.askedTo === household.owner.id;
+    const askedName = askedIsOwner
+      ? household.owner.username
+      : household.partner.username;
+    const when = `${formatDay(request.day)} · ${request.time}`;
+    const askedMe = request.askedTo === userId;
+    // to answer: no "Waiting" chip (I am not waiting, I have to act; our
+    // decision), the words say it. Waiting: the purple chip, as in Figma.
+    const meta = askedMe
+      ? `${other.username} asks you · ${when} · reply by ${formatDay(request.replyBy)}`
+      : `${when} · asked ${askedName}`;
+
+    return (
+      <TaskCard
+        key={task.id}
+        to={`/tasks/${task.id}${viewQuery}`}
+        title={task.title}
+        meta={meta}
+        status={askedMe ? undefined : "waiting"}
+        person={askedIsOwner ? "a" : "b"}
+        name={askedName}
+      />
+    );
+  }
+
   function renderTask(task) {
     // up for grabs: nobody's colour yet, and the card shows "Take it"
     if (task.assignedTo === null) {
@@ -501,6 +562,16 @@ export default function TasksPage({ household, userId }) {
             </p>
           )}
 
+          {/* first: something only I can move forward (FR10) */}
+          {toAnswer.length > 0 && (
+            <section className="tasks-page__section">
+              <SectionHeader title="To answer" count={toAnswer.length} />
+              <div className="tasks-page__list">
+                {toAnswer.map(renderRequest)}
+              </div>
+            </section>
+          )}
+
           {/* an empty section is left out, not shown as a heading with nothing under it */}
           {/* Today and Upcoming fold, so a long list can be made shorter (our decision) */}
           {todayTasks.length > 0 && (
@@ -525,6 +596,19 @@ export default function TasksPage({ household, userId }) {
             </section>
           )}
 
+          {/* the Figma list: Today, Upcoming, Up for grabs, then Waiting for … */}
+          {waiting.length > 0 && (
+            <section className="tasks-page__section">
+              <SectionHeader
+                title={`Waiting for ${other.username}`}
+                count={waiting.length}
+              />
+              <div className="tasks-page__list">
+                {waiting.map(renderRequest)}
+              </div>
+            </section>
+          )}
+
           {/* folded at first: done work is visible, but does not push the open tasks away */}
           {doneThisWeek.length > 0 && (
             <FoldSection title="Done this week" count={doneThisWeek.length}>
@@ -536,7 +620,15 @@ export default function TasksPage({ household, userId }) {
 
       {selectedTask && (
         <Sheet title={selectedTask.title} onClose={closeSheet}>
-          {canEdit ? (
+          {/* a task with an open request: the request, not the task form */}
+          {requestFor(selectedTask) ? (
+            <RequestDetails
+              request={requestFor(selectedTask)}
+              userId={userId}
+              partnerName={other.username}
+              onAnswered={handleAnswered}
+            />
+          ) : canEdit ? (
             <TaskForm
               household={household}
               userId={userId}

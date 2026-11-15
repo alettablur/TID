@@ -8,6 +8,7 @@ import {
   setDone,
   updateTask,
 } from "../../services/taskService.js";
+import { askPartner } from "../../services/requestService.js";
 import { addDays } from "../../utilities/dates.js";
 import "./TaskForm.css";
 
@@ -41,12 +42,17 @@ for (let hour = 0; hour < 24; hour++) {
 }
 const QUARTERS = ["00", "15", "30", "45"];
 
+// "19:00" when it is 18:20: where the time dropdowns start
+function nextFullHour() {
+  return `${twoDigits((new Date().getHours() + 1) % 24)}:00`;
+}
+
 // the form in the + sheet: a new task (FR3). With a task, the same form
 // edits that task in the task sheet, and every field starts from it.
 export default function TaskForm({ household, userId, task, onSaved }) {
   const [title, setTitle] = useState(task ? task.title : "");
   const [error, setError] = useState("");
-  // FR6: "me" or "either" (up for grabs); asking the partner comes with requests
+  // FR6: "me", "partner" (a request, FR9) or "either" (up for grabs)
   const [who, setWho] = useState(
     task && task.assignedTo === null ? "either" : "me",
   );
@@ -82,10 +88,17 @@ export default function TaskForm({ household, userId, task, onSaved }) {
     load();
   }, [household]);
 
+  // the other person: the partner if I am the owner, otherwise the owner (null = alone)
+  const partner =
+    userId === household.owner.id ? household.partner : household.owner;
+
   const days = nextSevenDays();
+  // a request must be answered the day before (FR9), so it cannot be for today
+  // (our decision): the strip starts tomorrow
+  const stripDays = who === "partner" ? days.slice(1) : days;
   // false for a late task or one more than a week away: no button shows its day
   const dayInStrip =
-    day !== null && days.some((date) => date.getTime() === day.getTime());
+    day !== null && stripDays.some((date) => date.getTime() === day.getTime());
 
   // screens.md: a clash = a task of the person who will do it (Me → mine,
   // Either → both of ours) on the same day, at most 1 hour away. Only a warning.
@@ -100,7 +113,9 @@ export default function TaskForm({ household, userId, task, onSaved }) {
         other.id !== task?.id && // when editing, not the task itself
         (who === "me"
           ? other.assignedTo === userId
-          : other.assignedTo !== null) &&
+          : who === "partner"
+            ? other.assignedTo === partner.id
+            : other.assignedTo !== null) &&
         other.day &&
         other.day.getTime() === day.getTime() &&
         other.time !== "" &&
@@ -122,6 +137,19 @@ export default function TaskForm({ household, userId, task, onSaved }) {
     setWho("either");
   }
 
+  // a request needs a day (not today) and a time (screens.md: "needed for a request")
+  function choosePartner() {
+    setWho("partner");
+    setWhenChanged(true);
+    if (day !== null && day.getTime() === days[0].getTime()) {
+      setDay(null);
+    }
+    setHasTime(true);
+    if (time === "") {
+      setTime(nextFullHour());
+    }
+  }
+
   function chooseNoDate() {
     setDay(null);
   }
@@ -135,8 +163,7 @@ export default function TaskForm({ household, userId, task, onSaved }) {
     setWhenChanged(true);
     // start the dropdowns on the next full hour, so they never show an empty time
     if (time === "") {
-      const nextHour = (new Date().getHours() + 1) % 24;
-      setTime(`${twoDigits(nextHour)}:00`);
+      setTime(nextFullHour());
     }
   }
 
@@ -168,11 +195,13 @@ export default function TaskForm({ household, userId, task, onSaved }) {
     setSaving(true);
 
     try {
-      // nobody assigned = up for grabs; a task already done was done by me
-      const assignedTo = done || who === "me" ? userId : null;
-      // a time and a repeat only count with a day; "" = any time
+      // nobody assigned = up for grabs; a task already done was done by me;
+      // a requested task stays mine until the partner accepts (data-model.md)
+      const assignedTo = who === "either" && !done ? null : userId;
+      // a time and a repeat only count with a day; "" = any time;
+      // a request does not repeat (left out of our small version)
       const taskTime = day && hasTime ? time : "";
-      const taskRepeats = day !== null && repeatsWeekly;
+      const taskRepeats = day !== null && repeatsWeekly && who !== "partner";
 
       if (task) {
         // editing: change the task that is already there, do not add a new one
@@ -197,6 +226,10 @@ export default function TaskForm({ household, userId, task, onSaved }) {
         if (done) {
           await setDone(household, newTask, true);
         }
+        // FR9: the task is there, now ask the partner to do it then
+        if (who === "partner") {
+          await askPartner(household, newTask, partner.id, day, taskTime);
+        }
       }
       // no setSaving(false) here: the sheet closes and the form is gone
       onSaved();
@@ -216,7 +249,6 @@ export default function TaskForm({ household, userId, task, onSaved }) {
     save(true);
   }
 
-  // only in the task sheet; onSaved closes the sheet and reloads, as after a save
   // deleting cannot be undone and removes the task for both partners,
   // so the first tap only asks (our decision, NFR5 error prevention)
   function askDelete() {
@@ -227,6 +259,7 @@ export default function TaskForm({ household, userId, task, onSaved }) {
     setConfirmingDelete(false);
   }
 
+  // only in the task sheet; onSaved closes the sheet and reloads, as after a save
   async function handleDelete() {
     setSaving(true);
     try {
@@ -268,6 +301,17 @@ export default function TaskForm({ household, userId, task, onSaved }) {
         >
           Me
         </button>
+        {/* asking the partner: only for a new task, and only with a partner */}
+        {partner && !task && (
+          <button
+            type="button"
+            className="task-form__choice t-body-strong"
+            aria-pressed={who === "partner"}
+            onClick={choosePartner}
+          >
+            {partner.username}
+          </button>
+        )}
         <button
           type="button"
           className="task-form__choice t-body-strong"
@@ -282,26 +326,41 @@ export default function TaskForm({ household, userId, task, onSaved }) {
         <p className="task-form__notice t-meta">Goes to Up for grabs</p>
       )}
 
+      {/* screens.md, "Ask Sam" */}
+      {who === "partner" && (
+        <p className="task-form__hint t-meta">
+          {partner.username} can accept or decline, and must reply by the day
+          before.
+        </p>
+      )}
+
       {/* for an up-for-grabs task the day is a deadline, and it may be left empty */}
       <p className="task-form__label t-overline" id="task-form-day">
-        {who === "either" ? "By when · optional" : "Day"}
+        {who === "either"
+          ? "By when · optional"
+          : who === "partner"
+            ? "When · needed for a request"
+            : "Day"}
       </p>
       <div
         className="task-form__days"
         role="group"
         aria-labelledby="task-form-day"
       >
-        <button
-          type="button"
-          className="task-form__choice task-form__day"
-          aria-pressed={day === null}
-          onClick={chooseNoDate}
-        >
-          <span className="t-chip">No</span>
-          <span className="t-body-strong">date</span>
-        </button>
+        {/* a request needs a day */}
+        {who !== "partner" && (
+          <button
+            type="button"
+            className="task-form__choice task-form__day"
+            aria-pressed={day === null}
+            onClick={chooseNoDate}
+          >
+            <span className="t-chip">No</span>
+            <span className="t-body-strong">date</span>
+          </button>
+        )}
 
-        {days.map(function renderDay(date, index) {
+        {stripDays.map(function renderDay(date) {
           // the button knows its own date, so one handler per button
           function chooseDay() {
             setDay(date);
@@ -317,7 +376,7 @@ export default function TaskForm({ household, userId, task, onSaved }) {
               onClick={chooseDay}
             >
               <span className="t-chip">
-                {index === 0
+                {date.getTime() === days[0].getTime()
                   ? "Today"
                   : date.toLocaleDateString("en-GB", { weekday: "short" })}
               </span>
@@ -347,28 +406,31 @@ export default function TaskForm({ household, userId, task, onSaved }) {
           <p className="task-form__label t-overline" id="task-form-time">
             Time
           </p>
-          <div
-            className="task-form__choices"
-            role="group"
-            aria-labelledby="task-form-time"
-          >
-            <button
-              type="button"
-              className="task-form__choice t-body-strong"
-              aria-pressed={!hasTime}
-              onClick={chooseAnyTime}
+          {/* a request always has a time, so no "Any time" choice for it */}
+          {who !== "partner" && (
+            <div
+              className="task-form__choices"
+              role="group"
+              aria-labelledby="task-form-time"
             >
-              Any time
-            </button>
-            <button
-              type="button"
-              className="task-form__choice t-body-strong"
-              aria-pressed={hasTime}
-              onClick={chooseSetTime}
-            >
-              Set time
-            </button>
-          </div>
+              <button
+                type="button"
+                className="task-form__choice t-body-strong"
+                aria-pressed={!hasTime}
+                onClick={chooseAnyTime}
+              >
+                Any time
+              </button>
+              <button
+                type="button"
+                className="task-form__choice t-body-strong"
+                aria-pressed={hasTime}
+                onClick={chooseSetTime}
+              >
+                Set time
+              </button>
+            </div>
+          )}
 
           {/* two native dropdowns instead of <input type="time">: they work with
               screen readers and the keyboard, open the phone's own big picker
@@ -416,7 +478,11 @@ export default function TaskForm({ household, userId, task, onSaved }) {
               />
               <span>
                 <strong>Close in time</strong>{" "}
-                {who === "me" ? "to one of your tasks" : "to a planned task"}
+                {who === "me"
+                  ? "to one of your tasks"
+                  : who === "partner"
+                    ? `to one of ${partner.username}'s tasks`
+                    : "to a planned task"}
                 {" · "}
                 {clash.title} ·{" "}
                 {clash.day.getTime() === days[0].getTime()
@@ -430,21 +496,24 @@ export default function TaskForm({ household, userId, task, onSaved }) {
             </p>
           )}
 
-          {/* the label around the checkbox: tapping the text ticks it too */}
-          <label className="task-form__repeat">
-            <span className="task-form__repeat-text">
-              <span className="t-body-strong">Repeat every week</span>
-              <span className="t-meta">
-                A new copy appears when this one is done
+          {/* the label around the checkbox: tapping the text ticks it too;
+              a request does not repeat (left out of our small version) */}
+          {who !== "partner" && (
+            <label className="task-form__repeat">
+              <span className="task-form__repeat-text">
+                <span className="t-body-strong">Repeat every week</span>
+                <span className="t-meta">
+                  A new copy appears when this one is done
+                </span>
               </span>
-            </span>
-            <input
-              className="task-form__checkbox"
-              type="checkbox"
-              checked={repeatsWeekly}
-              onChange={handleRepeatChange}
-            />
-          </label>
+              <input
+                className="task-form__checkbox"
+                type="checkbox"
+                checked={repeatsWeekly}
+                onChange={handleRepeatChange}
+              />
+            </label>
+          )}
         </>
       )}
 
@@ -482,6 +551,17 @@ export default function TaskForm({ household, userId, task, onSaved }) {
             </Button>
           </div>
         )
+      ) : who === "partner" ? (
+        // a request: one button, and only once a day is picked
+        <div className="task-form__send">
+          <Button
+            type="submit"
+            block
+            disabled={saving || !title.trim() || !day}
+          >
+            Send request to {partner.username}
+          </Button>
+        </div>
       ) : (
         <div className="task-form__actions">
           <Button
