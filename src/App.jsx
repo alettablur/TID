@@ -73,12 +73,21 @@ function App() {
   // logged in: every page inside the Layout, which draws the tab bar
   return (
     <Routes>
-      <Route element={<Layout />}>
+      <Route element={<Layout household={household} userId={user.id} />}>
         <Route index element={<HomePage />} />
-        <Route path="tasks" element={<TasksPage />} />
-        <Route path="tasks/:taskId" element={<TasksPage />} />
+        <Route
+          path="tasks"
+          element={<TasksPage household={household} userId={user.id} />}
+        />
+        <Route
+          path="tasks/:taskId"
+          element={<TasksPage household={household} userId={user.id} />}
+        />
         <Route path="groceries" element={<GroceriesPage />} />
-        <Route path="us" element={<UsPage household={household} onLogout={handleLogout} />} />
+        <Route
+          path="us"
+          element={<UsPage household={household} onLogout={handleLogout} />}
+        />
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>
