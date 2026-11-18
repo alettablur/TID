@@ -86,7 +86,14 @@ function App() {
         <Route path="groceries" element={<GroceriesPage />} />
         <Route
           path="us"
-          element={<UsPage household={household} onLogout={handleLogout} />}
+          element={
+            <UsPage
+              household={household}
+              userId={user.id}
+              onLogout={handleLogout}
+              onHouseholdChange={setHousehold}
+            />
+          }
         />
         <Route path="*" element={<NotFoundPage />} />
       </Route>
