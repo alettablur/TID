@@ -2,3 +2,14 @@
   margin: 0;
   color: var(--text-soft);
 }
+
+.us-page__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.us-page__header h1 {
+  margin: 0;
+}
