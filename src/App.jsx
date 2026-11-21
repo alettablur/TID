@@ -75,10 +75,18 @@ function App() {
     <Routes>
       <Route element={<Layout />}>
         <Route index element={<HomePage />} />
-        <Route path="tasks" element={<TasksPage />} />
-        <Route path="tasks/:taskId" element={<TasksPage />} />
-        <Route path="groceries" element={<GroceriesPage />} />
-        <Route path="us" element={<UsPage household={household} onLogout={handleLogout} />} />
+        <Route
+          path="tasks"
+          element={<TasksPage household={household} userId={user.id} />}
+        />
+        <Route
+          path="tasks/:taskId"
+          element={<TasksPage household={household} userId={user.id} />}
+        />
+        <Route
+          path="groceries"
+          element={<GroceriesPage household={household} userId={user.id} />}
+        />
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>
