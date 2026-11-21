@@ -1,9 +1,11 @@
 import Button from "../components/Button.jsx";
 import "./UsPage.css";
+import { useState, useEffect } from "react";
+import { loadTasks } from "../services/taskService.js";
 import InviteCard from "../components/InviteCard/InviteCard.jsx";
+import StatsCard from "../components/StatsCard/StatsCard.jsx";
 import AvatarPair from "../components/AvatarPair.jsx";
 
-// until the Us slice: which household this is, and the logout button
 export default function UsPage({
   household,
   userId,
@@ -14,6 +16,32 @@ export default function UsPage({
   const other =
     household.owner.id === userId ? household.partner : household.owner;
 
+  const [tasks, setTasks] = useState(null);
+  const [tasksError, setTasksError] = useState(null);
+
+  useEffect(() => {
+    async function load() {
+      try {
+        setTasks(await loadTasks(household));
+      } catch (error) {
+        setTasksError(error.message);
+      }
+    }
+    load();
+    // polling the server every 10 sec to reload the tasks -- consider making this custom hook
+    const interval = setInterval(load, 10000);
+    return () => clearInterval(interval);
+  }, [household]);
+
+  // early returns if there is an error in loading the tasks
+  if (tasksError)
+    return (
+      <p className="stats-card__error" role="alert">
+        {tasksError}
+      </p>
+    );
+  if (!tasks) return <p>Loading…</p>;
+
   return (
     <>
       <p className="t-overline">{household.name}</p>
@@ -21,19 +49,28 @@ export default function UsPage({
         <h1 className="t-screen-title">Us</h1>
         <AvatarPair household={household} />
       </div>
-      <p className="us-page__household t-body">
-        {household.name} ·{" "}
-        {household.partner
-          ? `Shared with ${household.partner.username}`
-          : "No partner yet"}
-      </p>
       {other === null ? (
         <InviteCard
           household={household}
           onHouseholdChange={onHouseholdChange}
         />
       ) : (
-        <p>You share the list with {other.username}</p>
+        <>
+          <div className="stats-row">
+            <StatsCard tasks={tasks} userId={userId} title="You" variant="a" />
+            {other && (
+              <StatsCard
+                tasks={tasks}
+                userId={other.id}
+                title={other.username}
+                variant="b"
+              />
+            )}
+          </div>
+          <p className="us-page__note">
+            Organised = tasks you added, planned or proposed.
+          </p>
+        </>
       )}
       <Button variant="secondary" onClick={onLogout}>
         Log out
