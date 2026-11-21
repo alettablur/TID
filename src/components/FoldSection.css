@@ -1,0 +1,46 @@
+/* the space between sections comes from .layout__main */
+.fold-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.fold-section__heading {
+  margin: 0;
+}
+
+/* looks like a section header, but the whole row is one button (44 px, NFR6) */
+.fold-section__toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--text-ink);
+  text-align: left;
+  cursor: pointer;
+}
+
+.fold-section__toggle:focus-visible {
+  outline: 3px solid var(--accent-mustard);
+  outline-offset: 2px;
+}
+
+/* the same pill as the count in SectionHeader; margin-right: auto pushes
+   the arrow to the right edge */
+.fold-section__count {
+  margin-right: auto;
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-chip);
+  background: var(--surface-paper);
+  color: var(--text-soft);
+}
+
+.fold-section__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}

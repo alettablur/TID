@@ -1,6 +1,9 @@
+/* z-index 1: a sheet opened inside a page comes before the sticky tab bar
+   in the HTML, and would otherwise be painted under it */
 .sheet__scrim {
   position: fixed;
   inset: 0;
+  z-index: 1;
   display: flex;
   align-items: flex-end;
   justify-content: center;
