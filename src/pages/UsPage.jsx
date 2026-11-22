@@ -2,9 +2,11 @@ import Button from "../components/Button.jsx";
 import "./UsPage.css";
 import { useState, useEffect } from "react";
 import { loadTasks } from "../services/taskService.js";
+import { loadThanks, sendThanks } from "../services/thanksService.js";
 import InviteCard from "../components/InviteCard/InviteCard.jsx";
 import StatsCard from "../components/StatsCard/StatsCard.jsx";
 import WeekBar from "../components/WeekBar/WeekBar.jsx";
+import ThankCard from "../components/ThankCard/ThankCard.jsx";
 import AvatarPair from "../components/AvatarPair.jsx";
 
 export default function UsPage({
@@ -19,12 +21,19 @@ export default function UsPage({
   const [weekOffset, setWeekOffset] = useState(0);
   const [tasks, setTasks] = useState(null);
   const [tasksError, setTasksError] = useState(null);
+  const [thanks, setThanks] = useState(null);
 
   useEffect(() => {
     async function load() {
       try {
-        setTasks(await loadTasks(household));
+        // loading tasks and thanks at the same time as they are not depending on eachother
+        const [householdTasks, householdThanks] = await Promise.all([
+          loadTasks(household),
+          loadThanks(household),
+        ]);
+        setTasks(householdTasks);
         setTasksError(null);
+        setThanks(householdThanks);
       } catch (error) {
         setTasksError(error.message);
       }
@@ -35,6 +44,14 @@ export default function UsPage({
     return () => clearInterval(interval);
   }, [household]);
 
+  async function handleThank(task) {
+    try {
+      const newThanks = await sendThanks(task, other);
+      setThanks((prevThanks) => [...(prevThanks ?? []), newThanks]);
+    } catch (error) {
+      console.error(error);
+    }
+  }
   // early returns if there is an error in loading the tasks
   if (tasksError)
     return (
@@ -43,6 +60,22 @@ export default function UsPage({
       </p>
     );
   if (!tasks) return <p>Loading…</p>;
+
+  // dates of yesterday for the notification of a task done by the partner
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+
+  const thankedTaskIds = new Set(
+    thanks.filter((t) => t.createdAt >= yesterday).map((t) => t.taskId),
+  );
+  const tasksToThank = tasks.filter(
+    (task) =>
+      other && // make sure that unassigned tasks before the partner joins are not shown
+      task.done &&
+      task.doneAt >= yesterday &&
+      task.assignedTo === other.id &&
+      !thankedTaskIds.has(task.id),
+  );
 
   return (
     <>
@@ -78,6 +111,11 @@ export default function UsPage({
           <p className="us-page__note">
             Organised = tasks you added, planned or proposed.
           </p>
+          <ThankCard
+            tasks={tasksToThank}
+            onThank={handleThank}
+            partnerName={other.username}
+          />
         </>
       )}
       <Button variant="secondary" onClick={onLogout}>
