@@ -1,9 +1,3 @@
-/* every colour, size and radius comes from tokens.css */
-
-.grocery-page__section {
-  margin-top: var(--space-6);
-}
-
 .grocery-page__error {
   margin-top: var(--space-4);
   color: var(--status-clash);
