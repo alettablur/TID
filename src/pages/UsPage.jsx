@@ -95,6 +95,7 @@ export default function UsPage({
           <div className="stats-row">
             <StatsCard
               tasks={tasks}
+              thanks={thanks}
               weekOffset={weekOffset}
               userId={userId}
               title="You"
@@ -102,6 +103,7 @@ export default function UsPage({
             />
             <StatsCard
               tasks={tasks}
+              thanks={thanks}
               weekOffset={weekOffset}
               userId={other.id}
               title={other.username}

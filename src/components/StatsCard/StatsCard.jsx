@@ -4,19 +4,28 @@ import Avatar from "../Avatar.jsx";
 
 export default function StatsCard({
   tasks,
+  thanks,
   weekOffset,
   userId,
   title,
   variant = "a",
 }) {
+  // filtering for the chosen week
   const [start, end] = weekBoundsFromOffset(weekOffset);
-  const thisWeek = tasks.filter((t) => t.day && t.day >= start && t.day < end);
+  const tasksThisWeek = tasks.filter(
+    (t) => t.day && t.day >= start && t.day < end,
+  );
+  const thanksThisWeek = thanks.filter(
+    (th) => th.createdAt && th.createdAt >= start && th.createdAt < end,
+  );
 
-  const addedCount = thisWeek.filter((t) => t.addedBy === userId).length;
-  const doneCount = thisWeek.filter(
+  // counting the stats
+  const addedCount = tasksThisWeek.filter((t) => t.addedBy === userId).length;
+  const doneCount = tasksThisWeek.filter(
     (t) => t.done && t.assignedTo === userId,
   ).length;
-  const thanksCount = 0; // change this as thanks service is set up
+  // FR14: thank-yous a person received from Monday to Sunday, with count()
+  const thanksCount = thanksThisWeek.filter((th) => th.to === userId).length;
 
   return (
     <section className={`stats-card stats-card--${variant}`}>
@@ -33,7 +42,7 @@ export default function StatsCard({
         <span className="t-number">{addedCount}</span>
       </p>
       <p className="stats-card__stat">
-        <span className="t-body">Thanks</span>
+        <span className="t-body">Thanks received</span>
         <span className="t-number">{thanksCount}</span>
       </p>
     </section>

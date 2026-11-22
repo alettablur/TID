@@ -50,8 +50,3 @@ export async function sendThanks(task, partner) {
   const saved = await row.save();
   return { ...toThanks(saved), taskTitle: task.title }; // overwriting the task title as this is otherwise undefined
 }
-
-// FR14: thank-yous a person received from Monday to Sunday, with count()
-export async function countThanksReceived(household, userId, weekStart) {
-  throw new Error("Not built yet");
-}
