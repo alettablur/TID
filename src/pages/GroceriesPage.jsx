@@ -1,9 +1,10 @@
 import {useState,useEffect} from "react";
 import {useOutletContext} from "react-router-dom";
 import SectionHeader from "../components/SectionHeader.jsx";
-import Toast from "../components/Toast.jsx";
 import Button from "../components/Button.jsx";
+import Sheet from "../components/Sheet.jsx";
 import {loadGroceries, setBought, updateGrocery, deleteGrocery} from "../services/groceryService.js";
+import GroceryForm from "../components/GroceryForm/GroceryForm.jsx";
 import "./GroceriesPage.css"
 
 
@@ -16,11 +17,10 @@ function formatBoughtAt(date) {
 }
 
 export default function GroceriesPage({ household, userId }) {
-  console.log("household:", household, "userId:", userId);
+  console.log("household:", household, "userId:", userId); // Can be deleted after confirming values are correct
   const [groceries, setGroceries] = useState(null);
   const [error, setError] = useState("");
-  const [toast, setToast] = useState(null);
-  const [draft, setDraft] = useState(null);
+  const [selectedId, setSelectedId] = useState(null);
   const groceryListVersion = useOutletContext();
 
   useEffect(() => {
@@ -30,89 +30,63 @@ export default function GroceriesPage({ household, userId }) {
     });
   }, [household, groceryListVersion]);
 
-  useEffect(() => {
-    if (!toast) return;
-    const timer = setTimeout(() => setToast(null), 5000);
-    return () => clearTimeout(timer);
-  }, [toast]);
 
   if (!groceries) return <p className="t-body">{error || "Loading…"}</p>;
 
   const other = userId === household.owner.id ? household.partner : household.owner;
   const nameOf = (id) => (id === userId ? "you" : other?.username);
 
+  const selectedGrocery = groceries.find((g) => g.id === selectedId);
 
-async function run(action, newToast = null) {
+
+  async function run(action) {
     try {
       setError("");
       await action();
-      setToast(newToast);
       setGroceries(await loadGroceries(household));
     } catch (err) {
       setError(err.message);
     }
   }
 
-  // only buying gets an Undo
-  const toggle = (g, isBought) =>
-    run(() => setBought(g.id, isBought), isBought ? { message: `${g.name} bought`, grocery: g } : null);
+  const toggle = (g, isBought) => run(() => setBought(g.id, isBought));
 
-  function saveDraft(event) {
-    event.preventDefault(); // a form would otherwise reload the page
-    run(() => updateGrocery(draft.id, { name: draft.name, amount: draft.amount }));
-    setDraft(null);
-  }
+  function closeSheet() {
+      setSelectedId(null);
+    }
 
-  function renderDraft() {
-    const changeAmount = (by) => setDraft({ ...draft, amount: draft.amount + by });
-    return (
-      <li key={draft.id} className="grocery-page__item">
-        <form className="grocery-page__edit" onSubmit={saveDraft}>
-          <input className="grocery-page__input t-body" value={draft.name} autoFocus aria-label="Grocery name"
-            onChange={(e) => setDraft({ ...draft, name: e.target.value })} />
-          <Button variant="soft" small disabled={draft.amount === 1} onClick={() => changeAmount(-1)}>−</Button>
-          <span className="t-body-strong">{draft.amount}</span>
-          <Button variant="soft" small onClick={() => changeAmount(1)}>+</Button>
-          <Button type="submit" small>Save</Button>
-          <Button variant="secondary" small onClick={() => setDraft(null)}>Cancel</Button>
-        </form>
-      </li>
-    );
+  async function handleSaved() {
+    closeSheet();
+    try {
+      setGroceries(await loadGroceries(household));
+    } catch (err) {
+      setError(err.message);
+    }
   }
 
  function renderGrocery(g) {
-    if (draft?.id === g.id) return renderDraft();
-
     const meta = g.bought
       ? `bought by ${nameOf(g.boughtBy)}, ${formatBoughtAt(g.boughtAt)}`
       : `added by ${nameOf(g.addedBy)}`;
 
     return (
-      <li key={g.id} className="grocery-page__item">
+          <li key={g.id} className="grocery-page__item">
         <button type="button" className="grocery-page__check" aria-pressed={g.bought} aria-label={g.name}
           onClick={() => toggle(g, !g.bought)}>
           {g.bought && "✓"}
         </button>
-        <div className="grocery-page__text">
-          <span className={`t-body-strong ${g.bought ? "grocery-page__name--bought" : ""}`}>{g.name}</span>
-          <span className="t-meta">{meta}</span>
-        </div>
-        {g.amount > 1 && <span className="grocery-page__amount t-chip">×{g.amount}</span>}
-        <Button variant="soft" small onClick={() => setDraft({ id: g.id, name: g.name, amount: g.amount })}>
-          Edit
-        </Button>
-        <Button variant="brick" small onClick={() => {
-          setGroceries(grocieries.filter((item) => item.id !== g.id));
-          run(() => deleteGrocery(g.id));
-        }}>
-          Delete
-        </Button>
+        <button type="button" className="grocery-page__open" onClick={() => setSelectedId(g.id)}>
+          {/* a span, not a div: a button may only hold inline content */}
+          <span className="grocery-page__text">
+            <span className={`t-body-strong ${g.bought ? "grocery-page__name--bought" : ""}`}>{g.name}</span>
+            <span className="t-meta">{meta}</span>
+          </span>
+          {<span className="grocery-page__amount t-chip">×{g.amount}</span>}
+        </button>
       </li>
     );
   }
- 
-
-  // one section; an empty one is left out
+  
   function renderSection(title, list) {
     if (list.length === 0) return null;
     return (
@@ -128,13 +102,22 @@ async function run(action, newToast = null) {
       <h1 className="t-screen-title">Groceries</h1>
       {error && <p className="grocery-page__error t-meta">{error}</p>}
       {groceries.length === 0 && <p className="t-body">Nothing on the list yet. Tap + to add a grocery.</p>}
-
+ 
       {renderSection("To buy", groceries.filter((g) => !g.bought))}
       {/* last bought first */}
       {renderSection("Bought", groceries.filter((g) => g.bought).sort((a, b) => b.boughtAt - a.boughtAt))}
-
-      {toast && (
-        <Toast message={toast.message} onUndo={toast.grocery ? () => toggle(toast.grocery, false) : undefined} />
+ 
+      {selectedGrocery && (
+        <Sheet title={selectedGrocery.name} onClose={closeSheet}>
+          {/* key: a different item mounts a fresh form, so its fields start from that item */}
+          <GroceryForm
+            key={selectedGrocery.id}
+            household={household}
+            userId={userId}
+            grocery={selectedGrocery}
+            onSaved={handleSaved}
+          />
+        </Sheet>
       )}
     </>
   );

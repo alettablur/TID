@@ -1,18 +1,18 @@
 import { useEffect, useState } from "react";
 import Button from "../Button.jsx";
-import { addGrocery, loadGroceries, updateGrocery } from "../../services/groceryService.js";
+import { addGrocery, loadGroceries, updateGrocery, deleteGrocery } from "../../services/groceryService.js";
 import "./GroceryForm.css";
 
 // the Grocery side of the + sheet: add items one after another; Done closes the sheet
-export default function GroceryForm({ household, userId, onAdded, onDone }) {
-  const [name, setName] = useState("");
-  const [amount, setAmount] = useState(1);
+export default function GroceryForm({ household, userId, grocery, onAdded, onDone, onSaved }) {
+  const [name, setName] = useState(grocery ? grocery.name : "");
+  const [amount, setAmount] = useState(grocery ? grocery.amount : 1);
   const [groceries, setGroceries] = useState([]); // the list, to spot a duplicate
   const [justAdded, setJustAdded] = useState([]); // added since the sheet opened
-  const [saving, setSaving] = useState(false); // a second tap must not add twice
+  const [saving, setSaving] = useState(false); // a second tap must not save twice
   const [error, setError] = useState("");
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
 
-  // the notice is only a help: without the list the form still works
   useEffect(() => {
     loadGroceries(household).then(setGroceries).catch(() => {});
   }, [household]);
@@ -20,7 +20,7 @@ export default function GroceryForm({ household, userId, onAdded, onDone }) {
   const partner = userId === household.owner.id ? household.partner : household.owner;
   // the same name still to buy, whatever the capitals
   const duplicate = groceries.find(
-    (g) => !g.bought && g.name.toLowerCase() === name.trim().toLowerCase(),
+    (g) => !g.bought && g.id !== grocery?.id && g.name.toLowerCase() === name.trim().toLowerCase(),
   );
 
   // every save: empty the form, tell the page to reload, refresh the list for the notice
@@ -40,20 +40,52 @@ export default function GroceryForm({ household, userId, onAdded, onDone }) {
   }
 
   function add(event) {
-    event.preventDefault(); // a form would otherwise reload the page
     run(async () => {
-      const grocery = await addGrocery(household, { name, amount });
-      setJustAdded((list) => [grocery, ...list]); // the newest on top
+      const added = await addGrocery(household, { name, amount });
+      setJustAdded((list) => [added, ...list]); // the newest on top
     });
   }
+
+    async function saveEdit() {
+        setSaving(true);
+        try {
+        setError("");
+        await updateGrocery(grocery.id, { name: name.trim(), amount });
+        onSaved(); // no setSaving(false): the sheet closes and the form is gone
+        } catch (err) {
+        setError(err.message);
+        setSaving(false); // let the user try again
+        }
+    }
+    
+    function handleSubmit(event) {
+        event.preventDefault(); // a form would otherwise reload the page
+        if (grocery) {
+        saveEdit();
+        } else {
+        add();
+        }
+    }
 
   // "Set to 2": add the amount to the one already on the list, instead of a second row
   function addToDuplicate() {
     run(() => updateGrocery(duplicate.id, { name: duplicate.name, amount: duplicate.amount + amount }));
   }
 
+  async function handleDelete() {
+    setSaving(true);
+    try {
+      setError("");
+      await deleteGrocery(grocery.id);
+      onSaved();
+    } catch (err) {
+      setError(err.message);
+      setSaving(false);
+    }
+  }
+
   return (
-    <form className="grocery-form" onSubmit={add}>
+    <form className="grocery-form" onSubmit={handleSubmit}>
         <div className="grocery-form__field">
         <input className="grocery-form__input t-body-strong" type="text" placeholder="e.g. Coffee"
             aria-label="What to buy" value={name} autoFocus onChange={(e) => setName(e.target.value)} />
@@ -68,9 +100,12 @@ export default function GroceryForm({ household, userId, onAdded, onDone }) {
             <strong>Already on the list</strong> · added by{" "}
             {duplicate.addedBy === userId ? "you" : partner?.username}
           </span>
-          <Button variant="secondary" small disabled={saving} onClick={addToDuplicate}>
-            Set to {duplicate.amount + amount}
-          </Button>
+          {/* merging only when adding; when editing it is just a warning */}
+          {!grocery && (
+            <Button variant="secondary" small disabled={saving} onClick={addToDuplicate}>
+              Set to {duplicate.amount + amount}
+            </Button>
+          )}
         </div>
       )}
 
@@ -90,11 +125,33 @@ export default function GroceryForm({ household, userId, onAdded, onDone }) {
       )}
 
       {error && <p className="grocery-form__error t-meta">{error}</p>}
-
-      <div className="grocery-form__actions">
-        <Button variant="secondary" block onClick={onDone}>Done</Button>
-        <Button type="submit" block disabled={saving || !name.trim()}>Add</Button>
-      </div>
+ 
+      {grocery ? (
+        // editing: Delete item | Save, or the question after the first tap
+        confirmingDelete ? (
+          <>
+            <p className="grocery-form__confirm t-body-strong">
+              Delete {grocery.name} for both of you? This cannot be undone.
+            </p>
+            <div className="grocery-form__actions">
+              <Button variant="secondary" block onClick={() => setConfirmingDelete(false)}>Keep it</Button>
+              <Button variant="brick" block disabled={saving} onClick={handleDelete}>Delete</Button>
+            </div>
+          </>
+        ) : (
+          <div className="grocery-form__actions">
+            <Button variant="brick" block disabled={saving} onClick={() => setConfirmingDelete(true)}>
+              Delete item
+            </Button>
+            <Button type="submit" block disabled={saving || !name.trim()}>Save</Button>
+          </div>
+        )
+      ) : (
+        <div className="grocery-form__actions">
+          <Button variant="secondary" block onClick={onDone}>Done</Button>
+          <Button type="submit" block disabled={saving || !name.trim()}>Add</Button>
+        </div>
+      )}
     </form>
   );
 }

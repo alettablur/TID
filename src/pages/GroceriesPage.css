@@ -53,6 +53,22 @@
   background: var(--status-planned);
 }
 
+/* the rest of the row: a button that opens the grocery sheet */
+.grocery-page__open {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
 .grocery-page__text {
   display: flex;
   flex: 1;
