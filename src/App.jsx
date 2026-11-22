@@ -83,10 +83,9 @@ function App() {
           path="tasks/:taskId"
           element={<TasksPage household={household} userId={user.id} />}
         />
-        <Route path="groceries" element={<GroceriesPage />} />
         <Route
-          path="us"
-          element={<UsPage household={household} onLogout={handleLogout} />}
+          path="groceries"
+          element={<GroceriesPage household={household} userId={user.id} />}
         />
         <Route path="*" element={<NotFoundPage />} />
       </Route>

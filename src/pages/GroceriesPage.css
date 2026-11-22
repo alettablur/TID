@@ -1,0 +1,101 @@
+.grocery-page__error {
+  margin-top: var(--space-4);
+  color: var(--status-clash);
+}
+
+/* one card per section, rows split by a thin line */
+.grocery-page__list {
+  list-style: none;
+  margin: var(--space-2) 0 0;
+  padding: 0 var(--space-4);
+  border-radius: var(--radius-card);
+  background: var(--surface-card);
+  box-shadow: var(--shadow-soft);
+}
+
+.grocery-page__item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) 0;
+}
+
+.grocery-page__item + .grocery-page__item {
+  border-top: 1px solid var(--line-soft);
+}
+
+/* the tick: an empty circle to buy, a filled green square once bought */
+.grocery-page__check {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: 2px solid var(--text-muted);
+  border-radius: var(--radius-round);
+  background: none;
+  color: var(--text-on-dark);
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.grocery-page__check[aria-pressed="true"] {
+  border-color: var(--status-planned);
+  border-radius: 6px;
+  background: var(--status-planned);
+}
+
+/* the rest of the row: a button that opens the grocery sheet */
+.grocery-page__open {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.grocery-page__text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.grocery-page__name--bought {
+  color: var(--text-muted);
+  text-decoration: line-through;
+}
+
+/* "×12" */
+.grocery-page__amount {
+  flex-shrink: 0;
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-round);
+  background: var(--surface-paper);
+}
+
+/* the edit row: the name field takes the room that is left */
+.grocery-page__edit {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.grocery-page__input {
+  flex: 1;
+  min-width: 0;
+  padding: 6px var(--space-3);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-chip);
+  background: var(--surface-card);
+}

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import Sheet from "../Sheet.jsx";
 import TaskForm from "../TaskForm/TaskForm.jsx";
+import GroceryForm from "../GroceryForm/GroceryForm.jsx";
 import TabBar from "./TabBar.jsx";
 import "./Layout.css";
 
@@ -32,9 +33,21 @@ export default function Layout({ household, userId }) {
     setAddForm(null);
   }
 
+  function showTaskForm() {
+    setAddForm("task");
+  }
+
+  function showGroceryForm() {
+    setAddForm("grocery");
+  }
+
   function handleTaskAdded() {
     setAddForm(null);
-    setTasksVersion(tasksVersion + 1);
+    setTasksVersion((version) => version + 1);
+  }
+
+  function handleGroceryAdded() {
+    setTasksVersion((version) => version + 1);
   }
 
   return (
@@ -51,6 +64,27 @@ export default function Layout({ household, userId }) {
           title={addForm === "grocery" ? "New grocery" : "New task"}
           onClose={handleCloseAddForm}
         >
+
+    {/* Task | Grocery: the same look as the choices in TaskForm */}
+    <div className="layout__switch task-form__choices" role="group" aria-label="What to add">
+      <button
+        type="button"
+        className="task-form__choice t-body-strong"
+        aria-pressed={addForm === "task"}
+        onClick={showTaskForm}
+      >
+        Task
+      </button>
+      <button
+        type="button"
+        className="task-form__choice t-body-strong"
+        aria-pressed={addForm === "grocery"}
+        onClick={showGroceryForm}
+      >
+        Grocery
+      </button>
+    </div>
+
           {addForm === "task" ? (
             <TaskForm
               household={household}
@@ -58,9 +92,12 @@ export default function Layout({ household, userId }) {
               onSaved={handleTaskAdded}
             />
           ) : (
-            <p className="layout__placeholder t-body">
-              The {addForm} form comes with its slice.
-            </p>
+            <GroceryForm
+              household={household}
+              userId={userId}
+              onAdded={handleGroceryAdded}
+              onDone={handleCloseAddForm}
+            />
           )}
         </Sheet>
       )}
