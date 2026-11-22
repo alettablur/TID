@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { loadTasks } from "../services/taskService.js";
 import InviteCard from "../components/InviteCard/InviteCard.jsx";
 import StatsCard from "../components/StatsCard/StatsCard.jsx";
+import WeekBar from "../components/WeekBar/WeekBar.jsx";
 import AvatarPair from "../components/AvatarPair.jsx";
 
 export default function UsPage({
@@ -15,7 +16,7 @@ export default function UsPage({
   // the person who is not me: for the owner it's the partner, for the partner it's the owner
   const other =
     household.owner.id === userId ? household.partner : household.owner;
-
+  const [weekOffset, setWeekOffset] = useState(0);
   const [tasks, setTasks] = useState(null);
   const [tasksError, setTasksError] = useState(null);
 
@@ -23,6 +24,7 @@ export default function UsPage({
     async function load() {
       try {
         setTasks(await loadTasks(household));
+        setTasksError(null);
       } catch (error) {
         setTasksError(error.message);
       }
@@ -49,23 +51,29 @@ export default function UsPage({
         <h1 className="t-screen-title">Us</h1>
         <AvatarPair household={household} />
       </div>
-      {other === null ? (
+      {!other ? (
         <InviteCard
           household={household}
           onHouseholdChange={onHouseholdChange}
         />
       ) : (
         <>
+          <WeekBar weekOffset={weekOffset} onChange={setWeekOffset} />
           <div className="stats-row">
-            <StatsCard tasks={tasks} userId={userId} title="You" variant="a" />
-            {other && (
-              <StatsCard
-                tasks={tasks}
-                userId={other.id}
-                title={other.username}
-                variant="b"
-              />
-            )}
+            <StatsCard
+              tasks={tasks}
+              weekOffset={weekOffset}
+              userId={userId}
+              title="You"
+              variant="a"
+            />
+            <StatsCard
+              tasks={tasks}
+              weekOffset={weekOffset}
+              userId={other.id}
+              title={other.username}
+              variant="b"
+            />
           </div>
           <p className="us-page__note">
             Organised = tasks you added, planned or proposed.

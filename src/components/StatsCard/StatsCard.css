@@ -33,27 +33,13 @@
 
 .stats-row {
   display: grid;
-  grid-template-columns: 1fr 1fr; /* two equal columns */
-  gap: var(--space-3); /* space between the cards */
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
 }
 
 .stats-card__stat {
   display: flex;
-  justify-content: space-between; /* label to the left, number to the right */
+  justify-content: space-between;
   align-items: baseline;
   margin-inline: var(--space-4);
-}
-
-.stats-card__number {
-  font-family: var(--font-display);
-  font-size: 30px;
-  font-style: normal;
-  font-weight: 700;
-  line-height: 34px;
-  color: var(--text-ink);
-  margin: 0;
-}
-
-.stats-card__label {
-  margin: 0;
 }
