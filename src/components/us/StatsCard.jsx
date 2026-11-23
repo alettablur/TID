@@ -5,27 +5,29 @@ import Avatar from "../shared/Avatar.jsx";
 export default function StatsCard({
   tasks,
   thanks,
+  requests,
   weekOffset,
   userId,
   title,
   variant = "a",
 }) {
-  // filtering for the chosen week
   const [start, end] = weekRange(weekOffset);
-  const tasksThisWeek = tasks.filter(
-    (t) => t.doneAt && t.doneAt >= start && t.doneAt < end,
-  );
-  const thanksThisWeek = thanks.filter(
-    (th) => th.createdAt && th.createdAt >= start && th.createdAt < end,
-  );
 
-  // counting the stats
-  const addedCount = tasksThisWeek.filter((t) => t.addedBy === userId).length;
-  const doneCount = tasksThisWeek.filter(
-    (t) => t.done && t.assignedTo === userId,
+  function inWeek(date) {
+    return date && date >= start && date < end;
+  }
+
+  // FR14, counted from Monday to Sunday
+  const doneCount = tasks.filter(
+    (t) => t.done && t.assignedTo === userId && inWeek(t.doneAt),
   ).length;
-  // FR14: thank-yous a person received from Monday to Sunday
-  const thanksCount = thanksThisWeek.filter((th) => th.to === userId).length;
+  // the planning work: tasks this person added plus the requests they made
+  const organisedCount =
+    tasks.filter((t) => t.addedBy === userId && inWeek(t.createdAt)).length +
+    requests.filter((r) => r.askedBy === userId && inWeek(r.createdAt)).length;
+  const thanksCount = thanks.filter(
+    (th) => th.to === userId && inWeek(th.createdAt),
+  ).length;
 
   return (
     <section className={`stats-card stats-card--${variant}`}>
@@ -39,7 +41,7 @@ export default function StatsCard({
       </p>
       <p className="stats-card__stat">
         <span className="t-body">Organised</span>
-        <span className="t-number">{addedCount}</span>
+        <span className="t-number">{organisedCount}</span>
       </p>
       <p className="stats-card__stat">
         <span className="t-body">Thanks received</span>

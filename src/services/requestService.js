@@ -18,24 +18,35 @@ function toRequest(row) {
     replyBy: row.get("replyBy"),
     status: row.get("status"), // pending, accepted, declined or expired
     reason: row.get("reason") ?? "",
+    createdAt: row.createdAt,
   };
 }
 
-// the open (pending) requests of the household, in one query: a Request has
-// no list of its own, so it is found through its task's list.
-// Expiry (FR11) is not built yet: a request stays pending until it is answered.
-export async function loadRequests(household) {
+// the requests of the household, in one query: a Request has no list of its
+// own, so it is found through its task's list
+function householdRequests(household) {
   const householdTasks = new Parse.Query(Task).equalTo(
     "list",
     householdPointer(household),
   );
 
-  const rows = await new Parse.Query(Request)
+  return new Parse.Query(Request)
     .matchesQuery("task", householdTasks)
-    .equalTo("status", "pending")
-    .limit(1000)
-    .find();
+    .limit(1000);
+}
 
+// the open (pending) ones. Expiry (FR11) is not built yet: a request stays
+// pending until it is answered.
+export async function loadRequests(household) {
+  const rows = await householdRequests(household)
+    .equalTo("status", "pending")
+    .find();
+  return rows.map(toRequest);
+}
+
+// answered or not: the Us page counts the requests each person made
+export async function loadAllRequests(household) {
+  const rows = await householdRequests(household).find();
   return rows.map(toRequest);
 }
 

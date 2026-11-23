@@ -18,7 +18,7 @@ export default function ThankCard({
       </h2>
       <ul className="thank-card__list">
         {tasks.map((task) => (
-          <div className="thank-card" key={task.id}>
+          <li className="thank-card" key={task.id}>
             <Avatar name={partnerName} person={partnerSlot} />
             <div className="thank-card__text">
               <p className="t-task-title">{task.title}</p>
@@ -30,7 +30,7 @@ export default function ThankCard({
             <Button variant="thank" onClick={() => onThank(task)}>
               <span aria-hidden="true">♡</span> Thank
             </Button>
-          </div>
+          </li>
         ))}
       </ul>
     </div>

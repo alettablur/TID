@@ -1,5 +1,4 @@
 import "./ThanksNotification.css";
-import Button from "../shared/Button.jsx";
 
 export default function ThanksNotification({
   receivedThanks,
@@ -11,7 +10,7 @@ export default function ThanksNotification({
   return (
     <ul className="thanks-notification__list" role="status">
       {receivedThanks.map((th) => (
-        <div className="thanks-notification-card" key={th.id}>
+        <li className="thanks-notification-card" key={th.id}>
           <span className="thanks-notification__heart" aria-hidden="true">
             ♡
           </span>
@@ -21,13 +20,14 @@ export default function ThanksNotification({
             </strong>
           </p>
           <button
+            type="button"
             className="thanks-notification-dismiss"
             onClick={() => onDismiss(th.id)}
             aria-label="Dismiss"
           >
             ×
           </button>
-        </div>
+        </li>
       ))}
     </ul>
   );

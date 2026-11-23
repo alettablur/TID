@@ -2,6 +2,7 @@ import Button from "../components/shared/Button.jsx";
 import "./UsPage.css";
 import { useState, useEffect } from "react";
 import { loadTasks } from "../services/taskService.js";
+import { loadAllRequests } from "../services/requestService.js";
 import {
   loadThanks,
   markThanksSeen,
@@ -26,18 +27,23 @@ export default function UsPage({
   const [tasks, setTasks] = useState(null);
   const [tasksError, setTasksError] = useState(null);
   const [thanks, setThanks] = useState(null);
+  const [requests, setRequests] = useState(null);
+  const [actionError, setActionError] = useState("");
 
   useEffect(() => {
     async function load() {
       try {
-        // loading tasks and thanks at the same time as they are not depending on eachother
-        const [householdTasks, householdThanks] = await Promise.all([
-          loadTasks(household),
-          loadThanks(household),
-        ]);
+        // three independent queries, sent at the same time
+        const [householdTasks, householdThanks, householdRequests] =
+          await Promise.all([
+            loadTasks(household),
+            loadThanks(household),
+            loadAllRequests(household),
+          ]);
+        setThanks(householdThanks);
+        setRequests(householdRequests);
         setTasks(householdTasks);
         setTasksError(null);
-        setThanks(householdThanks);
       } catch (error) {
         setTasksError(error.message);
       }
@@ -50,21 +56,23 @@ export default function UsPage({
 
   async function handleThank(task) {
     try {
+      setActionError("");
       const newThanks = await sendThanks(household, task, other);
       setThanks((prevThanks) => [...(prevThanks ?? []), newThanks]);
     } catch (error) {
-      console.error(error);
+      setActionError(`Could not send the thank-you: ${error.message}`);
     }
   }
 
   async function handleDismiss(id) {
     try {
+      setActionError("");
       await markThanksSeen([id]);
       setThanks((prev) =>
         prev.map((th) => (th.id === id ? { ...th, seen: true } : th)),
       );
     } catch (error) {
-      console.error(error);
+      setActionError(`Could not hide the message: ${error.message}`);
     }
   }
 
@@ -124,6 +132,7 @@ export default function UsPage({
             <StatsCard
               tasks={tasks}
               thanks={thanks}
+              requests={requests}
               weekOffset={weekOffset}
               userId={userId}
               title="You"
@@ -132,6 +141,7 @@ export default function UsPage({
             <StatsCard
               tasks={tasks}
               thanks={thanks}
+              requests={requests}
               weekOffset={weekOffset}
               userId={other.id}
               title={other.username}
@@ -141,6 +151,11 @@ export default function UsPage({
           <p className="us-page__note">
             Organised = tasks you added, planned or proposed.
           </p>
+          {actionError && (
+            <p className="us-page__error" role="alert">
+              {actionError}
+            </p>
+          )}
           <ThankCard
             tasks={tasksToThank}
             onThank={handleThank}
