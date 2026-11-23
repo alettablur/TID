@@ -1,0 +1,55 @@
+.thanks-notification-card {
+  background: var(--person-a-tint);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-soft);
+  padding: var(--space-2);
+  color: var(--accent-brick);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  position: relative; /* the position is relative to give room for the dismiss button */
+  padding-right: calc(var(--space-2) + 32px);
+}
+
+.thanks-notification__list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2); /* space between the cards */
+  margin-top: var(--space-3); /* space between header and the cards*/
+}
+
+.thanks-notification__heart {
+  font-size: 1.5em; /* 1.5 × the surrounding text size */
+  line-height: 1; /* keeps the bigger heart from making the row taller */
+}
+
+.thanks-notification-dismiss {
+  background: none;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+  font: inherit;
+  color: var(--text-soft);
+  cursor: pointer;
+
+  /* place it in the top right corner */
+  position: absolute;
+  top: var(--space-2);
+  right: var(--space-2);
+
+  /* a large enough area to tap */
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25em;
+  line-height: 1;
+}
+
+.thanks-notification-dismiss:hover {
+  color: inherit; /* a bit darker on hover */
+}

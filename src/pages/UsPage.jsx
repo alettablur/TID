@@ -2,11 +2,16 @@ import Button from "../components/Button.jsx";
 import "./UsPage.css";
 import { useState, useEffect } from "react";
 import { loadTasks } from "../services/taskService.js";
-import { loadThanks, sendThanks } from "../services/thanksService.js";
+import {
+  loadThanks,
+  markThanksSeen,
+  sendThanks,
+} from "../services/thanksService.js";
 import InviteCard from "../components/InviteCard/InviteCard.jsx";
 import StatsCard from "../components/StatsCard/StatsCard.jsx";
 import WeekBar from "../components/WeekBar/WeekBar.jsx";
 import ThankCard from "../components/ThankCard/ThankCard.jsx";
+import ThanksNotification from "../components/ThanksNotification/ThanksNotification.jsx";
 import AvatarPair from "../components/AvatarPair.jsx";
 
 export default function UsPage({
@@ -52,6 +57,18 @@ export default function UsPage({
       console.error(error);
     }
   }
+
+  async function handleDismiss(id) {
+    try {
+      await markThanksSeen([id]);
+      setThanks((prev) =>
+        prev.map((th) => (th.id === id ? { ...th, seen: true } : th)),
+      );
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
   // early returns if there is an error in loading the tasks
   if (tasksError)
     return (
@@ -77,6 +94,9 @@ export default function UsPage({
       !thankedTaskIds.has(task.id),
   );
 
+  const receivedThanks = thanks.filter(
+    (thank) => thank.to === userId && !thank.seen,
+  );
   return (
     <>
       <p className="t-overline">{household.name}</p>
@@ -91,6 +111,11 @@ export default function UsPage({
         />
       ) : (
         <>
+          <ThanksNotification
+            receivedThanks={receivedThanks}
+            onDismiss={handleDismiss}
+            partnerName={other.username}
+          ></ThanksNotification>
           <WeekBar weekOffset={weekOffset} onChange={setWeekOffset} />
           <div className="stats-row">
             <StatsCard

@@ -13,7 +13,7 @@ export default function StatsCard({
   // filtering for the chosen week
   const [start, end] = weekBoundsFromOffset(weekOffset);
   const tasksThisWeek = tasks.filter(
-    (t) => t.day && t.day >= start && t.day < end,
+    (t) => t.doneAt && t.doneAt >= start && t.doneAt < end,
   );
   const thanksThisWeek = thanks.filter(
     (th) => th.createdAt && th.createdAt >= start && th.createdAt < end,
@@ -24,7 +24,7 @@ export default function StatsCard({
   const doneCount = tasksThisWeek.filter(
     (t) => t.done && t.assignedTo === userId,
   ).length;
-  // FR14: thank-yous a person received from Monday to Sunday, with count()
+  // FR14: thank-yous a person received from Monday to Sunday
   const thanksCount = thanksThisWeek.filter((th) => th.to === userId).length;
 
   return (

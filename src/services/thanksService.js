@@ -4,12 +4,8 @@ import { householdPointer } from "./householdService.js";
 
 const Thanks = Parse.Object.extend("Thanks");
 
-// maybe we should collect all pointers into a generic function?
-function taskPointer(task) {
-  return Parse.Object.extend("Task").createWithoutData(task.id);
-}
-function userPointer(userId) {
-  return userId ? Parse.User.createWithoutData(userId) : null;
+export function pointer(className, id) {
+  return id ? Parse.Object.extend(className).createWithoutData(id) : null;
 }
 
 // a row from the database, as the components want to see it (docs/data-model.md)
@@ -21,6 +17,7 @@ function toThanks(row) {
     from: row.get("from")?.id,
     to: row.get("to")?.id,
     createdAt: row.createdAt,
+    seen: row.get("seen"),
   };
 }
 
@@ -44,9 +41,17 @@ export async function loadThanks(household) {
 // FR12: one tap; from me, to whoever did the task
 export async function sendThanks(task, partner) {
   const row = new Thanks();
-  row.set("task", taskPointer(task));
+  row.set("task", pointer("Task", task.id));
   row.set("from", Parse.User.current());
-  row.set("to", userPointer(partner.id));
+  row.set("to", pointer("_User", partner.id));
   const saved = await row.save();
   return { ...toThanks(saved), taskTitle: task.title }; // overwriting the task title as this is otherwise undefined
+}
+
+export async function markThanksSeen(ids) {
+  if (ids.length === 0) return;
+
+  const rows = ids.map((id) => pointer("Thanks", id));
+  rows.forEach((row) => row.set("seen", true));
+  await Parse.Object.saveAll(rows);
 }
