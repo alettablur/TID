@@ -6,14 +6,14 @@ import {
   useSearchParams,
 } from "react-router-dom";
 import { CalendarDays, ListChecks } from "lucide-react";
-import FoldSection from "../components/FoldSection.jsx";
-import SectionHeader from "../components/SectionHeader.jsx";
-import Avatar from "../components/Avatar.jsx";
-import Sheet from "../components/Sheet.jsx";
-import TaskCard from "../components/TaskCard/TaskCard.jsx";
-import TaskForm from "../components/TaskForm/TaskForm.jsx";
-import RequestDetails from "../components/Request/RequestDetails.jsx";
-import Toast from "../components/Toast.jsx";
+import FoldSection from "../components/shared/FoldSection.jsx";
+import SectionHeader from "../components/shared/SectionHeader.jsx";
+import Avatar from "../components/shared/Avatar.jsx";
+import Sheet from "../components/shared/Sheet.jsx";
+import TaskCard from "../components/tasks/TaskCard.jsx";
+import TaskForm from "../components/tasks/TaskForm.jsx";
+import RequestDetails from "../components/tasks/RequestDetails.jsx";
+import Toast from "../components/shared/Toast.jsx";
 import {
   loadTasks,
   setDone,
@@ -21,7 +21,20 @@ import {
   undoDone,
 } from "../services/taskService.js";
 import { loadRequests } from "../services/requestService.js";
-import { addDays } from "../utilities/dates.js";
+import {
+  otherPerson,
+  personName,
+  personSlot,
+} from "../services/householdService.js";
+import {
+  addDays,
+  formatDay,
+  formatLongDay,
+  formatTime,
+  formatWeekday,
+  startOfToday,
+  startOfWeek,
+} from "../utilities/dates.js";
 import "./TasksPage.css";
 
 // for sort(): a negative number puts a first, a positive number puts b first
@@ -37,26 +50,6 @@ function compareTasks(a, b) {
 
   // the same day: by time, "HH:mm" sorts like text; "any time" ("") goes last
   return (a.time || "24:00").localeCompare(b.time || "24:00");
-}
-
-// "Sat 10"
-function formatDay(date) {
-  return date.toLocaleDateString("en-GB", { weekday: "short", day: "numeric" });
-}
-
-// "08:15"
-function formatTime(date) {
-  return date.toLocaleTimeString("en-GB", {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
-
-// Monday at 00:00: the week runs Monday to Sunday, as in the Us overview (data-model.md)
-function startOfWeek(today) {
-  // getDay() is 0 for Sunday, 1 for Monday … 6 for Saturday
-  const daysSinceMonday = (today.getDay() + 6) % 7;
-  return addDays(today, -daysSinceMonday);
 }
 
 // also the page behind /tasks/:taskId, where the task sheet will open
@@ -127,14 +120,10 @@ export default function TasksPage({ household, userId }) {
     return <p className="tasks-page__status t-body">Loading…</p>;
   }
 
-  // today at 00:00: a task planned for any time today counts as today
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  const today = startOfToday();
   const tomorrow = addDays(today, 1);
 
-  // the other person: the partner if I am the owner, otherwise the owner
-  const other =
-    userId === household.owner.id ? household.partner : household.owner;
+  const other = otherPerson(household, userId);
 
   function showEveryone() {
     setFilter("everyone");
@@ -354,10 +343,7 @@ export default function TasksPage({ household, userId }) {
   // (Figma: "Fix the socket · Waiting" with Sam's avatar), and nothing to tick yet
   function renderRequest(task) {
     const request = requestFor(task);
-    const askedIsOwner = request.askedTo === household.owner.id;
-    const askedName = askedIsOwner
-      ? household.owner.username
-      : household.partner.username;
+    const askedName = personName(household, request.askedTo);
     const when = `${formatDay(request.day)} · ${request.time}`;
     const askedMe = request.askedTo === userId;
     // to answer: no "Waiting" chip (I am not waiting, I have to act; our
@@ -373,7 +359,7 @@ export default function TasksPage({ household, userId }) {
         title={task.title}
         meta={meta}
         status={askedMe ? undefined : "waiting"}
-        person={askedIsOwner ? "a" : "b"}
+        person={personSlot(household, request.askedTo)}
         name={askedName}
       />
     );
@@ -400,9 +386,6 @@ export default function TasksPage({ household, userId }) {
       );
     }
 
-    // the owner is always brick ("a"), the partner petrol ("b"), on both phones
-    const isOwner = task.assignedTo === household.owner.id;
-
     // the card calls onToggle() without saying which task, so each card gets its own
     function toggle() {
       handleToggle(task);
@@ -415,8 +398,8 @@ export default function TasksPage({ household, userId }) {
         title={task.title}
         meta={metaOf(task)}
         status="planned"
-        person={isOwner ? "a" : "b"}
-        name={isOwner ? household.owner.username : household.partner.username}
+        person={personSlot(household, task.assignedTo)}
+        name={personName(household, task.assignedTo)}
         repeatsWeekly={task.repeatsWeekly}
         done={task.done}
         // un-ticking a done task comes with the 5-second undo (NFR5)
@@ -470,18 +453,14 @@ export default function TasksPage({ household, userId }) {
                   aria-pressed={date.getTime() === shownDay.getTime()}
                   onClick={pickDay}
                 >
-                  <span className="t-chip">
-                    {date.toLocaleDateString("en-GB", { weekday: "short" })}
-                  </span>
+                  <span className="t-chip">{formatWeekday(date)}</span>
                   <span className="t-body-strong">{date.getDate()}</span>
                   {/* one dot per task, in the colour of whoever does it */}
                   <span className="tasks-page__dots" aria-hidden="true">
                     {tasksOn(date).map((task) => (
                       <span
                         key={task.id}
-                        className={`tasks-page__dot tasks-page__dot--${
-                          task.assignedTo === household.owner.id ? "a" : "b"
-                        }`}
+                        className={`tasks-page__dot tasks-page__dot--${personSlot(household, task.assignedTo)}`}
                       />
                     ))}
                   </span>
@@ -491,10 +470,7 @@ export default function TasksPage({ household, userId }) {
           </div>
 
           <SectionHeader
-            title={shownDay.toLocaleDateString("en-GB", {
-              weekday: "long",
-              day: "numeric",
-            })}
+            title={formatLongDay(shownDay)}
             count={dayTasks.length}
           />
 
@@ -644,7 +620,7 @@ export default function TasksPage({ household, userId }) {
                 <dd className="tasks-page__who t-body-strong">
                   <Avatar
                     name={other.username}
-                    person={other.id === household.owner.id ? "a" : "b"}
+                    person={personSlot(household, other.id)}
                   />
                   {other.username}
                 </dd>

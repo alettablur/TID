@@ -1,8 +1,19 @@
 import Parse from "./parse.js";
 
+// the components get a plain object, never the Parse user itself
+function toUser(user) {
+  return { id: user.id, username: user.get("username") };
+}
+
+// the other services point a row at a person with this
+export function userPointer(userId) {
+  return userId ? Parse.User.createWithoutData(userId) : null;
+}
+
 // the user who is logged in, or null
 export function currentUser() {
-  return Parse.User.current();
+  const user = Parse.User.current();
+  return user ? toUser(user) : null;
 }
 
 export async function signUp(username, password) {
@@ -17,11 +28,11 @@ export async function signUp(username, password) {
   user.setACL(acl);
   await user.save();
 
-  return user;
+  return toUser(user);
 }
 
 export async function logIn(username, password) {
-  return Parse.User.logIn(username, password);
+  return toUser(await Parse.User.logIn(username, password));
 }
 
 export async function logOut() {

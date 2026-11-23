@@ -38,6 +38,24 @@ export function householdAcl(household) {
   return acl;
 }
 
+// the person who is not me: the partner for the owner, the owner for the
+// partner (null while the owner is still alone)
+export function otherPerson(household, userId) {
+  return userId === household.owner.id ? household.partner : household.owner;
+}
+
+// colour = person: the owner is always "a" (brick), the partner "b" (petrol),
+// so a person keeps the same colour on both phones
+export function personSlot(household, personId) {
+  return personId === household.owner.id ? "a" : "b";
+}
+
+export function personName(household, personId) {
+  return personId === household.owner.id
+    ? household.owner.username
+    : household.partner?.username;
+}
+
 async function createHousehold() {
   const me = Parse.User.current();
 
@@ -94,8 +112,8 @@ export function loadHousehold() {
   return pending;
 }
 
-// FR2: shares the household at once, but the
-// partner may also write. Returns the new household.
+// FR2: the partner joins at once and may read and change everything.
+// Returns the new household.
 export async function invitePartner(household, username) {
   if (household.partner) {
     throw new Error(
@@ -143,7 +161,7 @@ export async function invitePartner(household, username) {
   member.set("user", partner);
   member.setACL(acl);
 
-  // one request, if it fails halfway, they disagree
+  // one request, so the rows cannot end up half shared
   await Parse.Object.saveAll([list, ...rows, member]);
 
   return updated;

@@ -3,7 +3,6 @@ import { householdAcl, householdPointer } from "./householdService.js";
 
 const Grocery = Parse.Object.extend("Grocery");
 
-
 function toGrocery(item) {
   return {
     id: item.id,
@@ -23,11 +22,11 @@ export async function loadGroceries(household) {
     .ascending("createdAt")
     .limit(1000) // Parse returns only 100 rows unless asked for more
     .find();
-  
+
   return results.map(toGrocery);
 }
 
-export async function addGrocery(household,{ name, amount = 1 }) {
+export async function addGrocery(household, { name, amount = 1 }) {
   if (!name.trim()) {
     throw new Error("Grocery name cannot be empty");
   }
@@ -43,7 +42,7 @@ export async function addGrocery(household,{ name, amount = 1 }) {
   return toGrocery(await item.save());
 }
 
-export async function updateGrocery(id, { name, amount = 1}) {
+export async function updateGrocery(id, { name, amount = 1 }) {
   if (!name.trim()) {
     throw new Error("Grocery name cannot be empty");
   }
@@ -57,12 +56,12 @@ export async function updateGrocery(id, { name, amount = 1}) {
 export async function setBought(id, bought) {
   const item = Grocery.createWithoutData(id);
   item.set("bought", bought);
-  if(bought){
+  if (bought) {
     item.set("boughtBy", Parse.User.current());
     item.set("boughtAt", new Date());
-  } else{
+  } else {
     item.unset("boughtBy");
-    item.unset("boughtAt"); 
+    item.unset("boughtAt");
   }
   await item.save();
 }
@@ -70,5 +69,3 @@ export async function setBought(id, bought) {
 export async function deleteGrocery(id) {
   await Grocery.createWithoutData(id).destroy();
 }
-
-

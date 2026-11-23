@@ -1,4 +1,4 @@
-import Button from "../components/Button.jsx";
+import Button from "../components/shared/Button.jsx";
 import "./UsPage.css";
 import { useState, useEffect } from "react";
 import { loadTasks } from "../services/taskService.js";
@@ -7,12 +7,13 @@ import {
   markThanksSeen,
   sendThanks,
 } from "../services/thanksService.js";
-import InviteCard from "../components/InviteCard/InviteCard.jsx";
-import StatsCard from "../components/StatsCard/StatsCard.jsx";
-import WeekBar from "../components/WeekBar/WeekBar.jsx";
-import ThankCard from "../components/ThankCard/ThankCard.jsx";
-import ThanksNotification from "../components/ThanksNotification/ThanksNotification.jsx";
-import AvatarPair from "../components/AvatarPair.jsx";
+import InviteCard from "../components/us/InviteCard.jsx";
+import StatsCard from "../components/us/StatsCard.jsx";
+import WeekSwitch from "../components/shared/WeekSwitch.jsx";
+import ThankCard from "../components/us/ThankCard.jsx";
+import ThanksNotification from "../components/us/ThanksNotification.jsx";
+import AvatarPair from "../components/shared/AvatarPair.jsx";
+import { otherPerson, personSlot } from "../services/householdService.js";
 
 export default function UsPage({
   household,
@@ -20,9 +21,7 @@ export default function UsPage({
   onLogout,
   onHouseholdChange,
 }) {
-  // the person who is not me: for the owner it's the partner, for the partner it's the owner
-  const other =
-    household.owner.id === userId ? household.partner : household.owner;
+  const other = otherPerson(household, userId);
   const [weekOffset, setWeekOffset] = useState(0);
   const [tasks, setTasks] = useState(null);
   const [tasksError, setTasksError] = useState(null);
@@ -51,7 +50,7 @@ export default function UsPage({
 
   async function handleThank(task) {
     try {
-      const newThanks = await sendThanks(task, other);
+      const newThanks = await sendThanks(household, task, other);
       setThanks((prevThanks) => [...(prevThanks ?? []), newThanks]);
     } catch (error) {
       console.error(error);
@@ -116,7 +115,11 @@ export default function UsPage({
             onDismiss={handleDismiss}
             partnerName={other.username}
           ></ThanksNotification>
-          <WeekBar weekOffset={weekOffset} onChange={setWeekOffset} />
+          <WeekSwitch
+            offset={weekOffset}
+            onChange={setWeekOffset}
+            canGoForward={weekOffset < 0}
+          />
           <div className="stats-row">
             <StatsCard
               tasks={tasks}
@@ -124,7 +127,7 @@ export default function UsPage({
               weekOffset={weekOffset}
               userId={userId}
               title="You"
-              variant="a"
+              variant={personSlot(household, userId)}
             />
             <StatsCard
               tasks={tasks}
@@ -132,7 +135,7 @@ export default function UsPage({
               weekOffset={weekOffset}
               userId={other.id}
               title={other.username}
-              variant="b"
+              variant={personSlot(household, other.id)}
             />
           </div>
           <p className="us-page__note">
@@ -142,6 +145,7 @@ export default function UsPage({
             tasks={tasksToThank}
             onThank={handleThank}
             partnerName={other.username}
+            partnerSlot={personSlot(household, other.id)}
           />
         </>
       )}

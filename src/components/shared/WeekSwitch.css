@@ -1,0 +1,32 @@
+.week-switch {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-1);
+  border-radius: var(--radius-control);
+  background: var(--surface-paper);
+}
+
+/* 44 px: the smallest touch target we allow (NFR6) */
+.week-switch__arrow {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 0;
+  border-radius: var(--radius-chip);
+  background: var(--surface-card);
+  color: var(--text-ink);
+  cursor: pointer;
+}
+
+.week-switch__arrow:focus-visible {
+  outline: 3px solid var(--accent-mustard);
+  outline-offset: 2px;
+}
+
+.week-switch__arrow:disabled {
+  opacity: 0.4;
+  cursor: default;
+}

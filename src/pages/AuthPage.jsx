@@ -1,4 +1,5 @@
 import { useState } from "react";
+import Button from "../components/shared/Button.jsx";
 import { signUp, logIn } from "../services/authService.js";
 import "./AuthPage.css";
 
@@ -7,49 +8,76 @@ export default function AuthPage({ onAuthenticated }) {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  async function handleSignUp(e) {
-    e.preventDefault();
+  function handleUsernameChange(event) {
+    setUsername(event.target.value);
+  }
+
+  function handlePasswordChange(event) {
+    setPassword(event.target.value);
+  }
+
+  // Enter in the form logs in; signing up needs its own button
+  async function handleLogin(event) {
+    event.preventDefault();
     setError("");
     try {
-      const user = await signUp(username, password);
-      onAuthenticated(user);
+      onAuthenticated(await logIn(username, password));
     } catch (err) {
       setError(err.message);
     }
   }
 
-  async function handleLogin(e) {
-    e.preventDefault();
+  async function handleSignUp() {
     setError("");
     try {
-      const user = await logIn(username, password);
-      onAuthenticated(user);
+      onAuthenticated(await signUp(username, password));
     } catch (err) {
       setError(err.message);
     }
   }
 
   return (
-    <div className="auth-page">
-      <h1>Login / SignUp</h1>
-      {error && <p className="auth-page__error">{error}</p>}
+    <main className="auth-page">
+      <h1 className="t-screen-title">Log in</h1>
 
-      <form>
+      <form className="auth-page__form" onSubmit={handleLogin}>
+        <label className="t-body-strong" htmlFor="auth-username">
+          Username
+        </label>
         <input
+          id="auth-username"
+          className="auth-page__input"
           type="text"
-          placeholder="Username"
+          autoComplete="username"
           value={username}
-          onChange={(e) => setUsername(e.target.value)}
+          onChange={handleUsernameChange}
         />
+
+        <label className="t-body-strong" htmlFor="auth-password">
+          Password
+        </label>
         <input
+          id="auth-password"
+          className="auth-page__input"
           type="password"
-          placeholder="Password"
+          autoComplete="current-password"
           value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          onChange={handlePasswordChange}
         />
-        <button onClick={handleSignUp}>Sign Up</button>
-        <button onClick={handleLogin}>Log In</button>
+
+        {error && (
+          <p className="auth-page__error" role="alert">
+            {error}
+          </p>
+        )}
+
+        <Button type="submit" block>
+          Log in
+        </Button>
+        <Button variant="secondary" block onClick={handleSignUp}>
+          Sign up
+        </Button>
       </form>
-    </div>
+    </main>
   );
 }

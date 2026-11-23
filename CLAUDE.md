@@ -46,10 +46,12 @@ src/
 ├── main.jsx, App.jsx        App: user state, auth, routes
 ├── styles/                  tokens.css (all colours/fonts/radii/shadows), base.css
 ├── pages/                   one file per route: AuthPage, HomePage, TasksPage, GroceriesPage, UsPage
-├── components/              pieces the pages use; a folder when files belong together
-│   ├── Layout/              Layout.jsx (tab bar + <Outlet/>), TabBar.jsx
-│   ├── TaskCard/  TaskForm/  Request/  Groceries/
-│   └── Avatar.jsx  Button.jsx  Sheet.jsx  SectionHeader.jsx
+├── components/              one folder per area; each component = Name.jsx + Name.css
+│   ├── shared/              used in 2+ places: Avatar, Button, Sheet, SectionHeader, Segmented, WeekSwitch…
+│   ├── layout/              Layout.jsx (tab bar + <Outlet/>), TabBar, TabBarLink
+│   ├── tasks/               TaskCard, TaskForm (+ DayPicker, TimePicker, ClashNotice), TaskDetails, RequestDetails
+│   ├── groceries/           GroceryForm
+│   └── us/                  InviteCard, StatsCard, ThankRow
 ├── services/                the ONLY code that imports Parse
 │   ├── parse.js             Parse.initialize
 │   ├── authService.js  householdService.js  taskService.js
@@ -68,7 +70,7 @@ src/
 ## Course coding rules (from itu-tid.github.io/Coding-Guidelines.md)
 
 - One component per file, file named like the component, capitalised.
-- Small components; extract repeated patterns.
+- Small components; extract repeated patterns. A piece gets its own component when it is used in 2+ places or has its own state; otherwise it stays in the page.
 - **No inline styles.** Each component has its own CSS file next to it; class names start with the component name (`.task-card__title`).
 - **No hard-coded colours.** Only `var(--token)` from `styles/tokens.css`.
 - Prefer named functions over arrow functions for handlers and components.
