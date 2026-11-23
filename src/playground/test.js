@@ -9,10 +9,7 @@ import Parse from "parse/node";
 process.loadEnvFile(path.join(import.meta.dirname, "../../.env.local"));
 
 Parse.serverURL = process.env.VITE_PARSE_SERVER_URL;
-Parse.initialize(
-  process.env.VITE_PARSE_APP_ID,
-  process.env.VITE_PARSE_JS_KEY,
-);
+Parse.initialize(process.env.VITE_PARSE_APP_ID, process.env.VITE_PARSE_JS_KEY);
 
 const Task = Parse.Object.extend("Task");
 

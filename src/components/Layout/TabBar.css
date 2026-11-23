@@ -4,12 +4,15 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  padding: var(--space-3) var(--space-5) calc(var(--space-6) + env(safe-area-inset-bottom));
+  padding: var(--space-3) var(--space-5)
+    calc(var(--space-6) + env(safe-area-inset-bottom));
   border-radius: var(--radius-bar) var(--radius-bar) 0 0;
   background: var(--glass-bg);
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
-  box-shadow: var(--shadow-bar), inset 0 1px 0 var(--line-soft);
+  box-shadow:
+    var(--shadow-bar),
+    inset 0 1px 0 var(--line-soft);
 }
 
 .tab-bar__add {

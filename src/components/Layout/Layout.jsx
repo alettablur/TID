@@ -64,26 +64,29 @@ export default function Layout({ household, userId }) {
           title={addForm === "grocery" ? "New grocery" : "New task"}
           onClose={handleCloseAddForm}
         >
-
-    {/* Task | Grocery: the same look as the choices in TaskForm */}
-    <div className="layout__switch task-form__choices" role="group" aria-label="What to add">
-      <button
-        type="button"
-        className="task-form__choice t-body-strong"
-        aria-pressed={addForm === "task"}
-        onClick={showTaskForm}
-      >
-        Task
-      </button>
-      <button
-        type="button"
-        className="task-form__choice t-body-strong"
-        aria-pressed={addForm === "grocery"}
-        onClick={showGroceryForm}
-      >
-        Grocery
-      </button>
-    </div>
+          {/* Task | Grocery: the same look as the choices in TaskForm */}
+          <div
+            className="layout__switch task-form__choices"
+            role="group"
+            aria-label="What to add"
+          >
+            <button
+              type="button"
+              className="task-form__choice t-body-strong"
+              aria-pressed={addForm === "task"}
+              onClick={showTaskForm}
+            >
+              Task
+            </button>
+            <button
+              type="button"
+              className="task-form__choice t-body-strong"
+              aria-pressed={addForm === "grocery"}
+              onClick={showGroceryForm}
+            >
+              Grocery
+            </button>
+          </div>
 
           {addForm === "task" ? (
             <TaskForm

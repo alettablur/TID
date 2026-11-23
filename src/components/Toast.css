@@ -2,7 +2,10 @@
    height (12 px + the 56 px + button + 24 px, see TabBar.css) plus a small gap */
 .toast {
   position: sticky;
-  bottom: calc(var(--space-3) + 56px + var(--space-6) + var(--space-3) + env(safe-area-inset-bottom));
+  bottom: calc(
+    var(--space-3) + 56px + var(--space-6) + var(--space-3) +
+      env(safe-area-inset-bottom)
+  );
   display: flex;
   align-items: center;
   justify-content: space-between;
