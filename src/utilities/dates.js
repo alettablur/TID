@@ -60,6 +60,12 @@ export function formatTime(date) {
   });
 }
 
+// "19:00" when it is 18:20: where a new time starts
+export function nextFullHour() {
+  const hour = (new Date().getHours() + 1) % 24;
+  return `${String(hour).padStart(2, "0")}:00`;
+}
+
 // "today", "yesterday" or "Sat 10"
 export function formatAgo(date) {
   const today = startOfToday();
