@@ -6,6 +6,7 @@ import {
   updateGrocery,
   deleteGrocery,
 } from "../../services/groceryService.js";
+import { otherPerson } from "../../services/householdService.js";
 import "./GroceryForm.css";
 
 export default function GroceryForm({
@@ -30,8 +31,7 @@ export default function GroceryForm({
       .catch(() => {});
   }, [household]);
 
-  const partner =
-    userId === household.owner.id ? household.partner : household.owner;
+  const partner = otherPerson(household, userId);
   // the same name still to buy, whatever the capitals
   const duplicate = groceries.find(
     (g) =>

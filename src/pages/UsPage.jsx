@@ -13,6 +13,7 @@ import WeekBar from "../components/shared/WeekBar.jsx";
 import ThankCard from "../components/us/ThankCard.jsx";
 import ThanksNotification from "../components/us/ThanksNotification.jsx";
 import AvatarPair from "../components/shared/AvatarPair.jsx";
+import { otherPerson, personSlot } from "../services/householdService.js";
 
 export default function UsPage({
   household,
@@ -20,9 +21,7 @@ export default function UsPage({
   onLogout,
   onHouseholdChange,
 }) {
-  // the person who is not me: for the owner it's the partner, for the partner it's the owner
-  const other =
-    household.owner.id === userId ? household.partner : household.owner;
+  const other = otherPerson(household, userId);
   const [weekOffset, setWeekOffset] = useState(0);
   const [tasks, setTasks] = useState(null);
   const [tasksError, setTasksError] = useState(null);
@@ -124,7 +123,7 @@ export default function UsPage({
               weekOffset={weekOffset}
               userId={userId}
               title="You"
-              variant="a"
+              variant={personSlot(household, userId)}
             />
             <StatsCard
               tasks={tasks}
@@ -132,7 +131,7 @@ export default function UsPage({
               weekOffset={weekOffset}
               userId={other.id}
               title={other.username}
-              variant="b"
+              variant={personSlot(household, other.id)}
             />
           </div>
           <p className="us-page__note">
@@ -142,6 +141,7 @@ export default function UsPage({
             tasks={tasksToThank}
             onThank={handleThank}
             partnerName={other.username}
+            partnerSlot={personSlot(household, other.id)}
           />
         </>
       )}

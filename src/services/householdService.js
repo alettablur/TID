@@ -38,6 +38,24 @@ export function householdAcl(household) {
   return acl;
 }
 
+// the person who is not me: the partner for the owner, the owner for the
+// partner (null while the owner is still alone)
+export function otherPerson(household, userId) {
+  return userId === household.owner.id ? household.partner : household.owner;
+}
+
+// colour = person: the owner is always "a" (brick), the partner "b" (petrol),
+// so a person keeps the same colour on both phones
+export function personSlot(household, personId) {
+  return personId === household.owner.id ? "a" : "b";
+}
+
+export function personName(household, personId) {
+  return personId === household.owner.id
+    ? household.owner.username
+    : household.partner?.username;
+}
+
 async function createHousehold() {
   const me = Parse.User.current();
 

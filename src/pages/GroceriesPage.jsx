@@ -3,6 +3,7 @@ import { useOutletContext } from "react-router-dom";
 import FoldSection from "../components/shared/FoldSection.jsx";
 import Sheet from "../components/shared/Sheet.jsx";
 import { loadGroceries, setBought } from "../services/groceryService.js";
+import { otherPerson } from "../services/householdService.js";
 import GroceryForm from "../components/groceries/GroceryForm.jsx";
 import { formatAgo } from "../utilities/dates.js";
 import "./GroceriesPage.css";
@@ -26,8 +27,7 @@ export default function GroceriesPage({ household, userId }) {
 
   if (!groceries) return <p className="t-body">{error || "Loading…"}</p>;
 
-  const other =
-    userId === household.owner.id ? household.partner : household.owner;
+  const other = otherPerson(household, userId);
   const nameOf = (id) => (id === userId ? "you" : other?.username);
 
   const selectedGrocery = groceries.find((g) => g.id === selectedId);

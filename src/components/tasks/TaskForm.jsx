@@ -9,6 +9,7 @@ import {
   updateTask,
 } from "../../services/taskService.js";
 import { askPartner } from "../../services/requestService.js";
+import { otherPerson } from "../../services/householdService.js";
 import {
   addDays,
   formatDay,
@@ -91,9 +92,7 @@ export default function TaskForm({ household, userId, task, onSaved }) {
     load();
   }, [household]);
 
-  // the other person: the partner if I am the owner, otherwise the owner (null = alone)
-  const partner =
-    userId === household.owner.id ? household.partner : household.owner;
+  const partner = otherPerson(household, userId);
 
   const days = nextSevenDays();
   // a request must be answered the day before (FR9), so it cannot be for today

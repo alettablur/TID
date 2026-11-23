@@ -22,6 +22,11 @@ import {
 } from "../services/taskService.js";
 import { loadRequests } from "../services/requestService.js";
 import {
+  otherPerson,
+  personName,
+  personSlot,
+} from "../services/householdService.js";
+import {
   addDays,
   formatDay,
   formatLongDay,
@@ -118,9 +123,7 @@ export default function TasksPage({ household, userId }) {
   const today = startOfToday();
   const tomorrow = addDays(today, 1);
 
-  // the other person: the partner if I am the owner, otherwise the owner
-  const other =
-    userId === household.owner.id ? household.partner : household.owner;
+  const other = otherPerson(household, userId);
 
   function showEveryone() {
     setFilter("everyone");
@@ -340,10 +343,7 @@ export default function TasksPage({ household, userId }) {
   // (Figma: "Fix the socket · Waiting" with Sam's avatar), and nothing to tick yet
   function renderRequest(task) {
     const request = requestFor(task);
-    const askedIsOwner = request.askedTo === household.owner.id;
-    const askedName = askedIsOwner
-      ? household.owner.username
-      : household.partner.username;
+    const askedName = personName(household, request.askedTo);
     const when = `${formatDay(request.day)} · ${request.time}`;
     const askedMe = request.askedTo === userId;
     // to answer: no "Waiting" chip (I am not waiting, I have to act; our
@@ -359,7 +359,7 @@ export default function TasksPage({ household, userId }) {
         title={task.title}
         meta={meta}
         status={askedMe ? undefined : "waiting"}
-        person={askedIsOwner ? "a" : "b"}
+        person={personSlot(household, request.askedTo)}
         name={askedName}
       />
     );
@@ -386,9 +386,6 @@ export default function TasksPage({ household, userId }) {
       );
     }
 
-    // the owner is always brick ("a"), the partner petrol ("b"), on both phones
-    const isOwner = task.assignedTo === household.owner.id;
-
     // the card calls onToggle() without saying which task, so each card gets its own
     function toggle() {
       handleToggle(task);
@@ -401,8 +398,8 @@ export default function TasksPage({ household, userId }) {
         title={task.title}
         meta={metaOf(task)}
         status="planned"
-        person={isOwner ? "a" : "b"}
-        name={isOwner ? household.owner.username : household.partner.username}
+        person={personSlot(household, task.assignedTo)}
+        name={personName(household, task.assignedTo)}
         repeatsWeekly={task.repeatsWeekly}
         done={task.done}
         // un-ticking a done task comes with the 5-second undo (NFR5)
@@ -463,9 +460,7 @@ export default function TasksPage({ household, userId }) {
                     {tasksOn(date).map((task) => (
                       <span
                         key={task.id}
-                        className={`tasks-page__dot tasks-page__dot--${
-                          task.assignedTo === household.owner.id ? "a" : "b"
-                        }`}
+                        className={`tasks-page__dot tasks-page__dot--${personSlot(household, task.assignedTo)}`}
                       />
                     ))}
                   </span>
@@ -625,7 +620,7 @@ export default function TasksPage({ household, userId }) {
                 <dd className="tasks-page__who t-body-strong">
                   <Avatar
                     name={other.username}
-                    person={other.id === household.owner.id ? "a" : "b"}
+                    person={personSlot(household, other.id)}
                   />
                   {other.username}
                 </dd>

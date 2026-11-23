@@ -3,7 +3,12 @@ import Avatar from "../shared/Avatar.jsx";
 import Button from "../shared/Button.jsx";
 import { formatAgo, formatTime } from "../../utilities/dates.js";
 
-export default function ThankCard({ tasks, onThank, partnerName }) {
+export default function ThankCard({
+  tasks,
+  onThank,
+  partnerName,
+  partnerSlot,
+}) {
   if (tasks.length === 0) return null;
   return (
     <div>
@@ -14,7 +19,7 @@ export default function ThankCard({ tasks, onThank, partnerName }) {
       <ul className="thank-card__list">
         {tasks.map((task) => (
           <div className="thank-card" key={task.id}>
-            <Avatar name={partnerName} person="b" />
+            <Avatar name={partnerName} person={partnerSlot} />
             <div className="thank-card__text">
               <p className="t-task-title">{task.title}</p>
               <p className="thank-card__meta">
