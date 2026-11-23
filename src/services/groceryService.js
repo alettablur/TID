@@ -1,41 +1,74 @@
-/* eslint-disable no-unused-vars -- signatures only: the Groceries slice writes the bodies */
 import Parse from "./parse.js";
+import { householdAcl, householdPointer } from "./householdService.js";
 
 const Grocery = Parse.Object.extend("Grocery");
 
-function toGrocery(row) {
+
+function toGrocery(item) {
   return {
-    id: row.id,
-    name: row.get("name"),
-    amount: row.get("amount"),
-    addedBy: row.get("addedBy")?.id,
-    bought: row.get("bought"), // two states only: to buy or bought
-    boughtBy: row.get("boughtBy")?.id ?? null,
-    boughtAt: row.get("boughtAt") ?? null,
+    id: item.id,
+    name: item.get("groceryName"),
+    amount: item.get("amount") ?? 1,
+    addedBy: item.get("addedBy")?.id,
+    bought: item.get("bought") ?? false, // two states only: to buy or bought
+    boughtBy: item.get("boughtBy")?.id ?? null,
+    boughtAt: item.get("boughtAt") ?? null,
   };
 }
 
 // every grocery of the household in one query
 export async function loadGroceries(household) {
-  throw new Error("Not built yet");
+  const results = await new Parse.Query(Grocery)
+    .equalTo("list", householdPointer(household))
+    .ascending("createdAt")
+    .limit(1000) // Parse returns only 100 rows unless asked for more
+    .find();
+  
+  return results.map(toGrocery);
 }
 
-// FR3, FR4, NFR5: a name already on the to-buy list is not added twice;
-// its amount is raised instead
-export async function addGrocery(household, name, amount) {
-  throw new Error("Not built yet");
+export async function addGrocery(household,{ name, amount = 1 }) {
+  if (!name.trim()) {
+    throw new Error("Grocery name cannot be empty");
+  }
+
+  const item = new Grocery();
+  item.set("groceryName", name.trim());
+  item.set("amount", amount);
+  item.set("list", householdPointer(household));
+  item.set("addedBy", Parse.User.current());
+  item.set("bought", false);
+  item.setACL(householdAcl(household));
+
+  return toGrocery(await item.save());
 }
 
-// FR4: "Set to 2"
-export async function setAmount(id, amount) {
-  throw new Error("Not built yet");
+export async function updateGrocery(id, { name, amount = 1}) {
+  if (!name.trim()) {
+    throw new Error("Grocery name cannot be empty");
+  }
+
+  const item = Grocery.createWithoutData(id);
+  item.set("groceryName", name.trim());
+  item.set("amount", amount);
+  await item.save();
 }
 
-// FR8: bought by me, now. false puts it back on the list (the 5 s undo, NFR5)
 export async function setBought(id, bought) {
-  throw new Error("Not built yet");
+  const item = Grocery.createWithoutData(id);
+  item.set("bought", bought);
+  if(bought){
+    item.set("boughtBy", Parse.User.current());
+    item.set("boughtAt", new Date());
+  } else{
+    item.unset("boughtBy");
+    item.unset("boughtAt"); 
+  }
+  await item.save();
 }
 
 export async function deleteGrocery(id) {
-  throw new Error("Not built yet");
+  await Grocery.createWithoutData(id).destroy();
 }
+
+

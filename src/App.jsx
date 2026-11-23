@@ -83,7 +83,10 @@ function App() {
           path="tasks/:taskId"
           element={<TasksPage household={household} userId={user.id} />}
         />
-        <Route path="groceries" element={<GroceriesPage />} />
+        <Route
+          path="groceries"
+          element={<GroceriesPage household={household} userId={user.id} />}
+        />
         <Route
           path="us"
           element={
