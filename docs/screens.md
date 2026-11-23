@@ -28,11 +28,11 @@ Header: overline "Thursday 8 October", title "Good evening, Alex" (Playfair), co
 
 First use [H8 · First use]: "Welcome, Alex", empty state "No tasks yet" + "Add your first task".
 
-## Tasks `/tasks` [Tasks · List], `?view=week` [Tasks · Week]
+## Tasks `/tasks` [Tasks · Week]
 
-- Title "Tasks", segmented **List | Week**, filters **Everyone | Mine | Sam's**.
-- List sections: Today, Upcoming, Up for grabs (cards with **Take it**), Waiting for Sam. Task card = person strip + check circle + title + status chip + meta + avatar.
-- Week: day strip Mon 5 – Sun 11 with one dot per task, then the selected day as time slots, then up for grabs and waiting.
+- Title "Tasks", week switch **‹ 5 Oct – 11 Oct ›**, day strip Mon 5 – Sun 11 with one dot per task, then the selected day as time slots (opens on today).
+- Below, only the sections that are not empty: To answer, Late (past days, not done), Up for grabs (cards with **Take it**), Waiting for Sam, No date. Task card = person strip + check circle + title + status chip + meta + avatar.
+- The List view and the filters of the Figma were removed after the code review (23 Nov 2026).
 - Tap a task → [Edit task] sheet: title, who, day, time, "Your other tasks · Thu 8" (Free / Clash), repeat every week, **Delete task** | **Save**.
 - Request detail [Task detail · Request]: status chip, "Asked to Sam", current proposal, Accept / Reschedule / Decline.
 

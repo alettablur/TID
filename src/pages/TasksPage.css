@@ -11,42 +11,7 @@
   gap: var(--space-2);
 }
 
-/* List | Week: two equal halves on a beige track, as in Figma */
-.tasks-page__views {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  padding: var(--space-1);
-  border-radius: var(--radius-control);
-  background: var(--surface-paper);
-}
-
-/* 44 px high: the smallest touch target we allow (NFR6) */
-.tasks-page__view {
-  min-height: 44px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-2);
-  border: 0;
-  border-radius: var(--radius-chip);
-  background: none;
-  color: var(--text-soft);
-  cursor: pointer;
-}
-
-/* the chosen view: a white half that stands out from the track */
-.tasks-page__view[aria-pressed="true"] {
-  background: var(--surface-card);
-  box-shadow: var(--shadow-soft);
-  color: var(--text-ink);
-}
-
-.tasks-page__view:focus-visible {
-  outline: 3px solid var(--accent-mustard);
-  outline-offset: 2px;
-}
-
-/* the Week view's day strip: seven equal columns, Mon to Sun */
+/* the day strip: seven equal columns, Mon to Sun */
 .tasks-page__week {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
@@ -120,69 +85,10 @@
   color: var(--text-soft);
 }
 
-.tasks-page__filters {
-  display: flex;
-  gap: var(--space-2);
-}
-
-/* 44 px high: the smallest touch target we allow (NFR6) */
-.tasks-page__filter {
-  min-height: 44px;
-  padding: 0 var(--space-4);
-  border: 0;
-  border-radius: var(--radius-round);
-  background: var(--surface-card);
-  box-shadow: inset 0 0 0 1.5px var(--line-soft);
-  color: var(--text-soft);
-  cursor: pointer;
-}
-
-/* the chosen filter: warm black, like the primary buttons */
-.tasks-page__filter[aria-pressed="true"] {
-  background: var(--action-primary);
-  box-shadow: none;
-  color: var(--text-on-dark);
-}
-
-.tasks-page__filter:focus-visible {
-  outline: 3px solid var(--accent-mustard);
-  outline-offset: 2px;
-}
-
 /* Loading… and the load error; .layout__main already gives the padding */
 .tasks-page__status {
   margin: 0;
   color: var(--text-soft);
-}
-
-/* the partner's task in the sheet: label + value rows, a thin line between them */
-.tasks-page__details {
-  display: flex;
-  flex-direction: column;
-  margin: 0;
-}
-
-.tasks-page__detail {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-  padding: var(--space-3) 0;
-  border-bottom: 1px solid var(--line-soft);
-}
-
-.tasks-page__detail:last-child {
-  border-bottom: 0;
-}
-
-/* the browser indents a <dd> by default */
-.tasks-page__detail dd {
-  margin: 0;
-}
-
-.tasks-page__who {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
 }
 
 .tasks-page__error {

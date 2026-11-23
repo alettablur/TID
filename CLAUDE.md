@@ -59,7 +59,7 @@ src/
 └── utilities/dates.js
 ```
 
-- **Routes** (inside one `Layout` route): `/` Home, `/tasks` (list; `?view=week` for the week), `/tasks/:taskId` (task sheet), `/groceries`, `/us`, `*` not found. Logged out: the "two sets of routes" pattern, login page at any address.
+- **Routes** (inside one `Layout` route): `/` Home, `/tasks` (the week), `/tasks/:taskId` (task sheet), `/groceries`, `/us`, `*` not found. Logged out: the "two sets of routes" pattern, login page at any address.
 - **Sheets** (add task/grocery, reschedule, decline, take it) are component state, not routes. The **+** in the tab bar opens the task form, or the grocery form when on `/groceries`.
 - **Services** return plain objects (like `toTodo` in the todo-26 reference). Components never import Parse and never call `.get()`.
 - **Sharing:** one `List` per couple (the household). The partner is a `ListMember`. Unlike todo-26's `shareList`, the partner gets **read and write** access; every Task/Grocery copies the list's ACL.

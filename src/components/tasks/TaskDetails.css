@@ -1,0 +1,29 @@
+/* label + value rows, a thin line between them */
+.task-details {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+}
+
+.task-details__row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.task-details__row:last-child {
+  border-bottom: 0;
+}
+
+/* the browser indents a <dd> by default */
+.task-details__row dd {
+  margin: 0;
+}
+
+.task-details__who {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
