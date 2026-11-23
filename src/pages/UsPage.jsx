@@ -1,6 +1,12 @@
-import Button from "../components/shared/Button.jsx";
-import "./UsPage.css";
 import { useState, useEffect } from "react";
+import { Heart, X } from "lucide-react";
+import AvatarPair from "../components/shared/AvatarPair.jsx";
+import Button from "../components/shared/Button.jsx";
+import SectionHeader from "../components/shared/SectionHeader.jsx";
+import WeekSwitch from "../components/shared/WeekSwitch.jsx";
+import InviteCard from "../components/us/InviteCard.jsx";
+import StatsCard from "../components/us/StatsCard.jsx";
+import ThankRow from "../components/us/ThankRow.jsx";
 import { loadTasks } from "../services/taskService.js";
 import { loadAllRequests } from "../services/requestService.js";
 import {
@@ -8,13 +14,9 @@ import {
   markThanksSeen,
   sendThanks,
 } from "../services/thanksService.js";
-import InviteCard from "../components/us/InviteCard.jsx";
-import StatsCard from "../components/us/StatsCard.jsx";
-import WeekSwitch from "../components/shared/WeekSwitch.jsx";
-import ThankCard from "../components/us/ThankCard.jsx";
-import ThanksNotification from "../components/us/ThanksNotification.jsx";
-import AvatarPair from "../components/shared/AvatarPair.jsx";
 import { otherPerson, personSlot } from "../services/householdService.js";
+import { addDays } from "../utilities/dates.js";
+import "./UsPage.css";
 
 export default function UsPage({
   household,
@@ -22,13 +24,12 @@ export default function UsPage({
   onLogout,
   onHouseholdChange,
 }) {
-  const other = otherPerson(household, userId);
-  const [weekOffset, setWeekOffset] = useState(0);
+  const [weekOffset, setWeekOffset] = useState(0); // 0 = this week
   const [tasks, setTasks] = useState(null);
-  const [tasksError, setTasksError] = useState(null);
   const [thanks, setThanks] = useState(null);
   const [requests, setRequests] = useState(null);
-  const [actionError, setActionError] = useState("");
+  const [loadError, setLoadError] = useState("");
+  const [actionError, setActionError] = useState(""); // a thank-you that could not be saved
 
   useEffect(() => {
     async function load() {
@@ -43,22 +44,26 @@ export default function UsPage({
         setThanks(householdThanks);
         setRequests(householdRequests);
         setTasks(householdTasks);
-        setTasksError(null);
+        setLoadError("");
       } catch (error) {
-        setTasksError(error.message);
+        setLoadError(error.message);
       }
     }
+
     load();
-    // polling the server every 10 sec to reload the tasks -- consider making this custom hook
+    // load again every 10 seconds, so the partner's ticks and thank-yous
+    // appear while the page is open
     const interval = setInterval(load, 10000);
     return () => clearInterval(interval);
   }, [household]);
+
+  const other = otherPerson(household, userId);
 
   async function handleThank(task) {
     try {
       setActionError("");
       const newThanks = await sendThanks(household, task, other);
-      setThanks((prevThanks) => [...(prevThanks ?? []), newThanks]);
+      setThanks((oldThanks) => [...oldThanks, newThanks]);
     } catch (error) {
       setActionError(`Could not send the thank-you: ${error.message}`);
     }
@@ -68,42 +73,50 @@ export default function UsPage({
     try {
       setActionError("");
       await markThanksSeen([id]);
-      setThanks((prev) =>
-        prev.map((th) => (th.id === id ? { ...th, seen: true } : th)),
+      setThanks((oldThanks) =>
+        oldThanks.map((thank) =>
+          thank.id === id ? { ...thank, seen: true } : thank,
+        ),
       );
     } catch (error) {
       setActionError(`Could not hide the message: ${error.message}`);
     }
   }
 
-  // early returns if there is an error in loading the tasks
-  if (tasksError)
+  if (loadError) {
     return (
-      <p className="stats-card__error" role="alert">
-        {tasksError}
+      <p className="us-page__status t-body">
+        Could not load your week: {loadError}
       </p>
     );
-  if (!tasks) return <p>Loading…</p>;
+  }
+  if (!tasks) {
+    return <p className="us-page__status t-body">Loading…</p>;
+  }
 
-  // dates of yesterday for the notification of a task done by the partner
-  const yesterday = new Date();
-  yesterday.setDate(yesterday.getDate() - 1);
-
+  // what the partner did in the last 24 hours and I have not thanked for yet
+  const since = addDays(new Date(), -1);
   const thankedTaskIds = new Set(
-    thanks.filter((t) => t.createdAt >= yesterday).map((t) => t.taskId),
+    thanks
+      .filter((thank) => thank.createdAt >= since)
+      .map((thank) => thank.taskId),
   );
-  const tasksToThank = tasks.filter(
-    (task) =>
-      other && // make sure that unassigned tasks before the partner joins are not shown
-      task.done &&
-      task.doneAt >= yesterday &&
-      task.assignedTo === other.id &&
-      !thankedTaskIds.has(task.id),
-  );
+  // no partner yet: nobody to thank
+  const tasksToThank = other
+    ? tasks.filter(
+        (task) =>
+          task.done &&
+          task.doneAt >= since &&
+          task.assignedTo === other.id &&
+          !thankedTaskIds.has(task.id),
+      )
+    : [];
 
+  // FR13: the thank-yous I received and have not closed yet
   const receivedThanks = thanks.filter(
     (thank) => thank.to === userId && !thank.seen,
   );
+
   return (
     <>
       <p className="t-overline">{household.name}</p>
@@ -111,6 +124,7 @@ export default function UsPage({
         <h1 className="t-screen-title">Us</h1>
         <AvatarPair household={household} />
       </div>
+
       {!other ? (
         <InviteCard
           household={household}
@@ -118,17 +132,39 @@ export default function UsPage({
         />
       ) : (
         <>
-          <ThanksNotification
-            receivedThanks={receivedThanks}
-            onDismiss={handleDismiss}
-            partnerName={other.username}
-          ></ThanksNotification>
+          {receivedThanks.length > 0 && (
+            <ul className="us-page__notices" role="status">
+              {receivedThanks.map(function renderNotice(thank) {
+                function dismiss() {
+                  handleDismiss(thank.id);
+                }
+
+                return (
+                  <li key={thank.id} className="us-page__notice">
+                    <Heart size={20} aria-hidden="true" />
+                    <p className="us-page__notice-text t-body-strong">
+                      {other.username} thanked you for “{thank.taskTitle}”
+                    </p>
+                    <button
+                      type="button"
+                      className="us-page__dismiss"
+                      aria-label="Dismiss"
+                      onClick={dismiss}
+                    >
+                      <X size={18} aria-hidden="true" />
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+
           <WeekSwitch
             offset={weekOffset}
             onChange={setWeekOffset}
             canGoForward={weekOffset < 0}
           />
-          <div className="stats-row">
+          <div className="us-page__stats">
             <StatsCard
               tasks={tasks}
               thanks={thanks}
@@ -148,22 +184,35 @@ export default function UsPage({
               variant={personSlot(household, other.id)}
             />
           </div>
-          <p className="us-page__note">
+          <p className="us-page__note t-meta">
             Organised = tasks you added, planned or proposed.
           </p>
+
           {actionError && (
-            <p className="us-page__error" role="alert">
+            <p className="us-page__error t-meta" role="alert">
               {actionError}
             </p>
           )}
-          <ThankCard
-            tasks={tasksToThank}
-            onThank={handleThank}
-            partnerName={other.username}
-            partnerSlot={personSlot(household, other.id)}
-          />
+
+          {tasksToThank.length > 0 && (
+            <section className="us-page__section">
+              <SectionHeader title="Give thanks" count={tasksToThank.length} />
+              <ul className="us-page__thanks">
+                {tasksToThank.map((task) => (
+                  <ThankRow
+                    key={task.id}
+                    task={task}
+                    partnerName={other.username}
+                    partnerSlot={personSlot(household, other.id)}
+                    onThank={handleThank}
+                  />
+                ))}
+              </ul>
+            </section>
+          )}
         </>
       )}
+
       <Button variant="secondary" onClick={onLogout}>
         Log out
       </Button>

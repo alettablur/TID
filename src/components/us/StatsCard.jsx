@@ -1,6 +1,6 @@
-import "./StatsCard.css";
-import { weekRange } from "../../utilities/dates.js";
 import Avatar from "../shared/Avatar.jsx";
+import { weekRange } from "../../utilities/dates.js";
+import "./StatsCard.css";
 
 export default function StatsCard({
   tasks,
@@ -33,7 +33,7 @@ export default function StatsCard({
     <section className={`stats-card stats-card--${variant}`}>
       <header className="stats-card__header">
         <Avatar name={title} person={variant} />
-        <h2>{title}</h2>
+        <h2 className="stats-card__title t-card-title">{title}</h2>
       </header>
       <p className="stats-card__stat">
         <span className="t-body">Done</span>

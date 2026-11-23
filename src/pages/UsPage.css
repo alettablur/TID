@@ -1,4 +1,5 @@
-.us-page__household {
+/* Loading… and the load error; .layout__main already gives the padding */
+.us-page__status {
   margin: 0;
   color: var(--text-soft);
 }
@@ -10,18 +11,72 @@
   gap: var(--space-4);
 }
 
-.us-page__header h1 {
-  margin: 0;
+/* the space between sections comes from .layout__main */
+.us-page__section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+/* the two stats cards side by side */
+.us-page__stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
 }
 
 .us-page__note {
-  font-family: var(--font-text);
-  font-size: var(--space-3);
-  color: var(--text-muted);
   margin: 0;
+  color: var(--text-muted);
 }
 
 .us-page__error {
   margin: 0;
   color: var(--accent-brick);
+}
+
+.us-page__notices,
+.us-page__thanks {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* a thank-you I received: in the brick of the thank button */
+.us-page__notice {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-2) var(--space-2) var(--space-4);
+  border-radius: var(--radius-card);
+  background: var(--person-a-tint);
+  box-shadow: var(--shadow-soft);
+  color: var(--accent-brick);
+}
+
+.us-page__notice-text {
+  flex: 1;
+  margin: 0;
+}
+
+/* 44 px: the smallest touch target we allow (NFR6) */
+.us-page__dismiss {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: var(--radius-chip);
+  background: none;
+  color: var(--text-soft);
+  cursor: pointer;
+}
+
+.us-page__dismiss:focus-visible {
+  outline: 3px solid var(--accent-mustard);
+  outline-offset: 2px;
 }
