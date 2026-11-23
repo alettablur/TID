@@ -1,101 +1,102 @@
-.grocery-page__error {
-  margin-top: var(--space-4);
-  color: var(--status-clash);
+/* Loading…, the load error and the empty list; .layout__main gives the padding */
+.groceries-page__status {
+  margin: 0;
+  color: var(--text-soft);
+}
+
+.groceries-page__error {
+  margin: 0;
+  color: var(--accent-brick);
 }
 
 /* one card per section, rows split by a thin line */
-.grocery-page__list {
+.groceries-page__list {
   list-style: none;
   margin: var(--space-2) 0 0;
-  padding: 0 var(--space-4);
+  padding: 0 var(--space-4) 0 var(--space-1);
   border-radius: var(--radius-card);
   background: var(--surface-card);
   box-shadow: var(--shadow-soft);
 }
 
-.grocery-page__item {
+.groceries-page__item {
   display: flex;
   align-items: center;
-  gap: var(--space-3);
-  padding: var(--space-3) 0;
+  gap: var(--space-2);
+  padding: var(--space-1) 0;
 }
 
-.grocery-page__item + .grocery-page__item {
+.groceries-page__item + .groceries-page__item {
   border-top: 1px solid var(--line-soft);
 }
 
-/* the tick: an empty circle to buy, a filled green square once bought */
-.grocery-page__check {
+/* 44 px: the smallest touch target we allow (NFR6); the circle inside is smaller */
+.groceries-page__check {
+  flex: none;
+  width: 44px;
+  height: 44px;
   display: grid;
   place-items: center;
-  flex-shrink: 0;
-  width: 26px;
-  height: 26px;
   padding: 0;
-  border: 2px solid var(--text-muted);
-  border-radius: var(--radius-round);
+  border: 0;
   background: none;
-  color: var(--text-on-dark);
-  font-size: 14px;
-  line-height: 1;
   cursor: pointer;
 }
 
-.grocery-page__check[aria-pressed="true"] {
+.groceries-page__check:focus-visible {
+  outline: 3px solid var(--accent-mustard);
+  outline-offset: 2px;
+}
+
+/* the tick: an empty circle to buy, a filled green square once bought */
+.groceries-page__circle {
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  border: 2px solid var(--text-muted);
+  border-radius: var(--radius-round);
+  color: var(--text-on-dark);
+}
+
+.groceries-page__check[aria-pressed="true"] .groceries-page__circle {
   border-color: var(--status-planned);
-  border-radius: 6px;
+  border-radius: var(--radius-chip);
   background: var(--status-planned);
 }
 
 /* the rest of the row: a button that opens the grocery sheet */
-.grocery-page__open {
+.groceries-page__open {
   display: flex;
   flex: 1;
   align-items: center;
   gap: var(--space-3);
   min-width: 0;
-  padding: 0;
+  min-height: 44px;
+  padding: var(--space-2) 0;
   border: 0;
   background: none;
   color: inherit;
-  font: inherit;
   text-align: left;
   cursor: pointer;
 }
 
-.grocery-page__text {
+.groceries-page__text {
   display: flex;
   flex: 1;
   flex-direction: column;
   min-width: 0;
 }
 
-.grocery-page__name--bought {
+.groceries-page__name--bought {
   color: var(--text-muted);
   text-decoration: line-through;
 }
 
 /* "×12" */
-.grocery-page__amount {
-  flex-shrink: 0;
+.groceries-page__amount {
+  flex: none;
   padding: var(--space-1) var(--space-3);
   border-radius: var(--radius-round);
   background: var(--surface-paper);
-}
-
-/* the edit row: the name field takes the room that is left */
-.grocery-page__edit {
-  display: flex;
-  flex: 1;
-  align-items: center;
-  gap: var(--space-2);
-}
-
-.grocery-page__input {
-  flex: 1;
-  min-width: 0;
-  padding: 6px var(--space-3);
-  border: 1px solid var(--line-soft);
-  border-radius: var(--radius-chip);
-  background: var(--surface-card);
 }
