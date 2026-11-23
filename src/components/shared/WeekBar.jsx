@@ -1,11 +1,8 @@
 import "./WeekBar.css";
-import { weekBoundsFromOffset } from "../../utilities/dateUtils.js";
-
-const fmt = (d) =>
-  d.toLocaleDateString("en-GB", { day: "numeric", month: "short" });
+import { addDays, formatShortDate, weekRange } from "../../utilities/dates.js";
 
 export default function WeekBar({ weekOffset, onChange }) {
-  const [start, end] = weekBoundsFromOffset(weekOffset);
+  const [start, end] = weekRange(weekOffset);
 
   return (
     <div className="week-bar">
@@ -17,7 +14,7 @@ export default function WeekBar({ weekOffset, onChange }) {
         ❮
       </button>
       <span>
-        {fmt(start)} - {fmt(end)}
+        {formatShortDate(start)} – {formatShortDate(addDays(end, -1))}
       </span>
       <button
         className="week-bar__arrow"

@@ -4,12 +4,8 @@ import {
   acceptRequest,
   declineRequest,
 } from "../../services/requestService.js";
+import { formatDay } from "../../utilities/dates.js";
 import "./RequestDetails.css";
-
-// "Tue 17"
-function formatDay(date) {
-  return date.toLocaleDateString("en-GB", { weekday: "short", day: "numeric" });
-}
 
 // the task sheet of a task with an open request (US2). The one who is asked
 // answers here (FR10); the one who asked only sees that it is waiting.

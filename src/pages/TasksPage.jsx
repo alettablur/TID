@@ -21,7 +21,15 @@ import {
   undoDone,
 } from "../services/taskService.js";
 import { loadRequests } from "../services/requestService.js";
-import { addDays } from "../utilities/dates.js";
+import {
+  addDays,
+  formatDay,
+  formatLongDay,
+  formatTime,
+  formatWeekday,
+  startOfToday,
+  startOfWeek,
+} from "../utilities/dates.js";
 import "./TasksPage.css";
 
 // for sort(): a negative number puts a first, a positive number puts b first
@@ -37,26 +45,6 @@ function compareTasks(a, b) {
 
   // the same day: by time, "HH:mm" sorts like text; "any time" ("") goes last
   return (a.time || "24:00").localeCompare(b.time || "24:00");
-}
-
-// "Sat 10"
-function formatDay(date) {
-  return date.toLocaleDateString("en-GB", { weekday: "short", day: "numeric" });
-}
-
-// "08:15"
-function formatTime(date) {
-  return date.toLocaleTimeString("en-GB", {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
-
-// Monday at 00:00: the week runs Monday to Sunday, as in the Us overview (data-model.md)
-function startOfWeek(today) {
-  // getDay() is 0 for Sunday, 1 for Monday … 6 for Saturday
-  const daysSinceMonday = (today.getDay() + 6) % 7;
-  return addDays(today, -daysSinceMonday);
 }
 
 // also the page behind /tasks/:taskId, where the task sheet will open
@@ -127,9 +115,7 @@ export default function TasksPage({ household, userId }) {
     return <p className="tasks-page__status t-body">Loading…</p>;
   }
 
-  // today at 00:00: a task planned for any time today counts as today
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  const today = startOfToday();
   const tomorrow = addDays(today, 1);
 
   // the other person: the partner if I am the owner, otherwise the owner
@@ -470,9 +456,7 @@ export default function TasksPage({ household, userId }) {
                   aria-pressed={date.getTime() === shownDay.getTime()}
                   onClick={pickDay}
                 >
-                  <span className="t-chip">
-                    {date.toLocaleDateString("en-GB", { weekday: "short" })}
-                  </span>
+                  <span className="t-chip">{formatWeekday(date)}</span>
                   <span className="t-body-strong">{date.getDate()}</span>
                   {/* one dot per task, in the colour of whoever does it */}
                   <span className="tasks-page__dots" aria-hidden="true">
@@ -491,10 +475,7 @@ export default function TasksPage({ household, userId }) {
           </div>
 
           <SectionHeader
-            title={shownDay.toLocaleDateString("en-GB", {
-              weekday: "long",
-              day: "numeric",
-            })}
+            title={formatLongDay(shownDay)}
             count={dayTasks.length}
           />
 

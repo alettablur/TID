@@ -9,14 +9,17 @@ import {
   updateTask,
 } from "../../services/taskService.js";
 import { askPartner } from "../../services/requestService.js";
-import { addDays } from "../../utilities/dates.js";
+import {
+  addDays,
+  formatDay,
+  formatWeekday,
+  startOfToday,
+} from "../../utilities/dates.js";
 import "./TaskForm.css";
 
 // the days you can pick: today and the six days after it, each at 00:00
 function nextSevenDays() {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
+  const today = startOfToday();
   const days = [];
   for (let i = 0; i < 7; i++) {
     days.push(addDays(today, i));
@@ -378,7 +381,7 @@ export default function TaskForm({ household, userId, task, onSaved }) {
               <span className="t-chip">
                 {date.getTime() === days[0].getTime()
                   ? "Today"
-                  : date.toLocaleDateString("en-GB", { weekday: "short" })}
+                  : formatWeekday(date)}
               </span>
               <span className="t-body-strong">{date.getDate()}</span>
             </button>
@@ -389,13 +392,7 @@ export default function TaskForm({ household, userId, task, onSaved }) {
       {/* our decision: say the day in words instead of adding a button for it;
           it stays the day unless another day is tapped */}
       {day !== null && !dayInStrip && (
-        <p className="task-form__hint t-meta">
-          Planned for{" "}
-          {day.toLocaleDateString("en-GB", {
-            weekday: "short",
-            day: "numeric",
-          })}
-        </p>
+        <p className="task-form__hint t-meta">Planned for {formatDay(day)}</p>
       )}
 
       {/* decision after the wireframe tests: the time appears once a day is chosen */}
@@ -487,10 +484,7 @@ export default function TaskForm({ household, userId, task, onSaved }) {
                 {clash.title} ·{" "}
                 {clash.day.getTime() === days[0].getTime()
                   ? "today"
-                  : clash.day.toLocaleDateString("en-GB", {
-                      weekday: "short",
-                      day: "numeric",
-                    })}{" "}
+                  : formatDay(clash.day)}{" "}
                 {clash.time}
               </span>
             </p>

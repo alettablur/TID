@@ -4,14 +4,12 @@ import FoldSection from "../components/shared/FoldSection.jsx";
 import Sheet from "../components/shared/Sheet.jsx";
 import { loadGroceries, setBought } from "../services/groceryService.js";
 import GroceryForm from "../components/groceries/GroceryForm.jsx";
+import { formatAgo } from "../utilities/dates.js";
 import "./GroceriesPage.css";
 
 function formatBoughtAt(date) {
   const minutes = (new Date() - date) / 60000;
-  if (minutes < 5) return "just now";
-  if (date.toDateString() === new Date().toDateString()) return "today";
-  if (minutes < 48 * 60) return "yesterday";
-  return date.toLocaleDateString("en-GB", { weekday: "short", day: "numeric" });
+  return minutes < 5 ? "just now" : formatAgo(date);
 }
 
 export default function GroceriesPage({ household, userId }) {

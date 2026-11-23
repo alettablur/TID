@@ -1,7 +1,7 @@
 import "./ThankCard.css";
 import Avatar from "../shared/Avatar.jsx";
 import Button from "../shared/Button.jsx";
-import { formatDayLabel } from "../../utilities/dateUtils.js";
+import { formatAgo, formatTime } from "../../utilities/dates.js";
 
 export default function ThankCard({ tasks, onThank, partnerName }) {
   if (tasks.length === 0) return null;
@@ -18,7 +18,8 @@ export default function ThankCard({ tasks, onThank, partnerName }) {
             <div className="thank-card__text">
               <p className="t-task-title">{task.title}</p>
               <p className="thank-card__meta">
-                Done by {partnerName} · {formatDayLabel(task.doneAt)}
+                Done by {partnerName} · {formatAgo(task.doneAt)},{" "}
+                {formatTime(task.doneAt)}
               </p>
             </div>
             <Button variant="thank" onClick={() => onThank(task)}>

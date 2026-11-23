@@ -1,5 +1,5 @@
 import "./StatsCard.css";
-import { weekBoundsFromOffset } from "../../utilities/dateUtils.js";
+import { weekRange } from "../../utilities/dates.js";
 import Avatar from "../shared/Avatar.jsx";
 
 export default function StatsCard({
@@ -11,7 +11,7 @@ export default function StatsCard({
   variant = "a",
 }) {
   // filtering for the chosen week
-  const [start, end] = weekBoundsFromOffset(weekOffset);
+  const [start, end] = weekRange(weekOffset);
   const tasksThisWeek = tasks.filter(
     (t) => t.doneAt && t.doneAt >= start && t.doneAt < end,
   );
