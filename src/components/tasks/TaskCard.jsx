@@ -1,8 +1,8 @@
 import { Check } from "lucide-react";
 import { Link } from "react-router-dom";
-import Avatar from "../Avatar.jsx";
-import Button from "../Button.jsx";
-import StatusChip from "../StatusChip.jsx";
+import Avatar from "../shared/Avatar.jsx";
+import Button from "../shared/Button.jsx";
+import StatusChip from "../shared/StatusChip.jsx";
 import "./TaskCard.css";
 
 // person: "a" or "b" does the task; null = up for grabs: nobody can tick it

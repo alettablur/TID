@@ -1,4 +1,4 @@
-import Button from "../components/Button.jsx";
+import Button from "../components/shared/Button.jsx";
 import "./UsPage.css";
 import { useState, useEffect } from "react";
 import { loadTasks } from "../services/taskService.js";
@@ -7,12 +7,12 @@ import {
   markThanksSeen,
   sendThanks,
 } from "../services/thanksService.js";
-import InviteCard from "../components/InviteCard/InviteCard.jsx";
-import StatsCard from "../components/StatsCard/StatsCard.jsx";
-import WeekBar from "../components/WeekBar/WeekBar.jsx";
-import ThankCard from "../components/ThankCard/ThankCard.jsx";
-import ThanksNotification from "../components/ThanksNotification/ThanksNotification.jsx";
-import AvatarPair from "../components/AvatarPair.jsx";
+import InviteCard from "../components/us/InviteCard.jsx";
+import StatsCard from "../components/us/StatsCard.jsx";
+import WeekBar from "../components/shared/WeekBar.jsx";
+import ThankCard from "../components/us/ThankCard.jsx";
+import ThanksNotification from "../components/us/ThanksNotification.jsx";
+import AvatarPair from "../components/shared/AvatarPair.jsx";
 
 export default function UsPage({
   household,

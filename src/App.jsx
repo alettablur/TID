@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Route, Routes } from "react-router-dom";
 import "./App.css";
-import Layout from "./components/Layout/Layout.jsx";
+import Layout from "./components/layout/Layout.jsx";
 import AuthPage from "./pages/AuthPage.jsx";
 import GroceriesPage from "./pages/GroceriesPage.jsx";
 import HomePage from "./pages/HomePage.jsx";

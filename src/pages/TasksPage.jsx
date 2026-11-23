@@ -6,14 +6,14 @@ import {
   useSearchParams,
 } from "react-router-dom";
 import { CalendarDays, ListChecks } from "lucide-react";
-import FoldSection from "../components/FoldSection.jsx";
-import SectionHeader from "../components/SectionHeader.jsx";
-import Avatar from "../components/Avatar.jsx";
-import Sheet from "../components/Sheet.jsx";
-import TaskCard from "../components/TaskCard/TaskCard.jsx";
-import TaskForm from "../components/TaskForm/TaskForm.jsx";
-import RequestDetails from "../components/Request/RequestDetails.jsx";
-import Toast from "../components/Toast.jsx";
+import FoldSection from "../components/shared/FoldSection.jsx";
+import SectionHeader from "../components/shared/SectionHeader.jsx";
+import Avatar from "../components/shared/Avatar.jsx";
+import Sheet from "../components/shared/Sheet.jsx";
+import TaskCard from "../components/tasks/TaskCard.jsx";
+import TaskForm from "../components/tasks/TaskForm.jsx";
+import RequestDetails from "../components/tasks/RequestDetails.jsx";
+import Toast from "../components/shared/Toast.jsx";
 import {
   loadTasks,
   setDone,

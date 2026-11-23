@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Outlet, useLocation } from "react-router-dom";
-import Sheet from "../Sheet.jsx";
-import TaskForm from "../TaskForm/TaskForm.jsx";
-import GroceryForm from "../GroceryForm/GroceryForm.jsx";
+import Sheet from "../shared/Sheet.jsx";
+import TaskForm from "../tasks/TaskForm.jsx";
+import GroceryForm from "../groceries/GroceryForm.jsx";
 import TabBar from "./TabBar.jsx";
 import "./Layout.css";
 

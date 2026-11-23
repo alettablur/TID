@@ -1,5 +1,5 @@
 import "./InviteCard.css";
-import Button from "../Button.jsx";
+import Button from "../shared/Button.jsx";
 import { useState } from "react";
 import { invitePartner } from "../../services/householdService.js";
 

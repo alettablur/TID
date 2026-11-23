@@ -1,6 +1,6 @@
 import "./ThankCard.css";
-import Avatar from "../Avatar.jsx";
-import Button from "../Button.jsx";
+import Avatar from "../shared/Avatar.jsx";
+import Button from "../shared/Button.jsx";
 import { formatDayLabel } from "../../utilities/dateUtils.js";
 
 export default function ThankCard({ tasks, onThank, partnerName }) {

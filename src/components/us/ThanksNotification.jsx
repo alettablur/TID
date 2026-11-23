@@ -1,5 +1,5 @@
 import "./ThanksNotification.css";
-import Button from "../Button";
+import Button from "../shared/Button.jsx";
 
 export default function ThanksNotification({
   receivedThanks,

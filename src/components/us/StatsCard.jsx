@@ -1,6 +1,6 @@
 import "./StatsCard.css";
 import { weekBoundsFromOffset } from "../../utilities/dateUtils.js";
-import Avatar from "../Avatar.jsx";
+import Avatar from "../shared/Avatar.jsx";
 
 export default function StatsCard({
   tasks,

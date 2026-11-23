@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import Button from "../Button.jsx";
+import Button from "../shared/Button.jsx";
 import {
   addGrocery,
   loadGroceries,

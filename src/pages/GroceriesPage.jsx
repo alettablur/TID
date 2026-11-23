@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import { useOutletContext } from "react-router-dom";
-import FoldSection from "../components/FoldSection.jsx";
-import Sheet from "../components/Sheet.jsx";
+import FoldSection from "../components/shared/FoldSection.jsx";
+import Sheet from "../components/shared/Sheet.jsx";
 import { loadGroceries, setBought } from "../services/groceryService.js";
-import GroceryForm from "../components/GroceryForm/GroceryForm.jsx";
+import GroceryForm from "../components/groceries/GroceryForm.jsx";
 import "./GroceriesPage.css";
 
 function formatBoughtAt(date) {
