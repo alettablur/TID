@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import Button from "../shared/Button.jsx";
+import ConfirmDelete from "../shared/ConfirmDelete.jsx";
 import {
   addGrocery,
   loadGroceries,
@@ -23,7 +24,6 @@ export default function GroceryForm({
   const [justAdded, setJustAdded] = useState([]); // added since the sheet opened
   const [saving, setSaving] = useState(false); // a second tap must not save twice
   const [error, setError] = useState("");
-  const [confirmingDelete, setConfirmingDelete] = useState(false);
 
   useEffect(() => {
     loadGroceries(household)
@@ -158,45 +158,17 @@ export default function GroceryForm({
       {error && <p className="grocery-form__error t-meta">{error}</p>}
 
       {grocery ? (
-        // editing: Delete item | Save, or the question after the first tap
-        confirmingDelete ? (
-          <>
-            <p className="grocery-form__confirm t-body-strong">
-              Delete {grocery.name} for both of you? This cannot be undone.
-            </p>
-            <div className="grocery-form__actions">
-              <Button
-                variant="secondary"
-                block
-                onClick={() => setConfirmingDelete(false)}
-              >
-                Keep it
-              </Button>
-              <Button
-                variant="brick"
-                block
-                disabled={saving}
-                onClick={() => handleEdit(() => deleteGrocery(grocery.id))}
-              >
-                Delete
-              </Button>
-            </div>
-          </>
-        ) : (
-          <div className="grocery-form__actions">
-            <Button
-              variant="brick"
-              block
-              disabled={saving}
-              onClick={() => setConfirmingDelete(true)}
-            >
-              Delete item
-            </Button>
-            <Button type="submit" block disabled={saving || !name.trim()}>
-              Save
-            </Button>
-          </div>
-        )
+        // editing: Delete item | Save
+        <ConfirmDelete
+          label="Delete item"
+          question={`Delete ${grocery.name} for both of you? This cannot be undone.`}
+          disabled={saving}
+          onDelete={() => handleEdit(() => deleteGrocery(grocery.id))}
+        >
+          <Button type="submit" block disabled={saving || !name.trim()}>
+            Save
+          </Button>
+        </ConfirmDelete>
       ) : (
         <div className="grocery-form__actions">
           <Button variant="secondary" block onClick={onDone}>

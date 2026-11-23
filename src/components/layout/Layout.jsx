@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Outlet, useLocation } from "react-router-dom";
+import Segmented from "../shared/Segmented.jsx";
 import Sheet from "../shared/Sheet.jsx";
 import TaskForm from "../tasks/TaskForm.jsx";
 import GroceryForm from "../groceries/GroceryForm.jsx";
@@ -13,6 +14,11 @@ function pageOf(pathname) {
   if (pathname.startsWith("/us")) return "us";
   return "home";
 }
+
+const ADD_CHOICES = [
+  { value: "task", label: "Task" },
+  { value: "grocery", label: "Grocery" },
+];
 
 // every page of a logged-in user: the page itself, then the tab bar
 export default function Layout({ household, userId }) {
@@ -31,14 +37,6 @@ export default function Layout({ household, userId }) {
 
   function handleCloseAddForm() {
     setAddForm(null);
-  }
-
-  function showTaskForm() {
-    setAddForm("task");
-  }
-
-  function showGroceryForm() {
-    setAddForm("grocery");
   }
 
   function handleTaskAdded() {
@@ -64,29 +62,12 @@ export default function Layout({ household, userId }) {
           title={addForm === "grocery" ? "New grocery" : "New task"}
           onClose={handleCloseAddForm}
         >
-          {/* Task | Grocery: the same look as the choices in TaskForm */}
-          <div
-            className="layout__switch task-form__choices"
-            role="group"
-            aria-label="What to add"
-          >
-            <button
-              type="button"
-              className="task-form__choice t-body-strong"
-              aria-pressed={addForm === "task"}
-              onClick={showTaskForm}
-            >
-              Task
-            </button>
-            <button
-              type="button"
-              className="task-form__choice t-body-strong"
-              aria-pressed={addForm === "grocery"}
-              onClick={showGroceryForm}
-            >
-              Grocery
-            </button>
-          </div>
+          <Segmented
+            label="What to add"
+            options={ADD_CHOICES}
+            value={addForm}
+            onChange={setAddForm}
+          />
 
           {addForm === "task" ? (
             <TaskForm

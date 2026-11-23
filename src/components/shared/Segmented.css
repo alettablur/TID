@@ -1,0 +1,27 @@
+.segmented {
+  display: flex;
+  gap: var(--space-2);
+}
+
+/* 48 px high: a comfortable touch target (NFR6) */
+.segmented__option {
+  flex: 1;
+  min-height: 48px;
+  border: 0;
+  border-radius: var(--radius-control);
+  background: var(--surface-card);
+  box-shadow: inset 0 0 0 1.5px var(--line-soft);
+  color: var(--text-soft);
+  cursor: pointer;
+}
+
+/* the chosen option: a darker frame, as in the Figma "Who" cards */
+.segmented__option[aria-pressed="true"] {
+  box-shadow: inset 0 0 0 2px var(--action-primary);
+  color: var(--text-ink);
+}
+
+.segmented__option:focus-visible {
+  outline: 3px solid var(--accent-mustard);
+  outline-offset: 2px;
+}

@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { CalendarClock } from "lucide-react";
 import Button from "../shared/Button.jsx";
+import ConfirmDelete from "../shared/ConfirmDelete.jsx";
+import Segmented from "../shared/Segmented.jsx";
 import {
   addTask,
   deleteTask,
@@ -46,6 +48,12 @@ for (let hour = 0; hour < 24; hour++) {
 }
 const QUARTERS = ["00", "15", "30", "45"];
 
+// hasTime: false = "Any time", true = "Set time"
+const TIME_MODES = [
+  { value: false, label: "Any time" },
+  { value: true, label: "Set time" },
+];
+
 // "19:00" when it is 18:20: where the time dropdowns start
 function nextFullHour() {
   return `${twoDigits((new Date().getHours() + 1) % 24)}:00`;
@@ -72,8 +80,6 @@ export default function TaskForm({ household, userId, task, onSaved }) {
   );
   // true while addTask waits for Back4App: a second tap must not save the task twice
   const [saving, setSaving] = useState(false);
-  // true after the first tap on "Delete task": a second, clear tap deletes
-  const [confirmingDelete, setConfirmingDelete] = useState(false);
   // a new task: always true. Editing: false until the day or time is changed,
   // so opening a task does not warn about a time that was chosen long ago
   const [whenChanged, setWhenChanged] = useState(!task);
@@ -93,6 +99,13 @@ export default function TaskForm({ household, userId, task, onSaved }) {
   }, [household]);
 
   const partner = otherPerson(household, userId);
+
+  // asking the partner: only for a new task, and only with a partner
+  const whoOptions = [{ value: "me", label: "Me" }];
+  if (partner && !task) {
+    whoOptions.push({ value: "partner", label: partner.username });
+  }
+  whoOptions.push({ value: "either", label: "Either of us" });
 
   const days = nextSevenDays();
   // a request must be answered the day before (FR9), so it cannot be for today
@@ -131,17 +144,15 @@ export default function TaskForm({ household, userId, task, onSaved }) {
     setTitle(event.target.value);
   }
 
-  function chooseMe() {
-    setWho("me");
-  }
-
-  function chooseEither() {
-    setWho("either");
+  function handleWhoChange(value) {
+    setWho(value);
+    if (value === "partner") {
+      prepareRequest();
+    }
   }
 
   // a request needs a day (not today) and a time (screens.md: "needed for a request")
-  function choosePartner() {
-    setWho("partner");
+  function prepareRequest() {
     setWhenChanged(true);
     if (day !== null && day.getTime() === days[0].getTime()) {
       setDay(null);
@@ -156,16 +167,14 @@ export default function TaskForm({ household, userId, task, onSaved }) {
     setDay(null);
   }
 
-  function chooseAnyTime() {
-    setHasTime(false);
-  }
-
-  function chooseSetTime() {
-    setHasTime(true);
-    setWhenChanged(true);
-    // start the dropdowns on the next full hour, so they never show an empty time
-    if (time === "") {
-      setTime(nextFullHour());
+  function handleTimeModeChange(value) {
+    setHasTime(value);
+    if (value) {
+      setWhenChanged(true);
+      // start the dropdowns on the next full hour, so they never show an empty time
+      if (time === "") {
+        setTime(nextFullHour());
+      }
     }
   }
 
@@ -251,16 +260,6 @@ export default function TaskForm({ household, userId, task, onSaved }) {
     save(true);
   }
 
-  // deleting cannot be undone and removes the task for both partners,
-  // so the first tap only asks (our decision, NFR5 error prevention)
-  function askDelete() {
-    setConfirmingDelete(true);
-  }
-
-  function cancelDelete() {
-    setConfirmingDelete(false);
-  }
-
   // only in the task sheet; onSaved closes the sheet and reloads, as after a save
   async function handleDelete() {
     setSaving(true);
@@ -290,39 +289,12 @@ export default function TaskForm({ household, userId, task, onSaved }) {
       <p className="task-form__label t-overline" id="task-form-who">
         Who does it
       </p>
-      <div
-        className="task-form__choices"
-        role="group"
-        aria-labelledby="task-form-who"
-      >
-        <button
-          type="button"
-          className="task-form__choice t-body-strong"
-          aria-pressed={who === "me"}
-          onClick={chooseMe}
-        >
-          Me
-        </button>
-        {/* asking the partner: only for a new task, and only with a partner */}
-        {partner && !task && (
-          <button
-            type="button"
-            className="task-form__choice t-body-strong"
-            aria-pressed={who === "partner"}
-            onClick={choosePartner}
-          >
-            {partner.username}
-          </button>
-        )}
-        <button
-          type="button"
-          className="task-form__choice t-body-strong"
-          aria-pressed={who === "either"}
-          onClick={chooseEither}
-        >
-          Either of us
-        </button>
-      </div>
+      <Segmented
+        labelledBy="task-form-who"
+        options={whoOptions}
+        value={who}
+        onChange={handleWhoChange}
+      />
 
       {who === "either" && (
         <p className="task-form__notice t-meta">Goes to Up for grabs</p>
@@ -404,28 +376,12 @@ export default function TaskForm({ household, userId, task, onSaved }) {
           </p>
           {/* a request always has a time, so no "Any time" choice for it */}
           {who !== "partner" && (
-            <div
-              className="task-form__choices"
-              role="group"
-              aria-labelledby="task-form-time"
-            >
-              <button
-                type="button"
-                className="task-form__choice t-body-strong"
-                aria-pressed={!hasTime}
-                onClick={chooseAnyTime}
-              >
-                Any time
-              </button>
-              <button
-                type="button"
-                className="task-form__choice t-body-strong"
-                aria-pressed={hasTime}
-                onClick={chooseSetTime}
-              >
-                Set time
-              </button>
-            </div>
+            <Segmented
+              labelledBy="task-form-time"
+              options={TIME_MODES}
+              value={hasTime}
+              onChange={handleTimeModeChange}
+            />
           )}
 
           {/* two native dropdowns instead of <input type="time">: they work with
@@ -514,36 +470,17 @@ export default function TaskForm({ household, userId, task, onSaved }) {
 
       {/* NFR5: a task cannot be saved without a title */}
       {task ? (
-        // editing (screens.md): Delete task | Save, or the question after the first tap
-        confirmingDelete ? (
-          <>
-            <p className="task-form__confirm t-body-strong">
-              Delete this task for both of you? This cannot be undone.
-            </p>
-            <div className="task-form__actions">
-              <Button variant="secondary" block onClick={cancelDelete}>
-                Keep it
-              </Button>
-              <Button
-                variant="brick"
-                block
-                disabled={saving}
-                onClick={handleDelete}
-              >
-                Delete
-              </Button>
-            </div>
-          </>
-        ) : (
-          <div className="task-form__actions">
-            <Button variant="brick" block disabled={saving} onClick={askDelete}>
-              Delete task
-            </Button>
-            <Button type="submit" block disabled={saving || !title.trim()}>
-              Save
-            </Button>
-          </div>
-        )
+        // editing (screens.md): Delete task | Save
+        <ConfirmDelete
+          label="Delete task"
+          question="Delete this task for both of you? This cannot be undone."
+          disabled={saving}
+          onDelete={handleDelete}
+        >
+          <Button type="submit" block disabled={saving || !title.trim()}>
+            Save
+          </Button>
+        </ConfirmDelete>
       ) : who === "partner" ? (
         // a request: one button, and only once a day is picked
         <div className="task-form__send">

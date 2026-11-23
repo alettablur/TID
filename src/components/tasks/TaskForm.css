@@ -40,11 +40,6 @@
   margin: var(--space-2) 0 0;
 }
 
-.task-form__choices {
-  display: flex;
-  gap: var(--space-2);
-}
-
 /* 48 px high: a comfortable touch target (NFR6) */
 .task-form__choice {
   flex: 1;
@@ -144,12 +139,6 @@
   height: 24px;
   margin: 0;
   accent-color: var(--action-primary);
-}
-
-/* the question before deleting, just above its two buttons */
-.task-form__confirm {
-  margin: var(--space-2) 0 0;
-  color: var(--text-ink);
 }
 
 /* "Send request to …": one full-width button, the same space above as the pair */
