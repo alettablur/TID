@@ -1,43 +1,42 @@
 .invite-card {
-  background: var(--surface-card);
-  border-radius: var(--radius-card);
-  box-shadow: var(--shadow-soft);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
   padding: var(--space-5);
+  border-radius: var(--radius-card);
+  background: var(--surface-card);
+  box-shadow: var(--shadow-soft);
 }
 
-.invite-card h2 {
-  font-family: var(--font-display);
-  font-weight: 600;
-  color: var(--text-ink);
-  margin: 0 0 var(--space-3);
+.invite-card__title {
+  margin: 0;
 }
+
 .invite-card__form {
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
 }
 
-.invite-card__form label {
-  font-family: var(--font-text);
+.invite-card__label {
   color: var(--text-soft);
 }
 
-.invite-card__form input {
-  font-family: var(--font-text);
-  font-size: 1rem;
-  color: var(--text-ink);
-  background: var(--bg-ivory);
-  border: 1px solid var(--line-soft);
+/* 48 px high: a comfortable touch target (NFR6) */
+.invite-card__input {
+  min-height: 48px;
+  padding: 0 var(--space-4);
+  border: 1.5px solid var(--line-soft);
   border-radius: var(--radius-control);
-  padding: var(--space-3) var(--space-4);
+  background: var(--bg-ivory);
 }
 
-.invite-card__form input:focus-visible {
-  outline: 2px solid var(--action-primary);
+.invite-card__input:focus-visible {
+  outline: 3px solid var(--accent-mustard);
   outline-offset: 2px;
 }
 
 .invite-card__error {
-  color: var(--status-clash);
-  margin: var(--space-3) 0 0;
+  margin: 0;
+  color: var(--accent-brick);
 }

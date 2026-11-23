@@ -1,21 +1,14 @@
 .stats-card {
-  background: var(--card-bg);
-  border-radius: var(--radius-card);
-  box-shadow: var(--shadow-soft);
-  padding: var(--space-5);
-}
-
-.stats-card h2 {
-  font-family: var(--font-display);
-  color: var(--card-text);
-  margin: 0;
-}
-
-.stats-card__header {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: var(--space-2);
+  padding: var(--space-4);
+  border-radius: var(--radius-card);
+  background: var(--card-bg);
+  box-shadow: var(--shadow-soft);
 }
+
+/* colour = person: the card takes the colour of whose numbers it shows */
 .stats-card--a {
   --card-bg: var(--person-a-tint);
   --card-text: var(--person-a);
@@ -26,20 +19,22 @@
   --card-text: var(--person-b);
 }
 
-.stats-card__error {
-  color: var(--status-clash);
-  margin: var(--space-3) 0 0;
+.stats-card__header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-1);
 }
 
-.stats-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--space-3);
+.stats-card__title {
+  margin: 0;
+  color: var(--card-text);
 }
 
+/* label on the left, number on the right */
 .stats-card__stat {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  margin-inline: var(--space-4);
+  margin: 0;
 }
