@@ -9,7 +9,7 @@ import {
 } from "../services/thanksService.js";
 import InviteCard from "../components/us/InviteCard.jsx";
 import StatsCard from "../components/us/StatsCard.jsx";
-import WeekBar from "../components/shared/WeekBar.jsx";
+import WeekSwitch from "../components/shared/WeekSwitch.jsx";
 import ThankCard from "../components/us/ThankCard.jsx";
 import ThanksNotification from "../components/us/ThanksNotification.jsx";
 import AvatarPair from "../components/shared/AvatarPair.jsx";
@@ -115,7 +115,11 @@ export default function UsPage({
             onDismiss={handleDismiss}
             partnerName={other.username}
           ></ThanksNotification>
-          <WeekBar weekOffset={weekOffset} onChange={setWeekOffset} />
+          <WeekSwitch
+            offset={weekOffset}
+            onChange={setWeekOffset}
+            canGoForward={weekOffset < 0}
+          />
           <div className="stats-row">
             <StatsCard
               tasks={tasks}
