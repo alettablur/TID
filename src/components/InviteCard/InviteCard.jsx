@@ -33,7 +33,7 @@ export default function InviteCard({ household, onHouseholdChange }) {
       <h2>Invite your partner</h2>
       <form className="invite-card__form" onSubmit={handleSubmit}>
         <label htmlFor="invite-username">
-          Type your partner's username. They get an invite to accept.
+          Type your partner's username to add them to your list.
         </label>
         <input
           id="invite-username"
