@@ -1,12 +1,14 @@
 import "./Button.css";
 
-// variant: "primary" (warm black), "secondary", "soft" or "brick"
+// variant: "primary" (warm black), "secondary", "soft", "brick" or "thank".
+// label: the name a screen reader says, for a button that shows only an icon
 export default function Button({
   variant = "primary",
   block = false,
   small = false,
   type = "button",
   disabled = false,
+  label,
   onClick,
   children,
 }) {
@@ -19,6 +21,7 @@ export default function Button({
       type={type}
       className={classNames.join(" ")}
       disabled={disabled}
+      aria-label={label}
       onClick={onClick}
     >
       {children}
