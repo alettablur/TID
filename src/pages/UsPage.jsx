@@ -50,7 +50,7 @@ export default function UsPage({
 
   async function handleThank(task) {
     try {
-      const newThanks = await sendThanks(task, other);
+      const newThanks = await sendThanks(household, task, other);
       setThanks((prevThanks) => [...(prevThanks ?? []), newThanks]);
     } catch (error) {
       console.error(error);

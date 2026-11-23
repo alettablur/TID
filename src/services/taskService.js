@@ -1,12 +1,9 @@
 import Parse from "./parse.js";
 import { householdAcl, householdPointer } from "./householdService.js";
+import { userPointer } from "./authService.js";
 import { addDays } from "../utilities/dates.js";
 
 const Task = Parse.Object.extend("Task");
-
-function userPointer(userId) {
-  return userId ? Parse.User.createWithoutData(userId) : null;
-}
 
 // an empty optional field is removed, not saved as null or "";
 // a new row has nothing to remove yet
@@ -31,6 +28,7 @@ function toTask(item) {
     done: item.get("done"),
     doneAt: item.get("doneAt") ?? null,
     repeatsWeekly: item.get("repeatsWeekly"),
+    createdAt: item.createdAt,
   };
 }
 

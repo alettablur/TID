@@ -1,14 +1,10 @@
-/* eslint-disable no-unused-vars -- signatures only: the Us slice writes the bodies */
 import Parse from "./parse.js";
-import { householdPointer } from "./householdService.js";
+import { householdAcl, householdPointer } from "./householdService.js";
+import { userPointer } from "./authService.js";
 
 const Thanks = Parse.Object.extend("Thanks");
+const Task = Parse.Object.extend("Task");
 
-export function pointer(className, id) {
-  return id ? Parse.Object.extend(className).createWithoutData(id) : null;
-}
-
-// a row from the database, as the components want to see it (docs/data-model.md)
 function toThanks(row) {
   return {
     id: row.id,
@@ -23,7 +19,7 @@ function toThanks(row) {
 
 // FR13: the thank-yous of the household, in one query with include("task")
 export async function loadThanks(household) {
-  const tasksInHousehold = new Parse.Query("Task").equalTo(
+  const tasksInHousehold = new Parse.Query(Task).equalTo(
     "list",
     householdPointer(household),
   );
@@ -39,19 +35,23 @@ export async function loadThanks(household) {
 }
 
 // FR12: one tap; from me, to whoever did the task
-export async function sendThanks(task, partner) {
+export async function sendThanks(household, task, partner) {
   const row = new Thanks();
-  row.set("task", pointer("Task", task.id));
+  row.set("task", Task.createWithoutData(task.id));
   row.set("from", Parse.User.current());
-  row.set("to", pointer("_User", partner.id));
+  row.set("to", userPointer(partner.id));
+  // only the two partners may read it, like every row of the household
+  row.setACL(householdAcl(household));
+
   const saved = await row.save();
-  return { ...toThanks(saved), taskTitle: task.title }; // overwriting the task title as this is otherwise undefined
+  // a saved row has no included task, so the title comes from the task we have
+  return { ...toThanks(saved), taskTitle: task.title };
 }
 
 export async function markThanksSeen(ids) {
   if (ids.length === 0) return;
 
-  const rows = ids.map((id) => pointer("Thanks", id));
+  const rows = ids.map((id) => Thanks.createWithoutData(id));
   rows.forEach((row) => row.set("seen", true));
   await Parse.Object.saveAll(rows);
 }

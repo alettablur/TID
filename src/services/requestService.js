@@ -1,6 +1,6 @@
-/* eslint-disable no-unused-vars -- reschedule is still a signature only */
 import Parse from "./parse.js";
 import { householdAcl, householdPointer } from "./householdService.js";
+import { userPointer } from "./authService.js";
 import { addDays } from "../utilities/dates.js";
 
 const Request = Parse.Object.extend("Request");
@@ -22,8 +22,8 @@ function toRequest(row) {
 }
 
 // the open (pending) requests of the household, in one query: a Request has
-// no list of its own, so it is found through its task's list. Expiry (FR11)
-// comes later; for now a request stays pending until it is answered.
+// no list of its own, so it is found through its task's list.
+// Expiry (FR11) is not built yet: a request stays pending until it is answered.
 export async function loadRequests(household) {
   const householdTasks = new Parse.Query(Task).equalTo(
     "list",
@@ -42,7 +42,7 @@ export async function loadRequests(household) {
 // FR9: status pending, waitingFor = askedTo, replyBy = the day before day.
 // The task itself stays with the one who asks until the partner accepts.
 export async function askPartner(household, task, partnerId, day, time) {
-  const partner = Parse.User.createWithoutData(partnerId);
+  const partner = userPointer(partnerId);
 
   const request = new Request();
   request.set("task", Task.createWithoutData(task.id));
@@ -66,16 +66,11 @@ export async function acceptRequest(request) {
   row.set("status", "accepted");
 
   const task = Task.createWithoutData(request.taskId);
-  task.set("assignedTo", Parse.User.createWithoutData(request.askedTo));
+  task.set("assignedTo", userPointer(request.askedTo));
   task.set("day", request.day);
   task.set("time", request.time);
 
   await Parse.Object.saveAll([row, task]);
-}
-
-// FR10: new day and time, waitingFor flips to the other person, new replyBy
-export async function rescheduleRequest(request, day, time) {
-  throw new Error("Not built yet");
 }
 
 // FR10: status declined. Our change to FR11: the task does not silently go back
