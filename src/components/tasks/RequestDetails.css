@@ -4,7 +4,7 @@
   gap: var(--space-3);
 }
 
-/* label + value rows with a thin line between them, like the details sheet */
+/* label + value rows with a thin line between them, like TaskDetails */
 .request-details__rows {
   display: flex;
   flex-direction: column;

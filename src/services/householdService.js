@@ -112,8 +112,8 @@ export function loadHousehold() {
   return pending;
 }
 
-// FR2: shares the household at once, but the
-// partner may also write. Returns the new household.
+// FR2: the partner joins at once and may read and change everything.
+// Returns the new household.
 export async function invitePartner(household, username) {
   if (household.partner) {
     throw new Error(
@@ -161,7 +161,7 @@ export async function invitePartner(household, username) {
   member.set("user", partner);
   member.setACL(acl);
 
-  // one request, if it fails halfway, they disagree
+  // one request, so the rows cannot end up half shared
   await Parse.Object.saveAll([list, ...rows, member]);
 
   return updated;

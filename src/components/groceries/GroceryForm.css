@@ -35,7 +35,7 @@
   outline: none;
 }
 
-/* a calm note, like the clash note in TaskForm: paper background, normal text colours */
+/* a calm note, like ClashNotice: paper background, normal text colours */
 .grocery-form__notice {
   display: flex;
   align-items: center;

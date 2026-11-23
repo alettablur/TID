@@ -57,7 +57,7 @@ export default function GroceryForm({
   }
 
   function handleSubmit(event) {
-    event.preventDefault(); // a form would otherwise reload the page
+    event.preventDefault();
     if (grocery) {
       handleEdit(() => updateGrocery(grocery.id, { name, amount }));
     } else {

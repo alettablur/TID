@@ -25,14 +25,6 @@
   box-shadow: var(--shadow-lifted);
 }
 
-.sheet__handle {
-  align-self: center;
-  width: 40px;
-  height: 5px;
-  border-radius: var(--radius-round);
-  background: var(--surface-paper);
-}
-
 .sheet__header {
   display: flex;
   align-items: center;

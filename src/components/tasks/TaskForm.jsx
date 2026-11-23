@@ -197,7 +197,6 @@ export default function TaskForm({ household, userId, task, onSaved }) {
     : [...QUARTERS, minute];
 
   function handleRepeatChange(event) {
-    // a checkbox gives checked (true/false), not value
     setRepeatsWeekly(event.target.checked);
   }
 
@@ -215,7 +214,6 @@ export default function TaskForm({ household, userId, task, onSaved }) {
       const taskRepeats = day !== null && repeatsWeekly && who !== "partner";
 
       if (task) {
-        // editing: change the task that is already there, do not add a new one
         await updateTask(task.id, {
           title,
           assignedTo,
@@ -224,7 +222,6 @@ export default function TaskForm({ household, userId, task, onSaved }) {
           repeatsWeekly: taskRepeats,
         });
       } else {
-        // always added as not done; addTask returns the new task
         const newTask = await addTask(household, {
           title,
           assignedTo,
@@ -251,7 +248,6 @@ export default function TaskForm({ household, userId, task, onSaved }) {
   }
 
   function handleSubmit(event) {
-    // a form would otherwise reload the whole page
     event.preventDefault();
     save(false);
   }
@@ -300,7 +296,6 @@ export default function TaskForm({ household, userId, task, onSaved }) {
         <p className="task-form__notice t-meta">Goes to Up for grabs</p>
       )}
 
-      {/* screens.md, "Ask Sam" */}
       {who === "partner" && (
         <p className="task-form__hint t-meta">
           {partner.username} can accept or decline, and must reply by the day

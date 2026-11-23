@@ -17,8 +17,6 @@ export default function Sheet({ title, onClose, children }) {
         aria-label={title}
         onClick={handleSheetClick}
       >
-        {/* off until the group decides: the grabber promises a drag the sheet cannot do
-        <span className="sheet__handle" aria-hidden="true" /> */}
         <header className="sheet__header">
           <h2 className="t-section-title">{title}</h2>
           <button

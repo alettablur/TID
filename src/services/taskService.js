@@ -104,7 +104,6 @@ export async function takeTask(id, day, time) {
 }
 
 export async function deleteTask(id) {
-  // stand-in object pointing at that row
   await Task.createWithoutData(id).destroy();
 }
 

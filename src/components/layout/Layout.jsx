@@ -28,8 +28,8 @@ export default function Layout({ household, userId }) {
   // a sheet is component state, not a route: null, "task" or "grocery"
   const [addForm, setAddForm] = useState(null);
 
-  // goes up by 1 for every new task; the page reloads its tasks when it changes
-  const [tasksVersion, setTasksVersion] = useState(0);
+  // goes up by 1 for every new task or grocery; the page reloads when it changes
+  const [listVersion, setListVersion] = useState(0);
 
   function handleAdd(currentPage) {
     setAddForm(currentPage === "groceries" ? "grocery" : "task");
@@ -41,18 +41,18 @@ export default function Layout({ household, userId }) {
 
   function handleTaskAdded() {
     setAddForm(null);
-    setTasksVersion((version) => version + 1);
+    setListVersion((version) => version + 1);
   }
 
   function handleGroceryAdded() {
-    setTasksVersion((version) => version + 1);
+    setListVersion((version) => version + 1);
   }
 
   return (
     <div className="layout app-glow">
       <main className="layout__main">
         {/* the page and the form are siblings: the page reads this with useOutletContext */}
-        <Outlet context={tasksVersion} />
+        <Outlet context={listVersion} />
       </main>
 
       <TabBar page={page} onAdd={handleAdd} />
