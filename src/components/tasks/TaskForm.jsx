@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
-import { CalendarClock } from "lucide-react";
 import Button from "../shared/Button.jsx";
 import ConfirmDelete from "../shared/ConfirmDelete.jsx";
 import Segmented from "../shared/Segmented.jsx";
+import ClashNotice from "./ClashNotice.jsx";
+import DayPicker from "./DayPicker.jsx";
+import TimePicker from "./TimePicker.jsx";
 import {
   addTask,
   deleteTask,
@@ -12,12 +14,7 @@ import {
 } from "../../services/taskService.js";
 import { askPartner } from "../../services/requestService.js";
 import { otherPerson } from "../../services/householdService.js";
-import {
-  addDays,
-  formatDay,
-  formatWeekday,
-  startOfToday,
-} from "../../utilities/dates.js";
+import { addDays, nextFullHour, startOfToday } from "../../utilities/dates.js";
 import "./TaskForm.css";
 
 // the days you can pick: today and the six days after it, each at 00:00
@@ -36,28 +33,11 @@ function toMinutes(time) {
   return Number(hours) * 60 + Number(minutes);
 }
 
-// 7 → "07": the data model stores times as "HH:mm"
-function twoDigits(number) {
-  return String(number).padStart(2, "0");
-}
-
-// the choices in the two time dropdowns: every hour, and the quarters
-const HOURS = [];
-for (let hour = 0; hour < 24; hour++) {
-  HOURS.push(twoDigits(hour));
-}
-const QUARTERS = ["00", "15", "30", "45"];
-
 // hasTime: false = "Any time", true = "Set time"
 const TIME_MODES = [
   { value: false, label: "Any time" },
   { value: true, label: "Set time" },
 ];
-
-// "19:00" when it is 18:20: where the time dropdowns start
-function nextFullHour() {
-  return `${twoDigits((new Date().getHours() + 1) % 24)}:00`;
-}
 
 // the form in the + sheet: a new task (FR3). With a task, the same form
 // edits that task in the task sheet, and every field starts from it.
@@ -111,9 +91,6 @@ export default function TaskForm({ household, userId, task, onSaved }) {
   // a request must be answered the day before (FR9), so it cannot be for today
   // (our decision): the strip starts tomorrow
   const stripDays = who === "partner" ? days.slice(1) : days;
-  // false for a late task or one more than a week away: no button shows its day
-  const dayInStrip =
-    day !== null && stripDays.some((date) => date.getTime() === day.getTime());
 
   // screens.md: a clash = a task of the person who will do it (Me → mine,
   // Either → both of ours) on the same day, at most 1 hour away. Only a warning.
@@ -163,8 +140,9 @@ export default function TaskForm({ household, userId, task, onSaved }) {
     }
   }
 
-  function chooseNoDate() {
-    setDay(null);
+  function handleDayChange(date) {
+    setDay(date);
+    setWhenChanged(true);
   }
 
   function handleTimeModeChange(value) {
@@ -178,23 +156,10 @@ export default function TaskForm({ household, userId, task, onSaved }) {
     }
   }
 
-  // the time is one "HH:mm" text; the dropdowns show and change its two halves
-  const [hour, minute] = time === "" ? ["", ""] : time.split(":");
-
-  function handleHourChange(event) {
-    setTime(`${event.target.value}:${minute}`);
+  function handleTimeChange(newTime) {
+    setTime(newTime);
     setWhenChanged(true);
   }
-
-  function handleMinuteChange(event) {
-    setTime(`${hour}:${event.target.value}`);
-    setWhenChanged(true);
-  }
-
-  // a task saved earlier with e.g. 18:10 keeps its minute as an extra choice
-  const minuteChoices = QUARTERS.includes(minute)
-    ? QUARTERS
-    : [...QUARTERS, minute];
 
   function handleRepeatChange(event) {
     setRepeatsWeekly(event.target.checked);
@@ -311,55 +276,14 @@ export default function TaskForm({ household, userId, task, onSaved }) {
             ? "When · needed for a request"
             : "Day"}
       </p>
-      <div
-        className="task-form__days"
-        role="group"
-        aria-labelledby="task-form-day"
-      >
-        {/* a request needs a day */}
-        {who !== "partner" && (
-          <button
-            type="button"
-            className="task-form__choice task-form__day"
-            aria-pressed={day === null}
-            onClick={chooseNoDate}
-          >
-            <span className="t-chip">No</span>
-            <span className="t-body-strong">date</span>
-          </button>
-        )}
-
-        {stripDays.map(function renderDay(date) {
-          // the button knows its own date, so one handler per button
-          function chooseDay() {
-            setDay(date);
-            setWhenChanged(true);
-          }
-
-          return (
-            <button
-              key={date.getTime()}
-              type="button"
-              className="task-form__choice task-form__day"
-              aria-pressed={day !== null && day.getTime() === date.getTime()}
-              onClick={chooseDay}
-            >
-              <span className="t-chip">
-                {date.getTime() === days[0].getTime()
-                  ? "Today"
-                  : formatWeekday(date)}
-              </span>
-              <span className="t-body-strong">{date.getDate()}</span>
-            </button>
-          );
-        })}
-      </div>
-
-      {/* our decision: say the day in words instead of adding a button for it;
-          it stays the day unless another day is tapped */}
-      {day !== null && !dayInStrip && (
-        <p className="task-form__hint t-meta">Planned for {formatDay(day)}</p>
-      )}
+      {/* a request needs a day, so no "No date" for it */}
+      <DayPicker
+        labelledBy="task-form-day"
+        days={stripDays}
+        value={day}
+        onChange={handleDayChange}
+        allowNoDate={who !== "partner"}
+      />
 
       {/* decision after the wireframe tests: the time appears once a day is chosen */}
       {day === null ? (
@@ -379,65 +303,14 @@ export default function TaskForm({ household, userId, task, onSaved }) {
             />
           )}
 
-          {/* two native dropdowns instead of <input type="time">: they work with
-              screen readers and the keyboard, open the phone's own big picker
-              (one hand), and cannot be left half-filled (our decision) */}
-          {hasTime && (
-            <div className="task-form__time">
-              <select
-                className="task-form__input task-form__select t-body"
-                aria-label="Hour"
-                value={hour}
-                onChange={handleHourChange}
-              >
-                {HOURS.map((choice) => (
-                  <option key={choice} value={choice}>
-                    {choice}
-                  </option>
-                ))}
-              </select>
-              <span className="t-body-strong" aria-hidden="true">
-                :
-              </span>
-              <select
-                className="task-form__input task-form__select t-body"
-                aria-label="Minutes"
-                value={minute}
-                onChange={handleMinuteChange}
-              >
-                {minuteChoices.map((choice) => (
-                  <option key={choice} value={choice}>
-                    {choice}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
+          {hasTime && <TimePicker value={time} onChange={handleTimeChange} />}
 
           {clash && (
-            // our decision after testing: a calm icon and colours instead of the
-            // ⚠ Clash chip, which felt like an error; still icon + words (NFR6)
-            <p className="task-form__clash t-meta">
-              <CalendarClock
-                className="task-form__clash-icon"
-                size={16}
-                aria-hidden="true"
-              />
-              <span>
-                <strong>Close in time</strong>{" "}
-                {who === "me"
-                  ? "to one of your tasks"
-                  : who === "partner"
-                    ? `to one of ${partner.username}'s tasks`
-                    : "to a planned task"}
-                {" · "}
-                {clash.title} ·{" "}
-                {clash.day.getTime() === days[0].getTime()
-                  ? "today"
-                  : formatDay(clash.day)}{" "}
-                {clash.time}
-              </span>
-            </p>
+            <ClashNotice
+              clash={clash}
+              who={who}
+              partnerName={partner?.username}
+            />
           )}
 
           {/* the label around the checkbox: tapping the text ticks it too;

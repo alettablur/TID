@@ -34,7 +34,7 @@
 ## Decisions after the wireframe tests (keep them)
 
 - Home shows only **my** tasks for today (plus up-for-grabs, requests and the "You and Sam" block).
-- Tasks opens on the **List** view; Week is the second tab (`?view=week`).
+- Tasks shows the **week** only (changed after the code review, 23 Nov 2026): the week switch, the day strip and the picked day, then To answer, Late, Up for grabs, Waiting for … and No date. The List view and the Everyone | Mine | Sam's filters were removed.
 - The **+** in the tab bar opens the form for the current page (grocery form on Groceries). No extra "Add" buttons on pages.
 - A hint "Pick a day to choose a time" under the day picker (time appears after a day is chosen).
 - Tapping a task opens it for **editing**.
