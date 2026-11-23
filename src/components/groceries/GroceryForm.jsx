@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Check, Minus, Plus } from "lucide-react";
 import Button from "../shared/Button.jsx";
 import ConfirmDelete from "../shared/ConfirmDelete.jsx";
 import {
@@ -26,9 +27,15 @@ export default function GroceryForm({
   const [error, setError] = useState("");
 
   useEffect(() => {
-    loadGroceries(household)
-      .then(setGroceries)
-      .catch(() => {});
+    async function load() {
+      try {
+        setGroceries(await loadGroceries(household));
+      } catch {
+        // the duplicate notice is only a help: without the list the form still works
+      }
+    }
+
+    load();
   }, [household]);
 
   const partner = otherPerson(household, userId);
@@ -78,6 +85,22 @@ export default function GroceryForm({
     );
   }
 
+  function handleNameChange(event) {
+    setName(event.target.value);
+  }
+
+  function decreaseAmount() {
+    setAmount(amount - 1);
+  }
+
+  function increaseAmount() {
+    setAmount(amount + 1);
+  }
+
+  function handleDelete() {
+    handleEdit(() => deleteGrocery(grocery.id));
+  }
+
   async function handleEdit(action) {
     setSaving(true);
     try {
@@ -100,21 +123,22 @@ export default function GroceryForm({
           aria-label="What to buy"
           value={name}
           autoFocus
-          onChange={(e) => setName(e.target.value)}
+          onChange={handleNameChange}
         />
         <Button
           variant="soft"
           small
+          label="One less"
           disabled={amount === 1}
-          onClick={() => setAmount(amount - 1)}
+          onClick={decreaseAmount}
         >
-          −
+          <Minus size={16} aria-hidden="true" />
         </Button>
         <span className="t-body-strong" aria-live="polite">
           {amount}
         </span>
-        <Button variant="soft" small onClick={() => setAmount(amount + 1)}>
-          +
+        <Button variant="soft" small label="One more" onClick={increaseAmount}>
+          <Plus size={16} aria-hidden="true" />
         </Button>
       </div>
 
@@ -144,9 +168,11 @@ export default function GroceryForm({
           <ul className="grocery-form__added">
             {justAdded.map((g) => (
               <li key={g.id} className="grocery-form__added-item">
-                <span className="grocery-form__tick" aria-hidden="true">
-                  ✓
-                </span>
+                <Check
+                  className="grocery-form__tick"
+                  size={16}
+                  aria-hidden="true"
+                />
                 <span className="t-body-strong">{g.name}</span>
                 <span className="t-meta">just now</span>
               </li>
@@ -163,7 +189,7 @@ export default function GroceryForm({
           label="Delete item"
           question={`Delete ${grocery.name} for both of you? This cannot be undone.`}
           disabled={saving}
-          onDelete={() => handleEdit(() => deleteGrocery(grocery.id))}
+          onDelete={handleDelete}
         >
           <Button type="submit" block disabled={saving || !name.trim()}>
             Save

@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import { useOutletContext } from "react-router-dom";
+import { Check } from "lucide-react";
 import FoldSection from "../components/shared/FoldSection.jsx";
 import Sheet from "../components/shared/Sheet.jsx";
+import GroceryForm from "../components/groceries/GroceryForm.jsx";
 import { loadGroceries, setBought } from "../services/groceryService.js";
 import { otherPerson } from "../services/householdService.js";
-import GroceryForm from "../components/groceries/GroceryForm.jsx";
 import { formatAgo } from "../utilities/dates.js";
 import "./GroceriesPage.css";
 
@@ -15,85 +16,125 @@ function formatBoughtAt(date) {
 
 export default function GroceriesPage({ household, userId }) {
   const [groceries, setGroceries] = useState(null);
-  const [error, setError] = useState("");
+  const [loadError, setLoadError] = useState("");
+  const [saveError, setSaveError] = useState(""); // a tick that could not be saved
   const [selectedId, setSelectedId] = useState(null);
-  const groceryListVersion = useOutletContext();
+  // Layout raises this number when the + form has added a grocery
+  const groceriesVersion = useOutletContext();
 
   useEffect(() => {
-    loadGroceries(household)
-      .then(setGroceries)
-      .catch((err) => setError(err.message));
-  }, [household, groceryListVersion]);
-
-  if (!groceries) return <p className="t-body">{error || "Loading…"}</p>;
-
-  const other = otherPerson(household, userId);
-  const nameOf = (id) => (id === userId ? "you" : other?.username);
-
-  const selectedGrocery = groceries.find((g) => g.id === selectedId);
-
-  async function run(action) {
-    try {
-      setError("");
-      await action();
-      setGroceries(await loadGroceries(household));
-    } catch (err) {
-      setError(err.message);
+    async function load() {
+      try {
+        setGroceries(await loadGroceries(household));
+      } catch (error) {
+        setLoadError(error.message);
+      }
     }
+
+    load();
+  }, [household, groceriesVersion]);
+
+  if (loadError) {
+    return (
+      <p className="groceries-page__status t-body">
+        Could not load the groceries: {loadError}
+      </p>
+    );
+  }
+  if (!groceries) {
+    return <p className="groceries-page__status t-body">Loading…</p>;
   }
 
-  const toggle = (g, isBought) => run(() => setBought(g.id, isBought));
+  const other = otherPerson(household, userId);
+  const toBuy = groceries.filter((grocery) => !grocery.bought);
+  // the last one bought first
+  const bought = groceries
+    .filter((grocery) => grocery.bought)
+    .sort((a, b) => b.boughtAt - a.boughtAt);
+  const selectedGrocery = groceries.find(
+    (grocery) => grocery.id === selectedId,
+  );
+
+  function nameOf(personId) {
+    return personId === userId ? "you" : other?.username;
+  }
+
+  async function handleToggle(grocery) {
+    try {
+      setSaveError("");
+      await setBought(grocery.id, !grocery.bought);
+      setGroceries(await loadGroceries(household));
+    } catch (error) {
+      setSaveError(error.message);
+    }
+  }
 
   function closeSheet() {
     setSelectedId(null);
   }
 
+  // after Save or Delete in the sheet: close it, then show the changes
   async function handleSaved() {
     closeSheet();
-    run(async () => {});
+    try {
+      setGroceries(await loadGroceries(household));
+    } catch (error) {
+      setLoadError(error.message);
+    }
   }
 
-  function renderGrocery(g) {
-    const meta = g.bought
-      ? `bought by ${nameOf(g.boughtBy)}, ${formatBoughtAt(g.boughtAt)}`
-      : `added by ${nameOf(g.addedBy)}`;
+  function renderGrocery(grocery) {
+    const meta = grocery.bought
+      ? `bought by ${nameOf(grocery.boughtBy)}, ${formatBoughtAt(grocery.boughtAt)}`
+      : `added by ${nameOf(grocery.addedBy)}`;
+
+    // each row gets its own handlers, so the buttons know their grocery
+    function toggle() {
+      handleToggle(grocery);
+    }
+
+    function open() {
+      setSelectedId(grocery.id);
+    }
 
     return (
-      <li key={g.id} className="grocery-page__item">
+      <li key={grocery.id} className="groceries-page__item">
         <button
           type="button"
-          className="grocery-page__check"
-          aria-pressed={g.bought}
-          aria-label={g.name}
-          onClick={() => toggle(g, !g.bought)}
+          className="groceries-page__check"
+          aria-pressed={grocery.bought}
+          aria-label={`${grocery.name} bought`}
+          onClick={toggle}
         >
-          {g.bought && "✓"}
+          <span className="groceries-page__circle">
+            {grocery.bought && <Check size={16} aria-hidden="true" />}
+          </span>
         </button>
-        <button
-          type="button"
-          className="grocery-page__open"
-          onClick={() => setSelectedId(g.id)}
-        >
+        <button type="button" className="groceries-page__open" onClick={open}>
           {/* a span, not a div: a button may only hold inline content */}
-          <span className="grocery-page__text">
+          <span className="groceries-page__text">
             <span
-              className={`t-body-strong ${g.bought ? "grocery-page__name--bought" : ""}`}
+              className={`t-body-strong ${grocery.bought ? "groceries-page__name--bought" : ""}`}
             >
-              {g.name}
+              {grocery.name}
             </span>
             <span className="t-meta">{meta}</span>
           </span>
-          <span className="grocery-page__amount t-chip">×{g.amount}</span>
+          <span className="groceries-page__amount t-chip">
+            ×{grocery.amount}
+          </span>
         </button>
       </li>
     );
   }
 
+  // an empty section is left out, not shown as a heading with nothing under it
   function renderSection(title, list, startOpen) {
     if (list.length === 0) return null;
+
     return (
       <FoldSection title={title} count={list.length} startOpen={startOpen}>
-        <ul className="grocery-page__list">{list.map(renderGrocery)}</ul>
+        <ul className="groceries-page__list">{list.map(renderGrocery)}</ul>
       </FoldSection>
     );
   }
@@ -101,26 +142,18 @@ export default function GroceriesPage({ household, userId }) {
   return (
     <>
       <h1 className="t-screen-title">Groceries</h1>
-      {error && <p className="grocery-page__error t-meta">{error}</p>}
+
+      {saveError && <p className="groceries-page__error t-meta">{saveError}</p>}
+
+      {/* no "Add" button here: the + in the tab bar is the only way to add */}
       {groceries.length === 0 && (
-        <p className="t-body">
+        <p className="groceries-page__status t-body">
           Nothing on the list yet. Tap + to add a grocery.
         </p>
       )}
 
-      {renderSection(
-        "To buy",
-        groceries.filter((g) => !g.bought),
-        true,
-      )}
-      {/* last bought first */}
-      {renderSection(
-        "Bought",
-        groceries
-          .filter((g) => g.bought)
-          .sort((a, b) => b.boughtAt - a.boughtAt),
-        false,
-      )}
+      {renderSection("To buy", toBuy, true)}
+      {renderSection("Bought", bought, false)}
 
       {selectedGrocery && (
         <Sheet title={selectedGrocery.name} onClose={closeSheet}>
