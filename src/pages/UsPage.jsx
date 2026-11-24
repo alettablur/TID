@@ -14,7 +14,11 @@ import {
   markThanksSeen,
   sendThanks,
 } from "../services/thanksService.js";
-import { otherPerson, personSlot } from "../services/householdService.js";
+import {
+  otherPerson,
+  personName,
+  personSlot,
+} from "../services/householdService.js";
 import { addDays } from "../utilities/dates.js";
 import "./UsPage.css";
 
@@ -172,6 +176,7 @@ export default function UsPage({
               weekOffset={weekOffset}
               userId={userId}
               title="You"
+              name={personName(household, userId)}
               variant={personSlot(household, userId)}
             />
             <StatsCard
@@ -181,6 +186,7 @@ export default function UsPage({
               weekOffset={weekOffset}
               userId={other.id}
               title={other.username}
+              name={other.username}
               variant={personSlot(household, other.id)}
             />
           </div>
