@@ -34,12 +34,13 @@ function App() {
   async function handleLogout() {
     try {
       await logOut();
-      setUser(null);
-      setHousehold(null);
-      setHouseholdError("");
-    } catch (error) {
-      alert(error);
+    } catch {
+      // Parse forgets the session on this device before it tells the server,
+      // so even if the server cannot be reached, we are logged out here
     }
+    setUser(null);
+    setHousehold(null);
+    setHouseholdError("");
   }
 
   function handleAuthenticated(loggedInUser) {
