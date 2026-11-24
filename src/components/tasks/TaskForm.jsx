@@ -247,15 +247,20 @@ export default function TaskForm({ household, userId, task, onSaved }) {
         onChange={handleTitleChange}
       />
 
-      <p className="task-form__label t-overline" id="task-form-who">
-        Who does it
-      </p>
-      <Segmented
-        labelledBy="task-form-who"
-        options={whoOptions}
-        value={who}
-        onChange={handleWhoChange}
-      />
+      {/* alone, there is nobody to share with: the task is simply mine */}
+      {partner && (
+        <>
+          <p className="task-form__label t-overline" id="task-form-who">
+            Who does it
+          </p>
+          <Segmented
+            labelledBy="task-form-who"
+            options={whoOptions}
+            value={who}
+            onChange={handleWhoChange}
+          />
+        </>
+      )}
 
       {who === "either" && (
         <p className="task-form__notice t-meta">Goes to Up for grabs</p>
@@ -341,7 +346,11 @@ export default function TaskForm({ household, userId, task, onSaved }) {
         // editing (screens.md): Delete task | Save
         <ConfirmDelete
           label="Delete task"
-          question="Delete this task for both of you? This cannot be undone."
+          question={
+            partner
+              ? "Delete this task for both of you? This cannot be undone."
+              : "Delete this task? This cannot be undone."
+          }
           disabled={saving}
           onDelete={handleDelete}
         >
