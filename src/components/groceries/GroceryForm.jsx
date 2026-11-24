@@ -67,6 +67,9 @@ export default function GroceryForm({
     event.preventDefault();
     if (grocery) {
       handleEdit(() => updateGrocery(grocery.id, { name, amount }));
+    } else if (duplicate) {
+      // the same name is still to buy: Add does what "Set to …" does
+      addToDuplicate();
     } else {
       run(async () => {
         const added = await addGrocery(household, { name, amount });
@@ -187,7 +190,11 @@ export default function GroceryForm({
         // editing: Delete item | Save
         <ConfirmDelete
           label="Delete item"
-          question={`Delete ${grocery.name} for both of you? This cannot be undone.`}
+          question={
+            partner
+              ? `Delete ${grocery.name} for both of you? This cannot be undone.`
+              : `Delete ${grocery.name}? This cannot be undone.`
+          }
           disabled={saving}
           onDelete={handleDelete}
         >
