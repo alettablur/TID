@@ -190,7 +190,11 @@ export default function GroceryForm({
         // editing: Delete item | Save
         <ConfirmDelete
           label="Delete item"
-          question={`Delete ${grocery.name} for both of you? This cannot be undone.`}
+          question={
+            partner
+              ? `Delete ${grocery.name} for both of you? This cannot be undone.`
+              : `Delete ${grocery.name}? This cannot be undone.`
+          }
           disabled={saving}
           onDelete={handleDelete}
         >
