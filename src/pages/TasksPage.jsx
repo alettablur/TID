@@ -248,7 +248,8 @@ export default function TasksPage({ household, userId }) {
 
   // the grey line under the title
   function metaOf(task) {
-    if (task.done) return `Done ${formatTime(task.doneAt)}`;
+    // the Done chip says it, and the left column already shows when
+    if (task.done) return "";
 
     if (task.assignedTo === null) {
       const deadline = task.day ? `by ${formatDay(task.day)}` : "No date";
