@@ -9,6 +9,7 @@ export default function StatsCard({
   weekOffset,
   userId,
   title,
+  name,
   variant = "a",
 }) {
   const [start, end] = weekRange(weekOffset);
@@ -32,7 +33,7 @@ export default function StatsCard({
   return (
     <section className={`stats-card stats-card--${variant}`}>
       <header className="stats-card__header">
-        <Avatar name={title} person={variant} />
+        <Avatar name={name} person={variant} />
         <h2 className="stats-card__title t-card-title">{title}</h2>
       </header>
       <p className="stats-card__stat">
