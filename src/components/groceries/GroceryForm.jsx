@@ -67,6 +67,9 @@ export default function GroceryForm({
     event.preventDefault();
     if (grocery) {
       handleEdit(() => updateGrocery(grocery.id, { name, amount }));
+    } else if (duplicate) {
+      // the same name is still to buy: Add does what "Set to …" does
+      addToDuplicate();
     } else {
       run(async () => {
         const added = await addGrocery(household, { name, amount });
