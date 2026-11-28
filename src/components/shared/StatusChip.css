@@ -2,7 +2,7 @@
   display: inline-flex;
   align-items: center;
   gap: var(--space-1);
-  padding: 3px 9px 3px 7px;
+  padding: var(--space-half) var(--space-2);
   border-radius: var(--radius-chip);
   white-space: nowrap;
 }

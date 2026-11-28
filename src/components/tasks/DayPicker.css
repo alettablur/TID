@@ -24,7 +24,7 @@
 
 /* the chosen day: a darker frame, like the chosen option in Segmented */
 .day-picker__day[aria-pressed="true"] {
-  box-shadow: inset 0 0 0 2px var(--action-primary);
+  box-shadow: inset 0 0 0 var(--line-width-strong) var(--action-primary);
   color: var(--text-ink);
 }
 

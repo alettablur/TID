@@ -1,5 +1,5 @@
 .tab-bar-link {
-  width: 56px;
+  width: var(--tab-bar-item-size);
   min-height: var(--touch-target);
   display: flex;
   flex-direction: column;

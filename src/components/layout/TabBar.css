@@ -12,12 +12,12 @@
   -webkit-backdrop-filter: var(--glass-blur);
   box-shadow:
     var(--shadow-bar),
-    inset 0 1px 0 var(--line-soft);
+    inset 0 var(--line-width-thin) 0 var(--line-soft);
 }
 
 .tab-bar__add {
-  width: 56px;
-  height: 56px;
+  width: var(--tab-bar-item-size);
+  height: var(--tab-bar-item-size);
   display: inline-flex;
   align-items: center;
   justify-content: center;

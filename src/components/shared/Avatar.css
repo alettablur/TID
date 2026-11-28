@@ -3,9 +3,9 @@
   align-items: center;
   justify-content: center;
   flex: none;
-  width: 32px;
-  height: 32px;
-  border: 2px solid var(--surface-card);
+  width: var(--avatar-size);
+  height: var(--avatar-size);
+  border: var(--line-width-strong) solid var(--surface-card);
   border-radius: var(--radius-pill);
   color: var(--text-on-dark);
   font: 700 14px/1 var(--font-text);
@@ -13,8 +13,8 @@
 }
 
 .avatar--large {
-  width: 44px;
-  height: 44px;
+  width: var(--avatar-size-large);
+  height: var(--avatar-size-large);
   font-size: 18px;
 }
 

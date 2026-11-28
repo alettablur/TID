@@ -16,7 +16,7 @@
 
 /* the chosen option: a darker frame, as in the Figma "Who" cards */
 .segmented__option[aria-pressed="true"] {
-  box-shadow: inset 0 0 0 2px var(--action-primary);
+  box-shadow: inset 0 0 0 var(--line-width-strong) var(--action-primary);
   color: var(--text-ink);
 }
 

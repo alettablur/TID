@@ -5,7 +5,8 @@
 }
 
 .grocery-form__label {
-  margin: var(--space-2) 0 0;
+  margin: 0;
+  margin-top: var(--space-2);
 }
 
 /* the name and − 1 + in one box, as high as the other fields */
