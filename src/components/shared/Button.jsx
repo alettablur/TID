@@ -1,6 +1,6 @@
 import "./Button.css";
 
-// variant: "primary" (warm black), "secondary", "soft", "brick" or "thank".
+// variant: "primary" (warm black), "secondary", "soft", "danger" or "thank".
 // label: the name a screen reader says, for a button that shows only an icon
 export default function Button({
   variant = "primary",

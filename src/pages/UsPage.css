@@ -1,7 +1,7 @@
 /* Loading… and the load error; .layout__main already gives the padding */
 .us-page__status {
   margin: 0;
-  color: var(--text-soft);
+  color: var(--text-secondary);
 }
 
 .us-page__header {
@@ -25,17 +25,17 @@
   gap: var(--space-3);
 }
 
-.us-page__note {
+.us-page__organised-note {
   margin: 0;
-  color: var(--text-muted);
+  color: var(--text-secondary);
 }
 
 .us-page__error {
   margin: 0;
-  color: var(--accent-brick);
+  color: var(--danger);
 }
 
-.us-page__notices,
+.us-page__thanks-notices,
 .us-page__thanks {
   display: flex;
   flex-direction: column;
@@ -46,7 +46,7 @@
 }
 
 /* a thank-you I received: in the brick of the thank button */
-.us-page__notice {
+.us-page__thanks-notice {
   display: flex;
   align-items: center;
   gap: var(--space-2);
@@ -55,26 +55,25 @@
   color: var(--accent-brick);
 }
 
-.us-page__notice-text {
+.us-page__thanks-notice-text {
   flex: 1;
   margin: 0;
 }
 
-/* 44 px: the smallest touch target we allow (NFR6) */
 .us-page__dismiss {
   flex: none;
-  width: 44px;
-  height: 44px;
+  width: var(--touch-target);
+  height: var(--touch-target);
   display: grid;
   place-items: center;
   border: 0;
   border-radius: var(--radius-chip);
   background: none;
-  color: var(--text-soft);
+  color: var(--text-secondary);
   cursor: pointer;
 }
 
 .us-page__dismiss:focus-visible {
-  outline: 3px solid var(--accent-mustard);
-  outline-offset: 2px;
+  outline: var(--focus-ring-width) solid var(--focus-ring);
+  outline-offset: var(--focus-ring-offset);
 }

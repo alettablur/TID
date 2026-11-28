@@ -3,15 +3,14 @@
   gap: var(--space-2);
 }
 
-/* 48 px high: a comfortable touch target (NFR6) */
 .segmented__option {
   flex: 1;
-  min-height: 48px;
+  min-height: var(--control-height);
   border: 0;
   border-radius: var(--radius-control);
   background: var(--surface-card);
-  box-shadow: inset 0 0 0 1.5px var(--line-soft);
-  color: var(--text-soft);
+  box-shadow: inset 0 0 0 var(--line-width) var(--line-soft);
+  color: var(--text-secondary);
   cursor: pointer;
 }
 
@@ -22,6 +21,6 @@
 }
 
 .segmented__option:focus-visible {
-  outline: 3px solid var(--accent-mustard);
-  outline-offset: 2px;
+  outline: var(--focus-ring-width) solid var(--focus-ring);
+  outline-offset: var(--focus-ring-offset);
 }

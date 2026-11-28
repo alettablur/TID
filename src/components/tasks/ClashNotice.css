@@ -1,4 +1,4 @@
-/* a calm note, not an alarm: paper background, normal text colours */
+/* a calm note, not an alarm: soft background, normal text colours */
 .clash-notice {
   display: flex;
   align-items: flex-start;
@@ -6,8 +6,8 @@
   margin: 0;
   padding: var(--space-2) var(--space-3);
   border-radius: var(--radius-chip);
-  background: var(--surface-paper);
-  color: var(--text-soft);
+  background: var(--surface-soft);
+  color: var(--text-secondary);
 }
 
 .clash-notice strong {

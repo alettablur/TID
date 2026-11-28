@@ -110,7 +110,7 @@ export default function GroceriesPage({ household, userId }) {
             {grocery.bought && <Check size={16} aria-hidden="true" />}
           </span>
         </button>
-        <button type="button" className="groceries-page__open" onClick={open}>
+        <button type="button" className="groceries-page__edit" onClick={open}>
           {/* a span, not a div: a button may only hold inline content */}
           <span className="groceries-page__text">
             <span

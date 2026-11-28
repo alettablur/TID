@@ -4,13 +4,12 @@
   align-items: center;
   padding: var(--space-1);
   border-radius: var(--radius-control);
-  background: var(--surface-paper);
+  background: var(--surface-soft);
 }
 
-/* 44 px: the smallest touch target we allow (NFR6) */
 .week-switch__arrow {
-  width: 44px;
-  height: 44px;
+  width: var(--touch-target);
+  height: var(--touch-target);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -22,8 +21,8 @@
 }
 
 .week-switch__arrow:focus-visible {
-  outline: 3px solid var(--accent-mustard);
-  outline-offset: 2px;
+  outline: var(--focus-ring-width) solid var(--focus-ring);
+  outline-offset: var(--focus-ring-offset);
 }
 
 .week-switch__arrow:disabled {

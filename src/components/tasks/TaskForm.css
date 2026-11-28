@@ -6,7 +6,7 @@
 
 .task-form__error {
   margin: 0;
-  color: var(--accent-brick);
+  color: var(--danger);
 }
 
 .task-form__label {
@@ -33,7 +33,7 @@
   gap: var(--space-3);
   padding: var(--space-3) var(--space-4);
   border-radius: var(--radius-control);
-  box-shadow: inset 0 0 0 1.5px var(--line-soft);
+  box-shadow: inset 0 0 0 var(--line-width) var(--line-soft);
   cursor: pointer;
 }
 
@@ -42,7 +42,7 @@
   flex-direction: column;
 }
 
-/* a bigger box than the browser's own, closer to the 44 px touch target (NFR6) */
+/* a bigger box than the browser's own, closer to the touch target */
 .task-form__checkbox {
   flex: none;
   width: 24px;

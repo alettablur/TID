@@ -6,7 +6,7 @@
   width: 32px;
   height: 32px;
   border: 2px solid var(--surface-card);
-  border-radius: var(--radius-round);
+  border-radius: var(--radius-pill);
   color: var(--text-on-dark);
   font: 700 14px/1 var(--font-text);
   user-select: none;
@@ -30,5 +30,5 @@
 .avatar--nobody {
   background: var(--status-open-tint);
   color: var(--status-open);
-  border: 1.5px dashed var(--status-open);
+  border: var(--line-width) dashed var(--status-open);
 }
