@@ -26,7 +26,8 @@ dist-ssr
 # Local credentials — never commit these
 .env
 .env.*
-!.env.example
 
-# Our specs and notes: kept on our computers, not in the repository
+# Our specs, notes and AI instructions: kept on our computers, not in the repository
 docs/
+CLAUDE.md
+.claude/

@@ -3,7 +3,7 @@ import Parse from "parse";
 // Credentials come from .env.local, which is gitignored
 if (!import.meta.env.VITE_PARSE_APP_ID) {
   throw new Error(
-    "No Parse credentials. Copy .env.example to .env.local, fill it in, and restart `npm run dev`.",
+    "No Parse credentials. Create .env.local as the README explains, and restart `npm run dev`.",
   );
 }
 
