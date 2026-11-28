@@ -64,7 +64,7 @@ export async function askPartner(household, task, partnerId, day, time) {
   request.set("time", time);
   request.set("replyBy", addDays(day, -1));
   request.set("status", "pending");
-  // both partners may read and answer it (data-model.md, ACLs)
+  // both partners may read and answer it (the household's ACL)
   request.setACL(householdAcl(household));
 
   return toRequest(await request.save());
@@ -95,7 +95,7 @@ export async function declineRequest(request, reason) {
     row.set("reason", reason);
   }
 
-  // no assignedTo = up for grabs (data-model.md); both rows in one request
+  // no assignedTo = up for grabs; both rows in one request
   const task = Task.createWithoutData(request.taskId);
   task.unset("assignedTo");
 

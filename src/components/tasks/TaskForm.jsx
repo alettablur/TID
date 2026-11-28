@@ -93,7 +93,7 @@ export default function TaskForm({ household, userId, task, onSaved }) {
   // (our decision): the strip starts tomorrow
   const stripDays = who === "partner" ? days.slice(1) : days;
 
-  // screens.md: a clash = a task of the person who will do it (Me → mine,
+  // a clash = a task of the person who will do it (Me → mine,
   // Either → both of ours) on the same day, at most 1 hour away. Only a warning.
   function findClash() {
     if (!whenChanged || !householdTasks || !day || !hasTime || !time) {
@@ -129,7 +129,7 @@ export default function TaskForm({ household, userId, task, onSaved }) {
     }
   }
 
-  // a request needs a day (not today) and a time (screens.md: "needed for a request")
+  // a request needs a day (not today) and a time
   function prepareRequest() {
     setWhenChanged(true);
     if (day !== null && day.getTime() === days[0].getTime()) {
@@ -172,7 +172,7 @@ export default function TaskForm({ household, userId, task, onSaved }) {
 
     try {
       // nobody assigned = up for grabs; a task already done was done by me;
-      // a requested task stays mine until the partner accepts (data-model.md)
+      // a requested task stays mine until the partner accepts
       const assignedTo = who === "either" && !done ? null : userId;
       // a time and a repeat only count with a day; "" = any time;
       // a request does not repeat (left out of our small version)
@@ -341,7 +341,7 @@ export default function TaskForm({ household, userId, task, onSaved }) {
 
       {/* NFR5: a task cannot be saved without a title */}
       {task ? (
-        // editing (screens.md): Delete task | Save
+        // editing: Delete task | Save
         <ConfirmDelete
           label="Delete task"
           question={

@@ -1,4 +1,4 @@
-# Kutie
+# Unload
 
 A shared household app for couples with children, built by Group 10 for
 Technical Interaction Design (ITU, Autumn 2026). Each couple shares one to-do
@@ -13,7 +13,7 @@ It is built around three user stories:
 - **Thank:** show my partner I noticed what they did, so they feel their work
   is noticed too.
 
-Live version: <https://alettablur.github.io/TID/>
+Live version: <https://alettablur.github.io/unload/>
 
 ## Stack
 
@@ -36,7 +36,7 @@ Then:
 
 ```bash
 npm install
-npm run dev        # http://localhost:5173/TID/
+npm run dev        # http://localhost:5173/unload/
 npm run lint
 npm run build      # also copies index.html to 404.html, so routes work on GitHub Pages
 npm run deploy     # build and publish to the gh-pages branch
@@ -52,5 +52,3 @@ src/
 ├── utilities/    dates.js
 └── styles/       tokens.css (colours, fonts, sizes) and base.css
 ```
-
-The requirements, the data model and the screens are in [`docs/`](docs/).

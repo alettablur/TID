@@ -160,7 +160,7 @@ export default function TasksPage({ household, userId }) {
   }
 
   // FR7. For now the deadline becomes the day, with no time; the
-  // "When will you do it?" sheet (screens.md) is not built yet
+  // "When will you do it?" sheet is not built yet
   async function handleTake(task) {
     try {
       setSaveError("");
@@ -194,7 +194,7 @@ export default function TasksPage({ household, userId }) {
     }
   }
 
-  // after Accept or Decline in the sheet (screens.md H5: "Confirmed · …")
+  // after Accept or Decline in the sheet ("Confirmed · …")
   function handleAnswered(accepted) {
     setToast({
       message: accepted
