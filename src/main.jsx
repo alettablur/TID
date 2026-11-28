@@ -7,7 +7,7 @@ import { BrowserRouter } from "react-router-dom";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
-    {/* basename: the app lives under /TID/, see vite.config.js */}
+    {/* basename: the app lives under /unload/, see vite.config.js */}
     <BrowserRouter basename={import.meta.env.BASE_URL}>
       <App />
     </BrowserRouter>
