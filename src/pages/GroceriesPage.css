@@ -14,9 +14,6 @@
   list-style: none;
   margin: var(--space-2) 0 0;
   padding: 0 var(--space-4) 0 var(--space-1);
-  border-radius: var(--radius-card);
-  background: var(--surface-card);
-  box-shadow: var(--shadow-soft);
 }
 
 .groceries-page__item {

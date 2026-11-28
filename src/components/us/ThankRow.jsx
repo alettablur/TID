@@ -11,7 +11,7 @@ export default function ThankRow({ task, partnerName, partnerSlot, onThank }) {
   }
 
   return (
-    <li className="thank-row">
+    <li className="thank-row card">
       <Avatar name={partnerName} person={partnerSlot} />
       <span className="thank-row__text">
         <span className="t-task-title">{task.title}</span>

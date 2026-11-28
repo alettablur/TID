@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import Button from "../shared/Button.jsx";
 import ConfirmDelete from "../shared/ConfirmDelete.jsx";
 import Segmented from "../shared/Segmented.jsx";
+import TextField from "../shared/TextField.jsx";
 import ClashNotice from "./ClashNotice.jsx";
 import DayPicker from "./DayPicker.jsx";
 import TimePicker from "./TimePicker.jsx";
@@ -235,13 +236,10 @@ export default function TaskForm({ household, userId, task, onSaved }) {
 
   return (
     <form className="task-form" onSubmit={handleSubmit}>
-      <label className="task-form__label t-overline" htmlFor="task-form-title">
-        What needs doing?
-      </label>
-      <input
+      <TextField
         id="task-form-title"
-        className="task-form__input t-body"
-        type="text"
+        label="What needs doing?"
+        overline
         placeholder="e.g. Empty the dishwasher"
         value={title}
         onChange={handleTitleChange}

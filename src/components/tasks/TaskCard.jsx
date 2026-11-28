@@ -21,6 +21,7 @@ export default function TaskCard({
 }) {
   const classNames = [
     "task-card",
+    "card",
     person ? `task-card--${person}` : "task-card--open",
   ];
   if (done) classNames.push("task-card--done");

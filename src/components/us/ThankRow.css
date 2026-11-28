@@ -3,9 +3,6 @@
   align-items: center;
   gap: var(--space-3);
   padding: var(--space-4);
-  border-radius: var(--radius-card);
-  background: var(--surface-card);
-  box-shadow: var(--shadow-soft);
 }
 
 /* the text takes the room that is left; min-width: 0 lets a long title wrap */

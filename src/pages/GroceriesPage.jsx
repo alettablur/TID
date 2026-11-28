@@ -134,7 +134,7 @@ export default function GroceriesPage({ household, userId }) {
 
     return (
       <FoldSection title={title} count={list.length} startOpen={startOpen}>
-        <ul className="groceries-page__list">{list.map(renderGrocery)}</ul>
+        <ul className="groceries-page__list card">{list.map(renderGrocery)}</ul>
       </FoldSection>
     );
   }
