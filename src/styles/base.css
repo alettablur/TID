@@ -102,3 +102,11 @@ textarea {
   font: 700 18px/24px var(--font-text);
   font-variant-numeric: tabular-nums;
 }
+
+/* the white rounded box with a soft shadow; each component adds its own
+   layout and padding, and may change the background (a person's tint) */
+.card {
+  border-radius: var(--radius-card);
+  background: var(--surface-card);
+  box-shadow: var(--shadow-soft);
+}

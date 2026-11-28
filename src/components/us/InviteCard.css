@@ -3,9 +3,6 @@
   flex-direction: column;
   gap: var(--space-3);
   padding: var(--space-5);
-  border-radius: var(--radius-card);
-  background: var(--surface-card);
-  box-shadow: var(--shadow-soft);
 }
 
 .invite-card__title {
@@ -16,24 +13,6 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
-}
-
-.invite-card__label {
-  color: var(--text-soft);
-}
-
-/* 48 px high: a comfortable touch target (NFR6) */
-.invite-card__input {
-  min-height: 48px;
-  padding: 0 var(--space-4);
-  border: 1.5px solid var(--line-soft);
-  border-radius: var(--radius-control);
-  background: var(--bg-ivory);
-}
-
-.invite-card__input:focus-visible {
-  outline: 3px solid var(--accent-mustard);
-  outline-offset: 2px;
 }
 
 .invite-card__error {

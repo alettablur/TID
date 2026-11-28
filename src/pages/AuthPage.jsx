@@ -1,5 +1,6 @@
 import { useState } from "react";
 import Button from "../components/shared/Button.jsx";
+import TextField from "../components/shared/TextField.jsx";
 import { signUp, logIn } from "../services/authService.js";
 import "./AuthPage.css";
 
@@ -40,25 +41,17 @@ export default function AuthPage({ onAuthenticated }) {
     <main className="auth-page">
       <h1 className="t-screen-title">Log in</h1>
 
-      <form className="auth-page__form" onSubmit={handleLogin}>
-        <label className="t-body-strong" htmlFor="auth-username">
-          Username
-        </label>
-        <input
+      <form className="auth-page__form card" onSubmit={handleLogin}>
+        <TextField
           id="auth-username"
-          className="auth-page__input"
-          type="text"
+          label="Username"
           autoComplete="username"
           value={username}
           onChange={handleUsernameChange}
         />
-
-        <label className="t-body-strong" htmlFor="auth-password">
-          Password
-        </label>
-        <input
+        <TextField
           id="auth-password"
-          className="auth-page__input"
+          label="Password"
           type="password"
           autoComplete="current-password"
           value={password}
@@ -74,10 +67,11 @@ export default function AuthPage({ onAuthenticated }) {
         <Button type="submit" block>
           Log in
         </Button>
-        <Button variant="secondary" block onClick={handleSignUp}>
-          Sign up
-        </Button>
       </form>
+
+      <Button variant="secondary" block onClick={handleSignUp}>
+        Sign up
+      </Button>
     </main>
   );
 }

@@ -144,7 +144,7 @@ export default function UsPage({
                 }
 
                 return (
-                  <li key={thank.id} className="us-page__notice">
+                  <li key={thank.id} className="us-page__notice card">
                     <Heart size={20} aria-hidden="true" />
                     <p className="us-page__notice-text t-body-strong">
                       {other.username} thanked you for “{thank.taskTitle}”

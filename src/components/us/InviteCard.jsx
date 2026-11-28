@@ -1,5 +1,6 @@
 import { useState } from "react";
 import Button from "../shared/Button.jsx";
+import TextField from "../shared/TextField.jsx";
 import { invitePartner } from "../../services/householdService.js";
 import "./InviteCard.css";
 
@@ -35,15 +36,12 @@ export default function InviteCard({ household, onHouseholdChange }) {
   }
 
   return (
-    <section className="invite-card">
+    <section className="invite-card card">
       <h2 className="invite-card__title t-card-title">Invite your partner</h2>
       <form className="invite-card__form" onSubmit={handleSubmit}>
-        <label className="invite-card__label t-body" htmlFor="invite-username">
-          Type your partner's username to add them to your list.
-        </label>
-        <input
+        <TextField
           id="invite-username"
-          className="invite-card__input t-body"
+          label="Type your partner's username to add them to your list."
           value={username}
           onChange={handleUsernameChange}
           disabled={submitting}

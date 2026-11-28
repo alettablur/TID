@@ -31,7 +31,7 @@ export default function StatsCard({
   ).length;
 
   return (
-    <section className={`stats-card stats-card--${variant}`}>
+    <section className={`stats-card stats-card--${variant} card`}>
       <header className="stats-card__header">
         <Avatar name={name} person={variant} />
         <h2 className="stats-card__title t-card-title">{title}</h2>
