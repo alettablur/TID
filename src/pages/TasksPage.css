@@ -40,8 +40,8 @@
 }
 
 .tasks-page__week-day:focus-visible {
-  outline: 3px solid var(--accent-mustard);
-  outline-offset: 2px;
+  outline: var(--focus-ring-width) solid var(--focus-ring);
+  outline-offset: var(--focus-ring-offset);
 }
 
 /* the dots wrap onto a second row on a very busy day */
@@ -57,7 +57,7 @@
 .tasks-page__dot {
   width: 6px;
   height: 6px;
-  border-radius: var(--radius-round);
+  border-radius: var(--radius-pill);
 }
 
 .tasks-page__dot--a {
@@ -82,16 +82,16 @@
 }
 
 .tasks-page__slot-time {
-  color: var(--text-soft);
+  color: var(--text-secondary);
 }
 
 /* Loading… and the load error; .layout__main already gives the padding */
 .tasks-page__status {
   margin: 0;
-  color: var(--text-soft);
+  color: var(--text-secondary);
 }
 
 .tasks-page__error {
   margin: 0;
-  color: var(--accent-brick);
+  color: var(--danger);
 }

@@ -5,20 +5,19 @@
 }
 
 .text-field__label {
-  color: var(--text-soft);
+  color: var(--text-secondary);
 }
 
-/* 48 px high: a comfortable touch target (NFR6) */
 .text-field__input {
-  min-height: 48px;
+  min-height: var(--control-height);
   padding: 0 var(--space-4);
-  border: 1.5px solid var(--line-soft);
+  border: var(--line-width) solid var(--line-soft);
   border-radius: var(--radius-control);
   background: var(--surface-card);
   color: var(--text-ink);
 }
 
 .text-field__input:focus-visible {
-  outline: 3px solid var(--accent-mustard);
-  outline-offset: 2px;
+  outline: var(--focus-ring-width) solid var(--focus-ring);
+  outline-offset: var(--focus-ring-offset);
 }

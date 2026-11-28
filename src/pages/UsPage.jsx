@@ -137,16 +137,16 @@ export default function UsPage({
       ) : (
         <>
           {receivedThanks.length > 0 && (
-            <ul className="us-page__notices" role="status">
+            <ul className="us-page__thanks-notices" role="status">
               {receivedThanks.map(function renderNotice(thank) {
                 function dismiss() {
                   handleDismiss(thank.id);
                 }
 
                 return (
-                  <li key={thank.id} className="us-page__notice card">
+                  <li key={thank.id} className="us-page__thanks-notice card">
                     <Heart size={20} aria-hidden="true" />
-                    <p className="us-page__notice-text t-body-strong">
+                    <p className="us-page__thanks-notice-text t-body-strong">
                       {other.username} thanked you for “{thank.taskTitle}”
                     </p>
                     <button
@@ -190,7 +190,7 @@ export default function UsPage({
               variant={personSlot(household, other.id)}
             />
           </div>
-          <p className="us-page__note t-meta">
+          <p className="us-page__organised-note t-meta">
             Organised = tasks you added, planned or proposed.
           </p>
 

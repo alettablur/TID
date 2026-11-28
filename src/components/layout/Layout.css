@@ -12,8 +12,3 @@
   padding: calc(var(--space-7) + env(safe-area-inset-top)) var(--page-gutter)
     var(--space-7);
 }
-
-.layout__placeholder {
-  margin: 0;
-  color: var(--text-soft);
-}

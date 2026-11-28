@@ -30,12 +30,12 @@
 
 .request-details__note {
   margin: 0;
-  color: var(--text-soft);
+  color: var(--text-secondary);
 }
 
 .request-details__error {
   margin: 0;
-  color: var(--accent-brick);
+  color: var(--danger);
 }
 
 /* Decline | Accept, side by side and equally wide */

@@ -35,6 +35,6 @@
 }
 
 .status-chip--repeats {
-  background: var(--surface-paper);
-  color: var(--text-soft);
+  background: var(--surface-soft);
+  color: var(--text-secondary);
 }

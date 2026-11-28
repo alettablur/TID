@@ -2,15 +2,14 @@
 
 :root {
   /* Surfaces */
-  --bg-ivory: #faf5e8;
+  --bg-page: #faf5e8;
   --surface-card: #fffdf8;
-  --surface-paper: #eadfc8;
+  --surface-soft: #eadfc8;
   --line-soft: #e6dac4;
 
   /* Text */
   --text-ink: #2f2a24;
-  --text-soft: #6b6157;
-  --text-muted: #9a8f84;
+  --text-secondary: #6b6157; /* every grey text; one grey keeps the contrast readable */
   --text-on-dark: #fffdf8;
 
   /* People: slot "a" = the list owner (brick), slot "b" = the partner (petrol).
@@ -36,6 +35,15 @@
   --accent-mustard: #d9a43b;
   --accent-brick: #b5523b;
   --action-primary: #2f2a24; /* primary buttons are warm black, not a person colour */
+  --danger: var(--accent-brick); /* error messages and Delete */
+
+  /* Focus: the ring around the element the keyboard is on */
+  --focus-ring: var(--accent-mustard);
+  --focus-ring-width: 3px;
+  --focus-ring-offset: 2px;
+
+  /* Lines: borders of fields, buttons and pickers */
+  --line-width: 1.5px;
 
   /* Type */
   --font-display: "Playfair Display", Georgia, serif;
@@ -46,10 +54,9 @@
   --radius-control: 16px;
   --radius-button: 18px;
   --radius-card: 20px;
-  --radius-panel: 26px;
   --radius-sheet: 32px;
-  --radius-bar: 28px;
-  --radius-round: 999px;
+  --radius-tab-bar: 28px;
+  --radius-pill: 999px;
 
   /* Spacing (4 px grid) */
   --space-1: 4px;
@@ -60,6 +67,11 @@
   --space-6: 24px;
   --space-7: 28px;
   --page-gutter: 24px;
+
+  /* Sizes: the smallest area a finger can tap (NFR6), and the height of
+     fields, buttons and choices */
+  --touch-target: 44px;
+  --control-height: 48px;
 
   /* Layout: designed for 360–430 px phones, centred column above that */
   --app-max-width: 480px;

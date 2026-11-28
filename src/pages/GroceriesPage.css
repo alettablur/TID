@@ -1,12 +1,12 @@
 /* Loading…, the load error and the empty list; .layout__main gives the padding */
 .groceries-page__status {
   margin: 0;
-  color: var(--text-soft);
+  color: var(--text-secondary);
 }
 
 .groceries-page__error {
   margin: 0;
-  color: var(--accent-brick);
+  color: var(--danger);
 }
 
 /* one card per section, rows split by a thin line */
@@ -27,11 +27,11 @@
   border-top: 1px solid var(--line-soft);
 }
 
-/* 44 px: the smallest touch target we allow (NFR6); the circle inside is smaller */
+/* the circle inside is smaller than its touch target */
 .groceries-page__check {
   flex: none;
-  width: 44px;
-  height: 44px;
+  width: var(--touch-target);
+  height: var(--touch-target);
   display: grid;
   place-items: center;
   padding: 0;
@@ -41,8 +41,8 @@
 }
 
 .groceries-page__check:focus-visible {
-  outline: 3px solid var(--accent-mustard);
-  outline-offset: 2px;
+  outline: var(--focus-ring-width) solid var(--focus-ring);
+  outline-offset: var(--focus-ring-offset);
 }
 
 /* the tick: an empty circle to buy, a filled green square once bought */
@@ -51,8 +51,8 @@
   height: 26px;
   display: grid;
   place-items: center;
-  border: 2px solid var(--text-muted);
-  border-radius: var(--radius-round);
+  border: 2px solid var(--text-secondary);
+  border-radius: var(--radius-pill);
   color: var(--text-on-dark);
 }
 
@@ -63,13 +63,13 @@
 }
 
 /* the rest of the row: a button that opens the grocery sheet */
-.groceries-page__open {
+.groceries-page__edit {
   display: flex;
   flex: 1;
   align-items: center;
   gap: var(--space-3);
   min-width: 0;
-  min-height: 44px;
+  min-height: var(--touch-target);
   padding: var(--space-2) 0;
   border: 0;
   background: none;
@@ -86,7 +86,7 @@
 }
 
 .groceries-page__name--bought {
-  color: var(--text-muted);
+  color: var(--text-secondary);
   text-decoration: line-through;
 }
 
@@ -94,6 +94,6 @@
 .groceries-page__amount {
   flex: none;
   padding: var(--space-1) var(--space-3);
-  border-radius: var(--radius-round);
-  background: var(--surface-paper);
+  border-radius: var(--radius-pill);
+  background: var(--surface-soft);
 }
