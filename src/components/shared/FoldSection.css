@@ -33,7 +33,7 @@
    the arrow to the right edge */
 .fold-section__count {
   margin-right: auto;
-  padding: 2px var(--space-2);
+  padding: var(--space-half) var(--space-2);
   border-radius: var(--radius-chip);
   background: var(--surface-soft);
   color: var(--text-secondary);

@@ -42,8 +42,11 @@
   --focus-ring-width: 3px;
   --focus-ring-offset: 2px;
 
-  /* Lines: borders of fields, buttons and pickers */
+  /* Lines: thin splits rows; the normal one outlines fields, buttons and
+     pickers; strong marks what is picked and draws the circles to tick */
+  --line-width-thin: 1px;
   --line-width: 1.5px;
+  --line-width-strong: 2px;
 
   /* Type */
   --font-display: "Playfair Display", Georgia, serif;
@@ -53,12 +56,14 @@
   --radius-chip: 10px;
   --radius-control: 16px;
   --radius-button: 18px;
+  --radius-button-small: 14px;
   --radius-card: 20px;
   --radius-sheet: 32px;
   --radius-tab-bar: 28px;
   --radius-pill: 999px;
 
-  /* Spacing (4 px grid) */
+  /* Spacing (4 px grid; the half step only for the tiny gaps in chips and counts) */
+  --space-half: 2px;
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
@@ -72,6 +77,10 @@
      fields, buttons and choices */
   --touch-target: 44px;
   --control-height: 48px;
+  --check-size: 26px; /* the circle you tick on a task or a grocery */
+  --tab-bar-item-size: 56px;
+  --avatar-size: 32px;
+  --avatar-size-large: 44px;
 
   /* Layout: designed for 360–430 px phones, centred column above that */
   --app-max-width: 480px;
