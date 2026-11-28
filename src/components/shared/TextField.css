@@ -1,0 +1,23 @@
+.text-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.text-field__label {
+  color: var(--text-secondary);
+}
+
+.text-field__input {
+  min-height: var(--control-height);
+  padding-inline: var(--space-4);
+  border: var(--line-width) solid var(--line-soft);
+  border-radius: var(--radius-control);
+  background: var(--surface-card);
+  color: var(--text-ink);
+}
+
+.text-field__input:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring);
+  outline-offset: var(--focus-ring-offset);
+}

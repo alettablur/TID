@@ -1,0 +1,79 @@
+/* Loading… and the load error; .layout__main already gives the padding */
+.us-page__status {
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+.us-page__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+/* the space between sections comes from .layout__main */
+.us-page__section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+/* the two stats cards side by side */
+.us-page__stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+}
+
+.us-page__organised-note {
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+.us-page__error {
+  margin: 0;
+  color: var(--danger);
+}
+
+.us-page__thanks-notices,
+.us-page__thanks {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* a thank-you I received: in the brick of the thank button */
+.us-page__thanks-notice {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-2) var(--space-2) var(--space-4);
+  background: var(--person-a-tint);
+  color: var(--accent-brick);
+}
+
+.us-page__thanks-notice-text {
+  flex: 1;
+  margin: 0;
+}
+
+.us-page__dismiss {
+  flex: none;
+  width: var(--touch-target);
+  height: var(--touch-target);
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: var(--radius-chip);
+  background: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.us-page__dismiss:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring);
+  outline-offset: var(--focus-ring-offset);
+}

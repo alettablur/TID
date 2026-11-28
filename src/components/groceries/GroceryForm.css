@@ -1,0 +1,90 @@
+.grocery-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.grocery-form__label {
+  margin: 0;
+  margin-top: var(--space-2);
+}
+
+/* the name and − 1 + in one box, as high as the other fields */
+.grocery-form__field {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--control-height);
+  padding: var(--space-1) var(--space-2) var(--space-1) var(--space-4);
+  border: var(--line-width) solid var(--line-soft);
+  border-radius: var(--radius-control);
+  background: var(--surface-card);
+}
+
+/* the box shows the focus, so the field inside has no frame of its own */
+.grocery-form__field:focus-within {
+  outline: var(--focus-ring-width) solid var(--focus-ring);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.grocery-form__input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: none;
+  color: var(--text-ink);
+  outline: none;
+}
+
+/* a calm note, like ClashNotice: soft background, normal text colours */
+.grocery-form__notice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-chip);
+  background: var(--surface-soft);
+  color: var(--text-secondary);
+}
+
+.grocery-form__notice strong {
+  color: var(--text-ink);
+}
+
+.grocery-form__added {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* ✓ name … just now */
+.grocery-form__added-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.grocery-form__added-item .t-body-strong {
+  flex: 1;
+}
+
+.grocery-form__tick {
+  color: var(--status-planned);
+}
+
+.grocery-form__error {
+  margin: 0;
+  color: var(--danger);
+}
+
+/* Done | Add, side by side and equally wide */
+.grocery-form__actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}

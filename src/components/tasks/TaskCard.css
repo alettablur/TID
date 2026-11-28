@@ -1,0 +1,114 @@
+.task-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-3) var(--space-3) var(--space-4);
+  overflow: hidden;
+}
+
+/* --person-colour and --person-tint: the colours of whoever does the task */
+.task-card--a {
+  --person-colour: var(--person-a);
+  --person-tint: var(--person-a-tint);
+}
+
+.task-card--b {
+  --person-colour: var(--person-b);
+  --person-tint: var(--person-b-tint);
+}
+
+.task-card--open {
+  --person-colour: var(--status-open);
+  --person-tint: var(--status-open-tint);
+}
+
+/* the strip on the left edge */
+.task-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 5px;
+  background: var(--person-colour);
+}
+
+/* a full touch target around the 26 px circle; the negative margin
+   keeps the card the size it has in Figma */
+.task-card__check {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--touch-target);
+  height: var(--touch-target);
+  margin: -9px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: none;
+  cursor: pointer;
+}
+
+.task-card__check:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring);
+  outline-offset: -4px;
+}
+
+.task-card__circle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--check-size);
+  height: var(--check-size);
+  border: var(--line-width-strong) solid var(--person-colour);
+  border-radius: var(--radius-pill);
+  background: var(--person-tint);
+  color: var(--text-on-dark);
+}
+
+.task-card--open .task-card__circle {
+  border-style: dashed;
+}
+
+.task-card--done .task-card__circle {
+  background: var(--person-colour);
+}
+
+.task-card__body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+/* a link that looks like the rest of the card; min-height: a full touch target */
+.task-card__link {
+  min-height: var(--touch-target);
+  justify-content: center;
+  color: inherit;
+  text-decoration: none;
+}
+
+.task-card__link:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring);
+  outline-offset: var(--focus-ring-offset);
+  border-radius: var(--radius-chip);
+}
+
+.task-card__title {
+  margin: 0;
+  color: var(--text-ink);
+}
+
+.task-card--done .task-card__title {
+  color: var(--text-secondary);
+  text-decoration: line-through;
+}
+
+.task-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1) var(--space-2);
+}

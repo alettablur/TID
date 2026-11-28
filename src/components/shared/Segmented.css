@@ -1,0 +1,26 @@
+.segmented {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.segmented__option {
+  flex: 1;
+  min-height: var(--control-height);
+  border: 0;
+  border-radius: var(--radius-control);
+  background: var(--surface-card);
+  box-shadow: inset 0 0 0 var(--line-width) var(--line-soft);
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+/* the chosen option: a darker frame, as in the Figma "Who" cards */
+.segmented__option[aria-pressed="true"] {
+  box-shadow: inset 0 0 0 var(--line-width-strong) var(--action-primary);
+  color: var(--text-ink);
+}
+
+.segmented__option:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring);
+  outline-offset: var(--focus-ring-offset);
+}

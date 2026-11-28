@@ -1,0 +1,35 @@
+.tab-bar {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: var(--space-3) var(--space-5)
+    calc(var(--space-6) + env(safe-area-inset-bottom));
+  border-radius: var(--radius-tab-bar) var(--radius-tab-bar) 0 0;
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  box-shadow:
+    var(--shadow-bar),
+    inset 0 var(--line-width-thin) 0 var(--line-soft);
+}
+
+.tab-bar__add {
+  width: var(--tab-bar-item-size);
+  height: var(--tab-bar-item-size);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: var(--action-primary);
+  color: var(--text-on-dark);
+  box-shadow: var(--shadow-lifted);
+  cursor: pointer;
+}
+
+.tab-bar__add:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring);
+  outline-offset: var(--focus-ring-offset);
+}

@@ -1,0 +1,103 @@
+import Parse from "./parse.js";
+import { householdAcl, householdPointer } from "./householdService.js";
+import { userPointer } from "./authService.js";
+import { addDays } from "../utilities/dates.js";
+
+const Request = Parse.Object.extend("Request");
+const Task = Parse.Object.extend("Task");
+
+function toRequest(row) {
+  return {
+    id: row.id,
+    taskId: row.get("task")?.id,
+    askedBy: row.get("askedBy")?.id,
+    askedTo: row.get("askedTo")?.id,
+    waitingFor: row.get("waitingFor")?.id, // who has to answer now
+    day: row.get("day"),
+    time: row.get("time") ?? "",
+    replyBy: row.get("replyBy"),
+    status: row.get("status"), // pending, accepted, declined or expired
+    reason: row.get("reason") ?? "",
+    createdAt: row.createdAt,
+  };
+}
+
+// the requests of the household, in one query: a Request has no list of its
+// own, so it is found through its task's list
+function householdRequests(household) {
+  const householdTasks = new Parse.Query(Task).equalTo(
+    "list",
+    householdPointer(household),
+  );
+
+  return new Parse.Query(Request)
+    .matchesQuery("task", householdTasks)
+    .limit(1000);
+}
+
+// the open (pending) ones. Expiry (FR11) is not built yet: a request stays
+// pending until it is answered.
+export async function loadRequests(household) {
+  const rows = await householdRequests(household)
+    .equalTo("status", "pending")
+    .find();
+  return rows.map(toRequest);
+}
+
+// answered or not: the Us page counts the requests each person made
+export async function loadAllRequests(household) {
+  const rows = await householdRequests(household).find();
+  return rows.map(toRequest);
+}
+
+// FR9: status pending, waitingFor = askedTo, replyBy = the day before day.
+// The task itself stays with the one who asks until the partner accepts.
+export async function askPartner(household, task, partnerId, day, time) {
+  const partner = userPointer(partnerId);
+
+  const request = new Request();
+  request.set("task", Task.createWithoutData(task.id));
+  request.set("askedBy", Parse.User.current());
+  request.set("askedTo", partner);
+  request.set("waitingFor", partner);
+  request.set("day", day);
+  request.set("time", time);
+  request.set("replyBy", addDays(day, -1));
+  request.set("status", "pending");
+  // both partners may read and answer it (the household's ACL)
+  request.setACL(householdAcl(household));
+
+  return toRequest(await request.save());
+}
+
+// FR10: status accepted; the task gets the asked person, day and time.
+// Both rows in one request, so they cannot end up disagreeing.
+export async function acceptRequest(request) {
+  const row = Request.createWithoutData(request.id);
+  row.set("status", "accepted");
+
+  const task = Task.createWithoutData(request.taskId);
+  task.set("assignedTo", userPointer(request.askedTo));
+  task.set("day", request.day);
+  task.set("time", request.time);
+
+  await Parse.Object.saveAll([row, task]);
+}
+
+// FR10: status declined. Our change to FR11: the task does not silently go back
+// to the one who asked (their mental load would return unnoticed); it goes to
+// Up for grabs, so it stays shared work. Its day stays, now as a deadline.
+// The reason chips are left out of our small version.
+export async function declineRequest(request, reason) {
+  const row = Request.createWithoutData(request.id);
+  row.set("status", "declined");
+  if (reason) {
+    row.set("reason", reason);
+  }
+
+  // no assignedTo = up for grabs; both rows in one request
+  const task = Task.createWithoutData(request.taskId);
+  task.unset("assignedTo");
+
+  await Parse.Object.saveAll([row, task]);
+}

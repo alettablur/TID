@@ -1,36 +1,54 @@
-# todo-26
+# Unload
 
-The reference to-do app for **Technical Interaction Design**, ITU, Autumn 2026 — built
-live, in the lectures. Your team forks it in week 3.
+A shared household app for couples with children, built by Group 10 for
+Technical Interaction Design (ITU, Autumn 2026). Each couple shares one to-do
+list and one grocery list.
 
-## Getting the app from a particular lecture
+It is built around three user stories:
 
-Every lecture ends with a tag, so you can check out the app exactly as it stood when you
-walked out of the room:
+- **Keep track:** get what I am keeping track of out of my head, so my partner
+  can see it without me telling them.
+- **Agree on when:** get a task done at a time that suits both of us, so we do
+  not remind each other again and again.
+- **Thank:** show my partner I noticed what they did, so they feel their work
+  is noticed too.
+
+Live version: <https://alettablur.github.io/unload/>
+
+## Stack
+
+Vite, React 19, React Router 7 and the Parse SDK on Back4App, published with
+`gh-pages`. Icons come from `lucide-react`. The project started from the
+course kickstarter [`itu-tid/todo-26`](https://github.com/itu-tid/todo-26).
+
+## Running it
+
+Create a `.env.local` file in the project folder with the Back4App keys (ask
+the group; never commit this file):
 
 ```bash
-git clone https://github.com/itu-tid/todo-26.git
-cd todo-26
-git checkout week-01
-npm install
-npm run dev
+VITE_PARSE_SERVER_URL=...
+VITE_PARSE_APP_ID=...
+VITE_PARSE_JS_KEY=...
 ```
 
-`git checkout main` takes you back to the latest, and `git tag` lists every week that
-exists so far. If you switch between tags, run `npm install` again — the dependencies
-change as the course goes on.
+Then:
 
-### What is in week-01
+```bash
+npm install
+npm run dev        # http://localhost:5173/unload/
+npm run lint
+npm run build      # also copies index.html to 404.html, so routes work on GitHub Pages
+npm run deploy     # build and publish to the gh-pages branch
+```
 
-Components, props, `children`, and rendering a list with keys. **Add** is wired up but only
-logs — making it actually add something needs state, which is lecture 2.
+## Where things are
 
-The commits inside a week are the live coding as it happened, warts and dead ends
-included. The **tag** is applied afterwards, once it has been tidied — so the commits show
-you the process and the tag shows you the version worth reading.
-
-## The notes
-
-Written up at [itu-tid.github.io](https://github.com/itu-tid/itu-tid.github.io#readme),
-with each week also bundled as a PDF at
-[itu-tid.github.io/lecture-notes-pdf](https://itu-tid.github.io/lecture-notes-pdf/).
+```text
+src/
+├── pages/        one file per route: Home, Tasks, Groceries, Us, Auth, Not found
+├── components/   shared/, layout/, tasks/, groceries/, us/
+├── services/     the only code that talks to Back4App
+├── utilities/    dates.js
+└── styles/       tokens.css (colours, fonts, sizes) and base.css
+```

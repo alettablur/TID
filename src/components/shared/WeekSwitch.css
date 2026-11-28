@@ -1,0 +1,31 @@
+.week-switch {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-1);
+  border-radius: var(--radius-control);
+  background: var(--surface-soft);
+}
+
+.week-switch__arrow {
+  width: var(--touch-target);
+  height: var(--touch-target);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 0;
+  border-radius: var(--radius-chip);
+  background: var(--surface-card);
+  color: var(--text-ink);
+  cursor: pointer;
+}
+
+.week-switch__arrow:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.week-switch__arrow:disabled {
+  opacity: 0.4;
+  cursor: default;
+}

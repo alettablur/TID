@@ -1,0 +1,102 @@
+/* Loading…, the load error and the empty list; .layout__main gives the padding */
+.groceries-page__status {
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+.groceries-page__error {
+  margin: 0;
+  color: var(--danger);
+}
+
+/* one card per section, rows split by a thin line */
+.groceries-page__list {
+  list-style: none;
+  margin: 0;
+  margin-top: var(--space-2);
+  padding-left: var(--space-1);
+  padding-right: var(--space-4);
+}
+
+.groceries-page__item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding-block: var(--space-1);
+}
+
+.groceries-page__item + .groceries-page__item {
+  border-top: var(--line-width-thin) solid var(--line-soft);
+}
+
+/* the circle inside is smaller than its touch target */
+.groceries-page__check {
+  flex: none;
+  width: var(--touch-target);
+  height: var(--touch-target);
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+.groceries-page__check:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring);
+  outline-offset: var(--focus-ring-offset);
+}
+
+/* the tick: an empty circle to buy, a filled green square once bought */
+.groceries-page__circle {
+  width: var(--check-size);
+  height: var(--check-size);
+  display: grid;
+  place-items: center;
+  border: var(--line-width-strong) solid var(--text-secondary);
+  border-radius: var(--radius-pill);
+  color: var(--text-on-dark);
+}
+
+.groceries-page__check[aria-pressed="true"] .groceries-page__circle {
+  border-color: var(--status-planned);
+  border-radius: var(--radius-chip);
+  background: var(--status-planned);
+}
+
+/* the rest of the row: a button that opens the grocery sheet */
+.groceries-page__edit {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+  min-height: var(--touch-target);
+  padding-block: var(--space-2);
+  padding-inline: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.groceries-page__text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.groceries-page__name--bought {
+  color: var(--text-secondary);
+  text-decoration: line-through;
+}
+
+/* "×12" */
+.groceries-page__amount {
+  flex: none;
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-pill);
+  background: var(--surface-soft);
+}

@@ -1,0 +1,66 @@
+.task-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.task-form__error {
+  margin: 0;
+  color: var(--danger);
+}
+
+.task-form__label {
+  margin: 0;
+  margin-top: var(--space-2);
+}
+
+/* the status colour of up for grabs, and the words say it too (NFR6) */
+.task-form__notice {
+  margin: 0;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-chip);
+  background: var(--status-open-tint);
+  color: var(--status-open);
+}
+
+.task-form__hint {
+  margin: 0;
+}
+
+.task-form__repeat {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-control);
+  box-shadow: inset 0 0 0 var(--line-width) var(--line-soft);
+  cursor: pointer;
+}
+
+.task-form__repeat-text {
+  display: flex;
+  flex-direction: column;
+}
+
+/* a bigger box than the browser's own, closer to the touch target */
+.task-form__checkbox {
+  flex: none;
+  width: 24px;
+  height: 24px;
+  margin: 0;
+  accent-color: var(--action-primary);
+}
+
+/* "Send request to …": one full-width button, the same space above as the pair */
+.task-form__send {
+  margin-top: var(--space-2);
+}
+
+/* Mark as done | Add task, side by side and equally wide */
+.task-form__actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}

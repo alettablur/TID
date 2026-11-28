@@ -1,0 +1,97 @@
+/* the space between sections comes from .layout__main */
+.tasks-page__section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.tasks-page__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+/* the day strip: seven equal columns, Mon to Sun */
+.tasks-page__week {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: var(--space-1);
+}
+
+/* 44 px wide on a 360 px phone, and taller: a comfortable touch target (NFR6) */
+.tasks-page__week-day {
+  min-height: 64px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-half);
+  border: 0;
+  border-radius: var(--radius-control);
+  background: none;
+  color: var(--text-ink);
+  cursor: pointer;
+}
+
+/* the picked day: the dark pill from Figma */
+.tasks-page__week-day[aria-pressed="true"] {
+  background: var(--action-primary);
+  color: var(--text-on-dark);
+}
+
+.tasks-page__week-day:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring);
+  outline-offset: var(--focus-ring-offset);
+}
+
+/* the dots wrap onto a second row on a very busy day */
+.tasks-page__dots {
+  min-height: 6px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-half);
+  max-width: 32px; /* room for four dots in a row */
+}
+
+.tasks-page__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-pill);
+}
+
+.tasks-page__dot--a {
+  background: var(--person-a);
+}
+
+.tasks-page__dot--b {
+  background: var(--person-b);
+}
+
+/* a row of the picked day: a narrow time column, then the card */
+.tasks-page__slot {
+  display: grid;
+  grid-template-columns: 52px 1fr;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* min-width: 0 lets a long title wrap inside the card instead of pushing it wider */
+.tasks-page__slot > * {
+  min-width: 0;
+}
+
+.tasks-page__slot-time {
+  color: var(--text-secondary);
+}
+
+/* Loading… and the load error; .layout__main already gives the padding */
+.tasks-page__status {
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+.tasks-page__error {
+  margin: 0;
+  color: var(--danger);
+}

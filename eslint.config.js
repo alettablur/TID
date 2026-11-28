@@ -21,4 +21,9 @@ export default defineConfig([
       parserOptions: { ecmaFeatures: { jsx: true } },
     },
   },
+  {
+    // the playground scripts run with node, not in the browser
+    files: ["src/playground/**/*.js"],
+    languageOptions: { globals: globals.node },
+  },
 ]);

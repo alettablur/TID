@@ -1,0 +1,38 @@
+.stats-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  background: var(--person-tint);
+}
+
+/* colour = person: the card takes the colour of whose numbers it shows */
+.stats-card--a {
+  --person-tint: var(--person-a-tint);
+  --person-colour: var(--person-a);
+}
+
+.stats-card--b {
+  --person-tint: var(--person-b-tint);
+  --person-colour: var(--person-b);
+}
+
+.stats-card__header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-1);
+}
+
+.stats-card__title {
+  margin: 0;
+  color: var(--person-colour);
+}
+
+/* label on the left, number on the right */
+.stats-card__stat {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin: 0;
+}

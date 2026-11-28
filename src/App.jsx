@@ -1,97 +1,106 @@
-import "./App.css";
-import Home from "./Home.jsx";
-import ListPage from "./ListPage.jsx";
-import { Link, Route, Routes } from "react-router-dom";
 import { useEffect, useState } from "react";
-
-import AuthPage from "./AuthPage.jsx";
+import { Route, Routes } from "react-router-dom";
+import "./App.css";
+import Layout from "./components/layout/Layout.jsx";
+import AuthPage from "./pages/AuthPage.jsx";
+import GroceriesPage from "./pages/GroceriesPage.jsx";
+import HomePage from "./pages/HomePage.jsx";
+import NotFoundPage from "./pages/NotFoundPage.jsx";
+import TasksPage from "./pages/TasksPage.jsx";
+import UsPage from "./pages/UsPage.jsx";
 import { currentUser, logOut } from "./services/authService.js";
-import {
-  loadMyLists,
-  loadSharedWithMe,
-  addList,
-  shareList,
-  leaveList,
-} from "./services/listService.js";
+import { loadHousehold } from "./services/householdService.js";
 
 function App() {
   const [user, setUser] = useState(currentUser());
-  const [lists, setLists] = useState([]);
-  const [memberships, setMemberships] = useState([]);
+  const [household, setHousehold] = useState(null);
+  const [householdError, setHouseholdError] = useState("");
 
   useEffect(() => {
     // nobody logged in yet: nothing to load
     if (!user) return;
 
-    async function loadLists() {
-      setLists(await loadMyLists());
-      setMemberships(await loadSharedWithMe());
+    async function load() {
+      try {
+        setHousehold(await loadHousehold());
+      } catch (error) {
+        setHouseholdError(error.message);
+      }
     }
 
-    loadLists();
+    load();
   }, [user]); // load again whenever somebody else logs in
-
-  async function handleAddList(name) {
-    try {
-      const savedList = await addList(name);
-      setLists([...lists, savedList]);
-    } catch (error) {
-      alert(error.message);
-    }
-  }
-
-  async function handleShare(list, username) {
-    try {
-      await shareList(list, username);
-      alert(`Shared ${list.get("name")} with ${username}`);
-    } catch (error) {
-      alert(error.message);
-    }
-  }
-
-  async function handleLeave(membership) {
-    try {
-      await leaveList(membership);
-      setMemberships(memberships.filter((each) => each.id !== membership.id));
-    } catch (error) {
-      alert(error.message);
-    }
-  }
 
   async function handleLogout() {
     try {
       await logOut();
-      setUser(null);
-    } catch (error) {
-      alert(error);
+    } catch {
+      // Parse forgets the session on this device before it tells the server,
+      // so even if the server cannot be reached, we are logged out here
     }
+    setUser(null);
+    setHousehold(null);
+    setHouseholdError("");
   }
 
   function handleAuthenticated(loggedInUser) {
     setUser(loggedInUser);
   }
 
+  // logged out: the login page, whatever the address
   if (!user) {
-    return <AuthPage onAuthenticated={handleAuthenticated} />;
+    return (
+      <Routes>
+        <Route
+          path="*"
+          element={<AuthPage onAuthenticated={handleAuthenticated} />}
+        />
+      </Routes>
+    );
   }
 
+  // every page needs the household, so nothing renders before it is here
+  if (householdError) {
+    return (
+      <p className="app__status">
+        Could not load your household: {householdError}
+      </p>
+    );
+  }
+  if (!household) {
+    return <p className="app__status">Loading…</p>;
+  }
+
+  // logged in: every page inside the Layout, which draws the tab bar
   return (
     <Routes>
-      <Route
-        path="/"
-        element={
-          <Home
-            lists={lists}
-            memberships={memberships}
-            onAddList={handleAddList}
-            onShare={handleShare}
-            onLeave={handleLeave}
-            onLogout={handleLogout}
-          />
-        }
-      />
-      <Route path="/lists/:listId" element={<ListPage />} />
-      <Route path="*" element={<Link to="/">No such page</Link>} />
+      <Route element={<Layout household={household} userId={user.id} />}>
+        <Route index element={<HomePage />} />
+        <Route
+          path="tasks"
+          element={<TasksPage household={household} userId={user.id} />}
+        />
+        <Route
+          path="tasks/:taskId"
+          element={<TasksPage household={household} userId={user.id} />}
+        />
+        <Route
+          path="groceries"
+          element={<GroceriesPage household={household} userId={user.id} />}
+        />
+        <Route
+          path="us"
+          element={
+            <UsPage
+              household={household}
+              userId={user.id}
+              onLogout={handleLogout}
+              onHouseholdChange={setHousehold}
+            />
+          }
+        />
+        <Route path="*" element={<NotFoundPage />} />
+      </Route>
     </Routes>
   );
 }
